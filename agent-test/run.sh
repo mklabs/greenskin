@@ -34,6 +34,6 @@ for url in $PERF_URLS; do
   $DIR/harstatsgraphite.py -l $domain -p har.prod.homepage /tmp/har.json > /tmp/harstats.txt
 
   # And send to graphite
-  cat /tmp/harstats.txt | nc $(GRAPHITE_SERVER) $(GRAPHITE_PORT)
+  cat /tmp/harstats.txt | nc $GRAPHITE_SERVER $GRAPHITE_PORT
 
 done
