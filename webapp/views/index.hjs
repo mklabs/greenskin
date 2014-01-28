@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ title }}</title>
+    <link rel='stylesheet' href='/css/style.css' />
+
+    <!-- TODO: optimize -->
+    <link href="/css/bs2.css" rel="stylesheet">
+    <link href="/css/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="/css/cfont.css" rel="stylesheet">
+    <link href="/css/sh.css" rel="stylesheet">
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    <p>Welcome to {{ title }}</p>
+
+    <hr />
+
+    <div class="db-header container mininav">
+      <a class="brand" href="/home">
+          <img src="http://www.kk-data.com/s/images/logo/kelkoo-shopping.png" height="24" width="71">
+      </a>
+
+      <div class="btn-group">
+        <a href="/home" class="btn"><i rel="tooltip" data-placement="bottom" class="icon-home" data-original-title="Home"></i></a>
+        <a href="/stats" class="btn"><i rel="tooltip" data-placement="bottom" class="icon-signal" data-original-title="Stats"></i></a>
+        <a href="#" class="btn" rel="tooltip" data-placement="bottom" id="button-console" data-original-title="Stat Jump"><i class="icon-bolt"></i></a>
+        <a href="/alerts" class="btn"><i class="icon-warning-sign" rel="tooltip" data-placement="bottom" data-original-title="Alerts"></i></a>
+        <a href="/reports" class="btn"><i class="icon-envelope" rel="tooltip" data-placement="bottom" data-original-title="Reports"></i></a>
+        <a href="/cards" class="btn"><i class="icon-th-large" rel="tooltip" data-placement="bottom" data-original-title="Cards and Decks"></i></a>
+        <a href="/settings" class="btn"><i class="icon-cog" rel="tooltip" data-placement="bottom" data-original-title="Settings"></i></a>
+        <a href="/help" class="btn"><i class="icon-question-sign" rel="tooltip" data-placement="bottom" data-original-title="Help"></i></a>
+        <a href="/account/sign_out" class="btn"><i class="icon-signout" rel="tooltip" data-placement="bottom" data-original-title="Sign out"></i></a>
+      </div>
+
+    </div>
+
+    <div id="main" class="container">
+
+      <div class="row">
+        <div class="span-12">
+          <div class="page-header clearfix">
+            <h2 class="pull-left">
+              {{ metric.title }}
+            </h2>
+          </div>
+
+          <div class="pill-content">
+            <div id="analyze-main-stat" class="pill-pane active" style="text-align: center;">
+              <img src="/graphs/c7/91/3bcd6880cfdb2f9dd57c05795f16.png?1390558860" onmouseover="this.src='\/graphs\/c7\/91\/3bcd6880cfdb2f9dd57c05795f16_overlay.png?1390558860';" onmouseout="this.src='\/graphs\/c7\/91\/3bcd6880cfdb2f9dd57c05795f16.png?1390558860';" width="880" height="235" id="chart-primary">
+              <img src="/graphs/c7/91/3bcd6880cfdb2f9dd57c05795f16_overlay.png?1390558860" style="display:none;" width="880" height="235" id="chart-overlay">
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </body>
+</html>
