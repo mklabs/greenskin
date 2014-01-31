@@ -1,0 +1,20 @@
+http://shopping-fr.kelkoo.be/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.de/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.dk/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.es/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.fr/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.it/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping-nl.kelkoo.be/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.nl/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.no/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.se/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://shopping.kelkoo.co.uk/ctl/do/search?siteSearchQuery=sony+vaio&fromform=true
+http://travel.kelkoo.co.uk
+http://voyages.kelkoo.fr
+http://www.monsieurprix.com
+http://www.shopgenie.co.uk/UK_listing/gen/J000170880.html
+http://uk-hp.kelkoo.com/uk/HPEzBuy/HPEzBuyLite?productNumber=J3263A&m_s=smb
+http://fr-hp.kelkoo.com/fr/HPEzBuy/HPEzBuyLite?productNumber=Q3948A;284688-B21;248929-B21;C4912A;DL61 5A;DE961A;PC928A;U4435A;Q2507A;301902-B21
+http://de-hp.kelkoo.com/de/HPEzBuy/HPEzBuyLite?productNumber=TESTHPDE&m_s=hho
+http://fr.shoppingapis.kelkoo.com/keynote.php
+http://fr.shoppingapis.kelkoo.com/keynote.php
