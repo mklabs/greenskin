@@ -3,6 +3,3 @@ rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
 yum install java-1.6.0-openjdk jenkins -y
 service jenkins start
 chkconfig jenkins on
-
-# For sitespeed.id: phantomjs glibc GConf2 chromedriver chrome firefox (ie &
-# iedriver if windows)
