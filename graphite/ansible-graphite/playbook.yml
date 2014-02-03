@@ -1,0 +1,11 @@
+---
+
+- name: graphite
+  hosts: localhost
+  user: root
+
+  roles:
+    - roles/centos
+    - roles/httpd
+    - roles/graphite
+    - roles/statsd
