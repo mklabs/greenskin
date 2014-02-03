@@ -9,17 +9,17 @@
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_SERVER</name>
           <description>Remote graphite server to send data to</description>
-          <defaultValue>192.168.33.33</defaultValue>
+          <defaultValue>$GRAPHITE_SERVER</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_PORT</name>
           <description></description>
-          <defaultValue>2003</defaultValue>
+          <defaultValue>$GRAPHITE_PORT</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_PREFIX</name>
           <description>The metric prefix to use.</description>
-          <defaultValue>$name</defaultValue>
+          <defaultValue>$GRAPHITE_PREFIX</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -28,7 +28,7 @@
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url></url>
+        <url>$GIT_REPOSITORY</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>

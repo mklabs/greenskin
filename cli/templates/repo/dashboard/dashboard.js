@@ -4,7 +4,8 @@ $(function() {
 
 	var datasource;
 
-	var graphiteUrl = "http://192.168.33.33";
+  // TODO: Escape with "new" command
+	var graphiteUrl = "http://dc1-se-prod-admin-02.prod.dc1.kelkoo.net";
 	var graphiteAuth = "";
 
 	var graphiteOptions = {}
@@ -47,7 +48,7 @@ $(function() {
 		    return {
 		      target: key,
 		      alias: key.replace('r8-monitoring.har.', '')
-		    };   
+		    };
 		  });
 
 

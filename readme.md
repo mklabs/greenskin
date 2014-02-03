@@ -7,6 +7,18 @@ de perfs coté clients.
 - Exploitation, affichage et gestion des métriques au niveau d'une
   application web ou dashboard.
 
+## TODO
+
+Misc stuff to do. Bug or stuff to workaround.
+
+- Only using PhantomJS. Investigate & see how to run browsertime with
+  Chrome / FF on slaves (and IE/Ie driver on a win box)
+
+- Global default configuration (Jenkins URL, Graphite server / port,
+  etc.)
+
+- ...
+
 ## Components
 
 The solution relies on the following projects:
@@ -78,11 +90,11 @@ You can control:
 
 Open config.xml file and look for the following section:
 
-  <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec>H/15 * * * *</spec>
-    </hudson.triggers.TimerTrigger>
-  </triggers>
+    <triggers>
+      <hudson.triggers.TimerTrigger>
+        <spec>H/15 * * * *</spec>
+      </hudson.triggers.TimerTrigger>
+    </triggers>
 
 Edit the `<spec>...</spec>` part and run `perfite ci` to update the remote job.
 
@@ -90,22 +102,22 @@ Edit the `<spec>...</spec>` part and run `perfite ci` to update the remote job.
 
 Open config.xml file and look for the properties section:
 
-  <properties>
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <hudson.model.StringParameterDefinition>
-          <name>GRAPHITE_SERVER</name>
-          <description>Remote graphite server to send data to</description>
-          <defaultValue>192.168.33.10</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>GRAPHITE_PORT</name>
-          <description></description>
-          <defaultValue>2003</defaultValue>
-        </hudson.model.StringParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
-  </properties>
+    <properties>
+      <hudson.model.ParametersDefinitionProperty>
+        <parameterDefinitions>
+          <hudson.model.StringParameterDefinition>
+            <name>GRAPHITE_SERVER</name>
+            <description>Remote graphite server to send data to</description>
+            <defaultValue>192.168.33.10</defaultValue>
+          </hudson.model.StringParameterDefinition>
+          <hudson.model.StringParameterDefinition>
+            <name>GRAPHITE_PORT</name>
+            <description></description>
+            <defaultValue>2003</defaultValue>
+          </hudson.model.StringParameterDefinition>
+        </parameterDefinitions>
+      </hudson.model.ParametersDefinitionProperty>
+    </properties>
 
 You can add new parameter definitions or change the name / default values etc.
 here. Save the file and persist the changes with `perfite ci`.
@@ -141,7 +153,7 @@ rework them into a mutli VM Vagrantfile.
   # Check Jenkins: http://localhost:8082 or http://192.168.33.11:8082
 
 #### Jenkins Slave
-  
+
   cd jenkins-slave
   vagrant up
 

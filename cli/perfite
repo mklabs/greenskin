@@ -24,7 +24,7 @@ TEMPLATE_HOME=$PERFITE_HOME/cli/templates
 ## finished getting home
 
 # ENV Options #
-PERFITE_JENKINS_URL=${PERFITE_JENKINS_URL:-'http://localhost:8082'}
+source $PERFITE_HOME/cli/functions/variables.sh
 
 function new() {
   local name=$2
@@ -33,29 +33,50 @@ function new() {
     exit 1
   fi
 
+  local jobname=$(echo "$PERFITE_JENKINS_JOB_PATTERN" | sed "s/\$name/$name/g")
+  local graphitePrefix=$(echo "$GRAPHITE_PREFIX" | sed "s/\$name/$name/g")
+  local gitRepo=$(echo "$GIT_REPOSITORY_PATTERN" | sed "s/\$name/$name/g")
+
   echo "... Generating $name repository ..."
   cp -r $TEMPLATE_HOME/repo $name
-  cat $TEMPLATE_HOME/config.xml | sed "s/\$name/$name/g" > $name/config.xml
+  cat $TEMPLATE_HOME/config.xml \
+    | sed "s/\$name/$name/g" \
+    | sed "s/\$GRAPHITE_PREFIX/$graphitePrefix/g" \
+    | sed "s/\$GRAPHITE_SERVER/$GRAPHITE_SERVER/g" \
+    | sed "s/\$GRAPHITE_PORT/$GRAPHITE_PORT/g" \
+    | sed "s/\$GIT_REPOSITORY/$gitRepo/g" \
+    > $name/config.xml
+
   cat $TEMPLATE_HOME/repo/dashboard/dashboard.js | sed "s/\$name/$name/g" > $name/dashboard/dashboard.js
   echo "... Repo created at ./$name .."
 
+  cd ./$name
+  git init
+  git remote add origin $(echo $gitRepo | tr -d '\\')
+
   echo """
+
+Repository ready, you should push the repository to the remote git repo with:
+
+    $ ./cd ./$name
+    $ git add .
+    $ git commit -m 'First commit for $name'
+    $ git push -u origin master
 
 You can setup the default CI configuration with:
 
-  $ cd ./$name
-  $ git init
-  $ git remote add origin <git remote url>
-  $ perfite ci
+    $ cd ./$name
+    $ perfite ci
 """
 }
 
 function ci() {
   local name=$2
- 
   if [[ $name == '' ]]; then
     name=`basename $(pwd)`
   fi
+
+  local jobname=$(echo "$PERFITE_JENKINS_JOB_PATTERN" | sed "s/\$name/$name/g")
 
   if [[ ! -e config.xml ]]; then
     echo "Missing config.xml. Please cd into the monitoring repository before running the command."
@@ -65,9 +86,10 @@ function ci() {
   if [[ ! -e urls.txt ]]; then
     echo "Missing urls.txt. Please cd into the monitoring repository before running the command."
     exit 1
-  fi  
+  fi
 
-  local status=$(curl -s $PERFITE_JENKINS_URL/job/$name/config.xml -I | head -n 1 |cut -d$' ' -f2)
+  echo "... Creating / Updating $jobname job on $PERFITE_JENKINS_URL ..."
+  local status=$(curl -s $PERFITE_JENKINS_URL/job/$jobname/config.xml -I | head -n 1 |cut -d$' ' -f2)
 
   local toCreate=false
   if [[ $status == '404' ]]; then
@@ -75,12 +97,12 @@ function ci() {
   fi
 
   if [[ $toCreate == 'true' ]]; then
-    curl -H "Content-Type: text/xml" -s --data "@config.xml" "$PERFITE_JENKINS_URL/createItem?name=$name"
-    echo "Job created: $PERFITE_JENKINS_URL/job/$name/"
+    curl $JENKINS_CURL_OPTIONS -H "Content-Type: text/xml" -s --data "@config.xml" "$PERFITE_JENKINS_URL/createItem?name=$jobname"
+    echo "Job created: $PERFITE_JENKINS_URL/job/$jobname/"
   else
-    echo "Job exists: $PERFITE_JENKINS_URL/job/$name/. Updating $PERFITE_JENKINS_URL/job/$name/config.xml"
-    curl -H "Content-Type: text/xml" -s --data "@config.xml" "$PERFITE_JENKINS_URL/job/$name/config.xml"
-    echo "Config updated: $PERFITE_JENKINS_URL/job/$name/config.xml"
+    echo "Job exists: $PERFITE_JENKINS_URL/job/$jobname/. Updating $PERFITE_JENKINS_URL/job/$jobname/config.xml"
+    curl $JENKINS_CURL_OPTIONS -H "Content-Type: text/xml" -s --data "@config.xml" "$PERFITE_JENKINS_URL/job/$jobname/config.xml"
+    echo "Config updated: $PERFITE_JENKINS_URL/job/$jobname/config.xml"
   fi
 }
 
@@ -95,7 +117,7 @@ usage: $0 options
 Blah blah blah
 
 COMMANDS:
-   new - Scaffold out a new monitoring repo from a predefined template   
+   new - Scaffold out a new monitoring repo from a predefined template
    ci  - Setup jenkins job for the current repo
 
 EOF
@@ -114,5 +136,5 @@ if [ "$1" != "" ]; then
     done
 fi
 
-help 
+help
 exit 0
