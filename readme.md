@@ -1,114 +1,159 @@
 # Perfite
 
 Problématique: Conception / Développement d'une solution de monitoring
-de perfs coté clients, comme http://speedcurve.com (pour moi la
-meilleure solution commerciale du moment, se basant sur webpagetest).
+de perfs coté clients.
 
 - Récupération des métriques
 - Exploitation, affichage et gestion des métriques au niveau d'une
   application web ou dashboard.
 
-# Tasks
+## Components
 
-- Setup Graphite server
-- Setup AT component (PhantomJS package, gather metrics, send remotely
-  to graphite)
-- Setup webserver component (webapp)
+The solution relies on the following projects:
 
-### Webapp
+- sitespeed.io
+- jenkins
+- graphite
+- dashing
 
-1. Manage test scenario
-2. First page is the list of scenarios
-3. A scenario is a testing feature to be pushed to AT, and run on a
-   specific frequency
-4. AT push results back to the server
-5. Webapp shows result
+## Description
 
-# Meeting notes
+The goal is to setup comprehensive frontend monitoring to gather metrics at the cliend-side level of web applications.
 
-## Architecture
+Monitoring can consist of simple metrics measurement, or more complex functional scenario. It usually consists in a list of URLs, analyzed at a fixed interval, where metrics are send and aggregated by Graphite.
 
-Très rapide et haut niveau.
+The result is then displayed in a custom frontend dashboard on top of Graphite & Jenkins, to display and manage graphs and alerting based on those metrics.
 
-1. Graphite pour collection / stockage des métriques (rétention données
-   ?), Autre chose pour stockage HAR (rétention données ?)
-2. Récup métriques: Utilisation de soit PhantomJS (plus simple, moins
-   d'infra, on a l'xp), soit webpagetest (idéalement et à terme, c'est
-   ce qu'on doit viser)
-3. Webapp permettant de gérer les métriques et de les exploiter
-   (probablement du play2 ou nodejs)
-4. Graphite + Plugin et définition de certains seuils pour alerting /
-   monitoring
+## Workflow
 
-Nous aurons besoin à terme d'une machine permettant de host la partie
-"server / webapp", et 1-n agents de tests disséminés de part le monde
-(idéalement 2-3).
+The basic workflow would consist of:
 
-Les agents de tests peuvent dans un premier temps se contenter de
-PhantomJS, lancer l'analyse de perf et envoie des métriques à Graphite.
-Dans un second temps, si l'on y arrive, on remplace la partie PhantomJS
-par Webpagetest pour récupérer toutes les métriques possibles et
-imaginables (plus support Chrome / Firefox / IE9-10-11)
+1. Creating a new logical group: A git repository with a `urls.txt` file, a job `config.xml` file and other metedata informations for the webapp.
 
-diagram witbo
+2. Creating a new Jenkins job from template: By setting up the SCM configuration to the above git repository, with a specific cron interval (default: 15min)
+
+3. Done ?
+
+## CLI Tool
+
+A CLI tool has to be developped to ease the process of setting up a new Git repo in the proper directory structure, and the creation of the corresponding Jenkins job.
+
+Something like:
+
+**Repo creation**
+
+    # Create a new git repo
+    $ perfite new r8-monitoring
+       creates urls.txt
+       creates job.xml
+       creates index.html
+       create package.json
+
+    $ cd r8-monitoring
+
+    # or git push origin master
+    $ perfite save
+
+**CI Setup**
+
+    $ cd r8-monitoring
+
+    # Creates a new job on Jenkins for this repo
+    $ perfite ci
+
+    # Takes an optional name argument (default to dirname)
+    $ perfite ci r8-monitoring
+
+Once created, the config.xml file is posted to `/job/$name/config.xml`. So you can edit the config.xml file locally, and run `perfite ci` to persist the change on Jenkins.
+
+**Note**: Doing so, any changes made through the Jenkins web UI would be overwritten by your changes.
+
+You can control:
+
+- the URLs are monitored with `urls.txt` file (one URL per line)
+- The cron configuration with `config.xml` build triggers section (see below)
+- The Graphite server / port and prefix values for the metrics with `config.xml` parameters section (see below)
+
+*How to change the cron configuration ?*
+
+Open config.xml file and look for the following section:
+
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>H/15 * * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+
+Edit the `<spec>...</spec>` part and run `perfite ci` to update the remote job.
+
+*How to change the default job parameters ?*
+
+Open config.xml file and look for the properties section:
+
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GRAPHITE_SERVER</name>
+          <description>Remote graphite server to send data to</description>
+          <defaultValue>192.168.33.10</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GRAPHITE_PORT</name>
+          <description></description>
+          <defaultValue>2003</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+
+You can add new parameter definitions or change the name / default values etc.
+here. Save the file and persist the changes with `perfite ci`.
+
+### Local Dev
+
+We use Vagrant locally to setup the various part of the system. For now,
+you'll need to cd into each repository and `vagrant up` to get started, we'll
+rework them into a mutli VM Vagrantfile.
+
+#### Graphite
+
+    # Setup the Graphite server
+    cd graphite
+    vagrant up
+
+    # Check dashboard: http://192.168.33.33
+    # Check metrics: http://192.168.33.33/metrics/index.json
+
+    # Check carbon is started:
+    vagrant ssh
+    sudo service carbon-cache status
+
+    # Test carbon
+    sudo yum install nc -y
+    echo "local.random.diceroll 4 `date +%s`" | nc localhost 2003
+
+#### Jenkins
+
+  cd jenkins
+  vagrant up
+
+  # Check Jenkins: http://localhost:8082 or http://192.168.33.11:8082
+
+#### Jenkins Slave
+  
+  cd jenkins-slave
+  vagrant up
+
+Then create and connect the node to Jenkins master: http://localhost:8082/computer/new
+
+1. Choose a name for the node
+2. Choose "Dumb slave"
+3. Click next
+4. In "Remote working directory" put: /home/vagrant
+5. In "Launch method", choose "Launch slave agents on Unix machines via SSH"
+6. Host: 192.168.33.30
+7. Credentials: vagrant/vagrant
+8. Click save
 
 
-## Métriques
-
-- Full HAR par URL
-- Liste des métriques (nb requêtes, taille moyenne JS / CSS, time to
-  first byte etc. - voir https://github.com/macbre/phantomas#metrics
-  pour une liste des métriques possibles)
-- Solution "simple": PhantomJS, phantomas & har-graphite
-
-## Kelkoo & Third parties
-
-Une contrainte forte: possibilité de monitorer Kelkoo vs reste du monde.
-
-Beacons, pub & ads, waiting page etc. Nous voulons être en mesure de
-grapher les performances des pages globales, et par beacons / domaine
-différents de kelkoo. Nous voulons pouvoir établir une corrélation entre
-drop de perf sur la page, avec certains beacons ou ads. (cf.
-http://blog.catchpoint.com/2010/07/20/3rd-party-performance-monitoring/
-pour plus d'info sur le concept)
-
-## Perf & non regression
-
-Nous devrons être vigilent sur la partie réseau et accès a nos
-plateformes de dev / QA, pour pouvoir lancer les tests de perfs sur des
-env internes.
-
-L'avantage du développement de la solution kelkoo nous permet ça. Le
-partenariat ac un organisme commercial comme witbe ou speedcurve nous
-permet de monitorer "que la prod" (ce qui est déja bien).
-
-L'idée est d'avoir le tooling et l'infrastructure pour pouvoir mettre
-facilement une politique de non régression de perf.
-
-
-## Divers
-
-Possibilité de définir des "scénarios". Probablement format Gherkin
-(Given / When / Then)
-
-Witbe offre le même type de service (navig telle URL, click sur un lien,
-attends event, lance analyse). L'application web devrait pouvoir fournir
-une IHM pour pouvoir gérer les scénarios, voire même les éditer depuis
-l'interface (ou plus simple, un simple repo SVN / Git quelque part)
-
-
-Note / Interrogation: J'ai une idée claire de comment pouvoir le mettre
-en place avec PhantomJS, beaucoup moins avec webpagetest.
-
-## Dashboard
-
-Prévoir un focus sur features à implémenter, concernant gestions des
-scénarios de test (page à prévoir, feature, etc.)
-
-1. Graphs / métriques
-2. IHM pour gestion tests
-  - URLs
-  - Fréquence
-  - Type de métriques monitorés
-  - Seuils métriques
-  - Alarming

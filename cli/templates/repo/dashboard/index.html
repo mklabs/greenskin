@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tasseo</title>
+  <link rel="stylesheet" href="c/style.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="http://underscorejs.org/underscore-min.js"></script>
+  <script src="j/d3.v2.min.js"></script>
+  <script src="j/rickshaw.min.js"></script>
+  <script src="j/crypto-min.js"></script>
+  <script src="j/tasseo.js"></script>
+  <script src="j/gridster.js"></script>
+</head>
+<body>
+  <div class="title cf">
+    <div class="toolbar">
+      <ul class="timepanel">
+        <li class="timepanel live selected">
+          <a href="#" class="play">live</a>
+        </li>
+        <li class="timepanel">
+          <a href="#" class="range" title="60"> 1h</a>
+        </li>
+        <li class="timepanel">
+          <a href="#" class="range" title="180"> 3h</a>
+        </li>
+        <li class="timepanel">
+          <a href="#" class="range" title="1440"> 1d</a>
+        </li>
+        <li class="timepanel">
+          <a href="#" class="range" title="10080"> 1w</a>
+        </li>
+      </ul>
+      <ul class="toggle">
+        <li class="toggle-nonum">
+          <a href="#">
+            <img src="i/toggle-number.png" />
+          </a>
+        </li>
+        <li class="toggle-night">
+          <a href="#">
+            <img src="i/toggle-night.png" />
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="main cf"></div>
+
+  <script type="text/javascript" src="dashboard.js"></script>
+
+
+
+</body>
+</html>

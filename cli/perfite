@@ -1,0 +1,118 @@
+#! /bin/bash
+#
+
+## Get the right home dir for sitespeed.io
+PRG="$0"
+progname=`basename "$0"`
+
+# need this for relative symlinks
+while [ -h "$PRG" ] ; do
+ls=`ls -ld "$PRG"`
+link=`expr "$ls" : '.*-> \(.*\)$'`
+if expr "$link" : '/.*' > /dev/null; then
+PRG="$link"
+else
+PRG=`dirname "$PRG"`"/$link"
+fi
+done
+
+home=`dirname "$PRG"`/..
+
+## This is the home of perfite
+PERFITE_HOME=$(cd "$home" > /dev/null && pwd)
+TEMPLATE_HOME=$PERFITE_HOME/cli/templates
+## finished getting home
+
+# ENV Options #
+PERFITE_JENKINS_URL=${PERFITE_JENKINS_URL:-'http://localhost:8082'}
+
+function new() {
+  local name=$2
+  if [[ $name == '' ]]; then
+    echo "Missing name argument: $0 new [name]"
+    exit 1
+  fi
+
+  echo "... Generating $name repository ..."
+  cp -r $TEMPLATE_HOME/repo $name
+  cat $TEMPLATE_HOME/config.xml | sed "s/\$name/$name/g" > $name/config.xml
+  cat $TEMPLATE_HOME/repo/dashboard/dashboard.js | sed "s/\$name/$name/g" > $name/dashboard/dashboard.js
+  echo "... Repo created at ./$name .."
+
+  echo """
+
+You can setup the default CI configuration with:
+
+  $ cd ./$name
+  $ git init
+  $ git remote add origin <git remote url>
+  $ perfite ci
+"""
+}
+
+function ci() {
+  local name=$2
+ 
+  if [[ $name == '' ]]; then
+    name=`basename $(pwd)`
+  fi
+
+  if [[ ! -e config.xml ]]; then
+    echo "Missing config.xml. Please cd into the monitoring repository before running the command."
+    exit 1
+  fi
+
+  if [[ ! -e urls.txt ]]; then
+    echo "Missing urls.txt. Please cd into the monitoring repository before running the command."
+    exit 1
+  fi  
+
+  local status=$(curl -s $PERFITE_JENKINS_URL/job/$name/config.xml -I | head -n 1 |cut -d$' ' -f2)
+
+  local toCreate=false
+  if [[ $status == '404' ]]; then
+    toCreate='true'
+  fi
+
+  if [[ $toCreate == 'true' ]]; then
+    curl -H "Content-Type: text/xml" -s --data "@config.xml" "$PERFITE_JENKINS_URL/createItem?name=$name"
+    echo "Job created: $PERFITE_JENKINS_URL/job/$name/"
+  else
+    echo "Job exists: $PERFITE_JENKINS_URL/job/$name/. Updating $PERFITE_JENKINS_URL/job/$name/config.xml"
+    curl -H "Content-Type: text/xml" -s --data "@config.xml" "$PERFITE_JENKINS_URL/job/$name/config.xml"
+    echo "Config updated: $PERFITE_JENKINS_URL/job/$name/config.xml"
+  fi
+}
+
+#*******************************************************
+# Help function, call it to print all different usages.
+#
+#*******************************************************
+function help() {
+cat << EOF
+usage: $0 options
+
+Blah blah blah
+
+COMMANDS:
+   new - Scaffold out a new monitoring repo from a predefined template   
+   ci  - Setup jenkins job for the current repo
+
+EOF
+}
+
+# test for a valid arg and execute it if so; otherwise show the help
+if [ "$1" != "" ]; then
+    wl=(new ci help)
+    for i in "${wl[@]}"
+    do
+        if [ "$i" == "$1" ]
+        then
+            $1 $@
+            exit 0
+        fi
+    done
+fi
+
+help 
+exit 0
