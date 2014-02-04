@@ -1,10 +1,16 @@
 var fs = require('fs');
 var Url = require('url');
+var exists = fs.existsSync || path.existsSync;
 var xml2json = require('xml2json');
-
 
 var file = process.argv.slice(2)[0];
 var prefix = process.argv.slice(2)[1];
+
+if (!exists(file)) {
+  console.error('Unable to read file:', file);
+  process.exit(1);
+  return;
+}
 
 var json = xml2json.toJson(fs.readFileSync(file));
 var data = JSON.parse(json).document;
@@ -67,6 +73,9 @@ function getTimingMetrics(metrics) {
 
 function getScoreMetrics(results) {
   var data = [];
+
+  // If only one page analyzed, results is an Object instead of array
+  results = Array.isArray(results) ? results : [results];
 
   results.forEach(function(result) {
     var filename = result.filename;

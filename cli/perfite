@@ -58,7 +58,7 @@ function new() {
 
 Repository ready, you should push the repository to the remote git repo with:
 
-    $ ./cd ./$name
+    $ cd ./$name
     $ git add .
     $ git commit -m 'First commit for $name'
     $ git push -u origin master
