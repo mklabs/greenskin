@@ -1,6 +1,6 @@
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "centos63.minimal"
+  config.vm.box = "centos63.minmal"
   config.vm.hostname = "graphite.dev"
 
   config.vm.synced_folder "ansible-graphite/", "/ansible"

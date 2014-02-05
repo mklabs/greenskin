@@ -47,7 +47,7 @@ function new() {
     | sed "s/\$GIT_REPOSITORY/$gitRepo/g" \
     > $name/config.xml
 
-  cat $TEMPLATE_HOME/repo/dashboard/dashboard.js | sed "s/\$name/$name/g" > $name/dashboard/dashboard.js
+  cat $TEMPLATE_HOME/repo/grafana/app/dashboards/default.json | sed "s/\$name/$name/g" > $name/grafana/app/dashboards/default.json
   echo "... Repo created at ./$name .."
 
   cd ./$name
