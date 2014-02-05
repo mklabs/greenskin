@@ -22,7 +22,7 @@ HAR_DIR=sitespeed-result/urls.txt/$LAST/data/har
 RESULT_FILE=sitespeed-result/urls.txt/$LAST/data/result.xml
 
 # Generate metrics
-#npm install
+npm install
 node $DIR/sitespeed-result-graphite.js $RESULT_FILE $GRAPHITE_PREFIX $GRAPHITE_SERVER > /tmp/metrics.txt
 
 # Split every 10 lines, to send smaller packets

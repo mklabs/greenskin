@@ -1,9 +1,8 @@
-PERFITE_JENKINS_URL=${PERFITE_JENKINS_URL:-'http://jenkins.corp.kelkoo.net:8080'}
+PERFITE_JENKINS_URL=${PERFITE_JENKINS_URL:-'http://192.168.33.11:8080'}
 PERFITE_JENKINS_JOB_PATTERN=${PERFITE_JENKINS_JOB_PATTERN:-'poc_perf_$name'}
 
-# GRAPHITE_SERVER=${GRAPHITE_SERVER:-'192.168.33.33'}
-GRAPHITE_SERVER=${GRAPHITE_SERVER:-'dc1-se-prod-admin-02.prod.dc1.kelkoo.net'}
-GRAPHITE_PORT=${GRAPHITE_PORT:-'2003'}
+GRAPHITE_SERVER=${GRAPHITE_SERVER:-'192.168.33.33'}
+GRAPHITE_PORT=${GRAPHITE_PORT:-'8125'}
 GRAPHITE_PREFIX=${GRAPHITE_PREFIX:-'$name'}
 
 # Curl options with Jenkins REST calls.
@@ -15,6 +14,5 @@ JENKINS_CURL_OPTIONS=${JENKINS_CURL_OPTIONS:-''}
 
 # Git
 #
-# TODO: Agree on top level Gitlab group. Create and use (instead of
-# mine)
-GIT_REPOSITORY_PATTERN=${GIT_REPOSITORY_PATTERN:-'git@dc1-r8-corp-gitlab-01.corp.dc1.kelkoo.net:mickael.daniel\/$name.git'}
+# TODO: Agree on top level Gitlab group. Create and use (instead of a bare repo created on jenkins master)
+GIT_REPOSITORY_PATTERN=${GIT_REPOSITORY_PATTERN:-'vagrant@192.168.33.30:repo.git'}
