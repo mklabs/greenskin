@@ -1,0 +1,64 @@
+<script type='text/javascript'>
+$(function() {
+  // These settings override the defaults set in application.coffee. You can do this on a per dashboard basis.
+  Dashing.gridsterLayout('[{"col":2,"row":1},{"col":1,"row":1},{"col":3,"row":1},{"col":2,"row":2},{"col":3,"row":2},{"col":1,"row":2},{"col":5,"row":1},{"col":4,"row":2},{"col":2,"row":3}]')
+  Dashing.widget_base_dimensions = [370, 340]
+  Dashing.numColumns = 5
+});
+</script>
+
+
+<% content_for :title do %>1080p dashboard<% end %>
+
+<div class="gridster">
+  <ul>
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+      <div data-view="Clock"></div>
+      <i class="icon-time icon-background"></i>
+    </li>
+
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
+      <div data-view="Image" data-image="/logo.png"></div>
+    </li>
+
+    <li data-row="1" data-col="3" data-sizex="1" data-sizey="1">
+      <div
+        data-id="test-graphite"
+        data-view="Rickshawgraph"
+        data-title="logo.png"
+        data-renderer="line"
+        data-stroke="true"
+        data-legend="true"
+        data-unstack="true"
+        data-stroke="true"
+        data-default-alpha="0.5"
+        data-color-scheme="near-rainbow"
+        data-summary-method="last"
+      ></div>
+
+
+        <!--
+    data-title: Title to display.
+data-displayed-value: If provided, then the value to display overtop of the graph. If not provided, then the most recent value will be used if there is only one series.
+data-renderer: Any valid Rickshaw renderer, including 'area', 'line', 'bar', 'scatterplot'.
+data-stroke: If "true", then area graphs will be drawn with a stroke.
+data-unstack: If "true", then area and bar graphs will be "unstacked".
+data-colors: A ":" separated list of colors to use for each plot. If there are fewer colors provided than there are series to graph, then pleasing colors will be automatically chosen. (e.g.: data-colors="#ccc:#ddd:#eee")
+data-stroke-colors: A ":" separated list of colors to use for strokes.
+data-color-scheme: One of "rainbow", "near-rainbow", "compliment", "default". Controls how default colors are assigned.
+data-default-alpha: Alpha for default colors.
+data-legend: If "true", then a legend will be added to your graph.
+data-min and data-max: Set the highest and lowest values of the y-axis.
+data-summary-method determines how the value shown in the graph is computed. If data-displayed-value is set, this is ignored. Otherwise this should be one of:
+"last" - Default - If there is only one series, show the most recent value from that series.
+"sum" - Sum of all values across all series.
+"sumLast" - Sum of last values across all series.
+"highest" - For stacked graphs, the highest single data point based on the sum of all series. For unstacked graphs, the highest single data point of any series.
+-->
+
+    </li>
+
+
+  </ul>
+  <center><div style="font-size: 12px">Try this: curl -d '{ "auth_token": "YOUR_AUTH_TOKEN", "text": "Hey, Look what I can do!" }' \http://<%=request.host%>:<%=request.port%>/widgets/welcome</div></center>
+</div>
