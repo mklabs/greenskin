@@ -2,6 +2,12 @@ wget -O /tmp/epel-release-6-8.noarch.rpm http://dl.fedoraproject.org/pub/epel/6/
 rpm -Uvh /tmp/epel-release-6-8.noarch.rpm
 yum install git ansible -y
 
+# Iptables disable (Dev: required just on my boxes)
+service iptables save
+service iptables stop
+
+
 # then run the playbook
 echo localhost > /etc/ansible/hosts
 ansible-playbook /ansible/playbook.yml --connection=local
+

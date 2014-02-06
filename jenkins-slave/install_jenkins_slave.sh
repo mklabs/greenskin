@@ -8,7 +8,7 @@ cd /tmp
 wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
 tar -xvf phantomjs-1.9.7-linux-x86_64.tar.bz2
 cp -r phantomjs-1.9.7-linux-x86_64 /usr/lib/phantomjs
-ln -s /usr/lib/phantomjs/bin/phantomjs /usr/bin/phantomjs 
+ln -s /usr/lib/phantomjs/bin/phantomjs /usr/bin/phantomjs
 
 # For X11, not sure to keep it there
 yum -y install firefox Xvfb libXfont Xorg
@@ -23,15 +23,15 @@ cat << 'EOF' > /etc/init.d/xvfb
 # description: Starts/Stops X Virtual Framebuffer server
 # processname: Xvfb
 #
-	
+
 . /etc/init.d/functions
-	
+
 [ "${NETWORKING}" = "no" ] && exit 0
-	
+
 PROG="/usr/bin/Xvfb"
 PROG_OPTIONS=":99 -screen 0 1280x1024x24"
 PROG_OUTPUT="/tmp/Xvfb.out"
-	
+
 case "$1" in
     start)
         echo -n "Starting : X Virtual Frame Buffer "
@@ -67,9 +67,16 @@ case "$1" in
      echo $"Usage: $0 (start|stop|restart|reload|status)"
      exit 1
 esac
-	
+
 exit $RETVAL
 EOF
 
+# A bit of wtf ..
+#
+# In BrowserTime/Selenium/Webdriver: process 5239: D-Bus library appears
+# to be incorrectly set up; failed to read machine uuid: Failed to open
+# "/var/lib/dbus/machine-id": No such file or directory
+dbus-uuidgen > /var/lib/dbus/machine-id
+
 chmod +x /etc/init.d/xvfb
-chkconfig --add xvfb
+chkconfig xvfb on
