@@ -1,0 +1,41 @@
+<div ng-controller="filtering" ng-init="init()"><style>.filtering-container {
+      float: left;
+    }
+    .filtering-container label {
+      float: left;
+      font-size: inherit;
+    }
+    .filtering-container input[type=checkbox] {
+      margin: 0;
+    }
+    .filter-panel-filter {
+      display:inline-block;
+      vertical-align: top;
+      padding: 3px 10px 0px 10px;
+      border-right: 1px solid #202020;
+    }
+    .filter-panel-filter ul {
+      margin-bottom: 3px;
+    }
+
+    .filter-deselected {
+      opacity: 0.5;
+    }
+    .filter-action {
+      float:right;
+      margin-bottom: 0px !important;
+      margin-left: 3px;
+      margin-top: 4px;
+    }
+    .add-filter-action {
+      padding: 3px 10px 0px 10px;
+      position: relative;
+      top: 4px;
+    }
+    .filter-mandate {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .filter-apply {
+      float:right;
+    }</style><div class="filtering-container"><div ng-repeat="filter in filterSrv.list" class="small filter-panel-filter"><div><i class="filter-action pointer icon-remove" bs-tooltip="'Remove'" ng-click="remove(filter)"></i> <i class="filter-action pointer icon-edit" ng-hide="filter.editing" bs-tooltip="'Edit'" ng-click="filter.editing = true"></i></div><div ng-hide="filter.editing" style="margin-right: 45px"><ul class="unstyled"><li ng-if="filter.name" class="dropdown">{{filter.name}} : <a class="dropdown-toggle" data-toggle="dropdown">{{filter.current.text}}</a><ul class="dropdown-menu"><li ng-repeat="option in filter.options"><a ng-click="filterSrv.filterOptionSelected(filter, option)">{{option.text}}</a></li></ul></li></ul></div><form ng-show="filter.editing"><ul class="unstyled"><li><strong>name</strong>:<br><input type="text" ng-model="filter.name"></li><li><strong>filter.query</strong>:<br><input type="text" ng-model="filter.query"></li><li><label for="includeAll">Include all</label>:<input id="includeAll" type="checkbox" ng-model="filter.includeAll"></li></ul><div><input type="submit" value="Apply" ng-click="applyFilter(filter)" class="filter-apply btn btn-success btn-mini" bs-tooltip="'Save and refresh'"><button ng-click="filter.editing=undefined" class="filter-apply btn btn-mini" bs-tooltip="'Save without refresh'">Save</button></div></form></div><i class="pointer icon-plus-sign add-filter-action" ng-click="add()" bs-tooltip="'Add metric filter / param'" data-placement="right"></i></div></div>
