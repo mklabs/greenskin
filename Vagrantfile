@@ -6,6 +6,14 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+
+  config.vm.provider :virtualbox do |vb, override|
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    vb.customize ["modifyvm", :id, "--memory", 512]
+    vb.customize ["modifyvm", :id, "--cpus", 1]
+  end
+
   config.vm.define "graphite" do |graphite|
     graphite.vm.box = "centos63.minimal"
     graphite.vm.hostname = "graphite.dev"
