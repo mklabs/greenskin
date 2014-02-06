@@ -39,8 +39,8 @@ Site (domains), Pathnames, Browsers, Dates Range
 
 Global URL pattern:
 
-- /dashboard/<domain>/<pathname>/<browser>/<time>
-- /dashboard/test/<year>/<date>_<id> (still not clear. Links for each point in a graf)
+- `/dashboard/<domain>/<pathname>/<browser>/<time>`
+- `/dashboard/test/<year>/<date>_<id>` (still not clear. Links for each point in a graf)
 
 
 ### Pages
