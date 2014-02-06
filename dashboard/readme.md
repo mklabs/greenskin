@@ -45,7 +45,9 @@ Global URL pattern:
 
 ### Pages
 
-- homepage: /dashboard - /dashboard/a/a/a/14
+homepage:
+
+- /dashboard - /dashboard/a/a/a/14
   - Higher lvl dashboard
   - Default: all sites and all templates in all browser over the last 30 days
   - Nav or Form to choose:
@@ -59,16 +61,20 @@ Global URL pattern:
   	- Average metrics for all URLs (nb of requests, size, google pagespeed score etc.)
   	- Avg / Median yslow scores
 
-- domain: /dashboard/example-com/a/a/14
-	- Synthetic view for all URLs within a same domain
-	- Browser timings median, percentiles, etc.
-	- timeline
+domain:
 
- - url: /dashboard/example-com/ctl-do-search-siteSearchQuery-sony-vaio-fromform-true/a/14
-   - Browser time median for all browsers
-   - timeline, a browser per row
-   - content breakdown, size & requests
-   - Pagespeed score
-   - Nb of requests, graphs and pie per type
-   - Size, graphs and pie
-   - Page timelines (ber browser, avg timings backend, render, dom, full load)
+- /dashboard/example-com/a/a/14
+  - Synthetic view for all URLs within a same domain
+  - Browser timings median, percentiles, etc.
+  - timeline
+
+url:
+
+-  /dashboard/example-com/ctl-do-search-siteSearchQuery-sony-vaio-fromform-true/a/14
+  - Browser time median for all browsers
+  - timeline, a browser per row
+  - content breakdown, size & requests
+  - Pagespeed score
+  - Nb of requests, graphs and pie per type
+  - Size, graphs and pie
+  - Page timelines (ber browser, avg timings backend, render, dom, full load)
