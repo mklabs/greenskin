@@ -11,6 +11,7 @@ chkconfig jenkins on
 # Iptables disable (Dev: required just on my boxes)
 service iptables save
 service iptables stop
+chkconfig iptables off
 
 # install plugins
 sleep 10 # hopefully enough to let jenkins start things up
