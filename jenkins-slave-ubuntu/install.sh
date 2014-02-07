@@ -29,11 +29,11 @@ chmod 755 /usr/bin/chromedriver
 # Phantom
 
 
-# cd /tmp
-# wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
-# tar -xvf phantomjs-1.9.7-linux-x86_64.tar.bz2
-# cp -r phantomjs-1.9.7-linux-x86_64 /usr/lib/phantomjs
-# ln -s /usr/lib/phantomjs/bin/phantomjs /usr/bin/phantomjs
+cd /tmp
+wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
+tar -xvf phantomjs-1.9.7-linux-x86_64.tar.bz2
+cp -r phantomjs-1.9.7-linux-x86_64 /usr/lib/phantomjs
+ln -s /usr/lib/phantomjs/bin/phantomjs /usr/bin/phantomjs
 
 
 # Xfvb
