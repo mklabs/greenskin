@@ -2,7 +2,33 @@
   "title": "$name Dashboard",
   "services": {
     "filter": {
-      "list": [],
+      "list": [{
+        "type": "filter",
+        "name": "ScoreURL",
+        "query": "stats.gauges.$name.scores.http.*",
+        "includeAll": true,
+        "options": [{
+          "text": "All",
+          "value": "*"
+        }],
+        "current": {
+          "text": "All",
+          "value": "*"
+        }
+      }, {
+        "type": "filter",
+        "name": "TimingURL",
+        "query": "stats.gauges.$name.timings.firefox.http.*",
+        "includeAll": true,
+        "options": [{
+          "text": "All",
+          "value": "*"
+        }],
+        "current": {
+          "text": "All",
+          "value": "*"
+        }
+      }],
       "time": {
         "from": "now-6h",
         "to": "now"
@@ -45,27 +71,36 @@
       "title": "criticalpath score",
       "type": "graphite",
       "lines": true,
+      "legend": false,
+      "pointradius": 1,
+      "stack": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.*.criticalpath"
+        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].criticalpath"
       }]
     }, {
       "span": 4,
       "title": "totalrequests score",
       "type": "graphite",
       "lines": true,
+      "pointradius": 1,
+      "stack": false,
+      "legend": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.*.totalrequests"
+        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].totalrequests"
       }]
     }, {
       "span": 4,
       "title": "spof score",
       "lines": true,
+      "stack": false,
+      "pointradius": 1,
+      "legend": false,
       "points": true,
       "type": "graphite",
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.*.spof"
+        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].spof"
       }]
     }]
   }, {
@@ -78,10 +113,11 @@
       "title": "All scores",
       "type": "graphite",
       "stack": false,
+      "pointradius": 1,
       "lines": true,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.*.*"
+        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].*"
       }]
     }]
   }, {
@@ -92,10 +128,12 @@
       "title": "All timings Firefox",
       "type": "graphite",
       "stack": false,
+      "pointradius": 1,
       "lines": true,
+      "legend": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.kk-monitoring.timings.firefox.http.*.*.avg"
+        "target": "stats.gauges.$name.timings.firefox.http.[[TimingURL]].*.avg"
       }]
     }, {
       "span": 6,
@@ -103,9 +141,11 @@
       "type": "graphite",
       "stack": false,
       "lines": true,
+      "pointradius": 1,
+      "legend": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.kk-monitoring.timings.chrome.http.*.*.avg"
+        "target": "stats.gauges.$name.timings.chrome.http.[[TimingURL]].*.avg"
       }]
     }]
   }],
@@ -120,8 +160,8 @@
     {
       "type": "filtering",
       "collapse": false,
-      "notice": false,
-      "enable": false
+      "notice": true,
+      "enable": true
     }
   ],
 
