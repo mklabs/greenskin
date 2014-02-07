@@ -5,6 +5,7 @@ yum install git ansible -y
 # Iptables disable (Dev: required just on my boxes)
 service iptables save
 service iptables stop
+chkconfig iptables off
 
 
 # then run the playbook
