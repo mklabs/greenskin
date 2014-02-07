@@ -44,16 +44,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     jenkins.vm.provision "shell", path: "jenkins/install_jenkins.sh"
   end
 
-  config.vm.define "jenkins-slave" do |master|
-    master.vm.box = "centos63.minimal"
-    master.vm.hostname = "jenkins-slave.dev"
-    master.vm.network :private_network, ip: '192.168.33.30'
+  config.vm.define "jenkins-slave" do |slave|
+    slave.vm.box = "precise64"
+    slave.vm.hostname = "jenkins-slave.dev"
+    slave.vm.network :private_network, ip: '192.168.33.30'
 
-    #master.vm.provision :ansible do |ansible|
-    #  ansible.playbook = "provisioning/jenkins-slave.yml";
-    #end
-
-    master.vm.provision "shell", path: "jenkins-slave/install_jenkins_slave.sh"
+    slave.vm.provision "shell", path: "jenkins-slave-ubuntu/install.sh"
   end
 
 end
