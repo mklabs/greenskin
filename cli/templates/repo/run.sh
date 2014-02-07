@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 # Main script to run sitespeed script from a Jenkins workspace
@@ -14,7 +14,7 @@ GRAPHITE_PORT=${GRAPHITE_PORT:-'8125'}
 
 export DISPLAY=:99.0
 # TODO: Handle Xvfb deamon ?
-sh $DIR/sitespeed.io/bin/sitespeed.io -f $FILE_URLS -a iphone -c firefox
+$DIR/sitespeed.io/bin/sitespeed.io -f $FILE_URLS -a iphone -c firefox,chrome
 
 # Hopefully enough to get latest created sitespeed-result dir
 LAST=$(ls sitespeed-result/urls.txt/ | tail -n 1)

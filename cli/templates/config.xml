@@ -53,7 +53,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>sh run.sh</command>
+      <command>./run.sh</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
