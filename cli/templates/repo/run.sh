@@ -20,15 +20,20 @@ $DIR/sitespeed.io/bin/sitespeed.io -f $FILE_URLS -a iphone -c firefox,chrome
 LAST=$(ls sitespeed-result/urls.txt/ | tail -n 1)
 HAR_DIR=sitespeed-result/urls.txt/$LAST/data/har
 RESULT_FILE=sitespeed-result/urls.txt/$LAST/data/result.xml
+# RESULT_FILE=sitespeed-result/urls.txt/2014-02-11-15-43-47/data/result.xml
 
 # Generate metrics
 npm install
 node $DIR/sitespeed-result-graphite.js $RESULT_FILE $GRAPHITE_PREFIX $GRAPHITE_SERVER > /tmp/metrics.txt
 
 # Split every 10 lines, to send smaller packets
+#
+# https://github.com/etsy/statsd/blob/master/docs/metric_types.md#multi-metric-packets
+#
+# Have to keep the payload size within the network's MTU.
 rm -rf /tmp/metrics
 mkdir -p /tmp/metrics
-split -l 10 /tmp/metrics.txt /tmp/metrics/
+split -l 1 /tmp/metrics.txt /tmp/metrics/
 FILES=$(ls /tmp/metrics)
 
 for file in $FILES; do
