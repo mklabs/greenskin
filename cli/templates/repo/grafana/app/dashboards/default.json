@@ -4,8 +4,8 @@
     "filter": {
       "list": [{
         "type": "filter",
-        "name": "ScoreURL",
-        "query": "stats.gauges.$name.scores.http.*",
+        "name": "URL",
+        "query": "stats.gauges.$name.*",
         "includeAll": true,
         "options": [{
           "text": "All",
@@ -17,8 +17,8 @@
         }
       }, {
         "type": "filter",
-        "name": "TimingURL",
-        "query": "stats.gauges.$name.timings.firefox.http.*",
+        "name": "TimingMetric",
+        "query": "stats.gauges.$name.[[URL]].timings.chrome.*",
         "includeAll": true,
         "options": [{
           "text": "All",
@@ -27,6 +27,19 @@
         "current": {
           "text": "All",
           "value": "*"
+        }
+      }, {
+        "type": "filter",
+        "name": "TimingValue",
+        "query": "stats.gauges.$name.[[URL]].timings.chrome.[[TimingMetric]].*",
+        "includeAll": true,
+        "options": [{
+          "text": "avg",
+          "value": "avg"
+        }],
+        "current": {
+          "text": "avg",
+          "value": "avg"
         }
       }],
       "time": {
@@ -76,7 +89,7 @@
       "stack": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].criticalpath"
+        "target": "stats.gauges.$name.[[URL]].scores.criticalpath"
       }]
     }, {
       "span": 4,
@@ -88,7 +101,7 @@
       "legend": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].totalrequests"
+        "target": "stats.gauges.$name.[[URL]].scores.totalrequests"
       }]
     }, {
       "span": 4,
@@ -100,7 +113,7 @@
       "points": true,
       "type": "graphite",
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].spof"
+        "target": "stats.gauges.$name.[[URL]].scores.spof"
       }]
     }]
   }, {
@@ -117,7 +130,7 @@
       "lines": true,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.scores.http.[[ScoreURL]].*"
+        "target": "stats.gauges.$name.[[URL]].scores.*"
       }]
     }]
   }, {
@@ -133,7 +146,7 @@
       "legend": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.timings.firefox.http.[[TimingURL]].*.avg"
+        "target": "stats.gauges.$name.[[URL]].timings.firefox.[[TimingMetric]].[[TimingValue]]"
       }]
     }, {
       "span": 6,
@@ -145,7 +158,7 @@
       "legend": false,
       "points": true,
       "targets": [{
-        "target": "stats.gauges.$name.timings.chrome.http.[[TimingURL]].*.avg"
+        "target": "stats.gauges.$name.[[URL]].timings.chrome.[[TimingMetric]].[[TimingValue]]"
       }]
     }]
   }],

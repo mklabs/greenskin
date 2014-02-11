@@ -71,7 +71,7 @@ function getTimingMetrics(metrics) {
     href = href
       .replace(/\/$/, '')
       .replace(/^https?:\/\//, '')
-      .replace(/[\.\/\?\=\+]/g, '-')
+      .replace(/[\.\/\?\=\+&]/g, '-')
       .replace(/(&amp;)/g, '-');
 
     stats.forEach(function(stat) {
@@ -105,7 +105,7 @@ function getScoreMetrics(results) {
   results = Array.isArray(results) ? results : [results];
 
   results.forEach(function(result) {
-    var filename = result['$'].filename;
+    var filename = result.$.filename;
     var overall = result.o[0];
     var url = result.curl[0];
 

@@ -14,5 +14,5 @@ JENKINS_CURL_OPTIONS=${JENKINS_CURL_OPTIONS:-''}
 
 # Git
 #
-# TODO: Agree on top level Gitlab group. Create and use (instead of a bare repo created on jenkins master)
+# TODO: Agree on top level Gitlab group. Create and use (instead of a bare repo created on jenkins slave)
 GIT_REPOSITORY_PATTERN=${GIT_REPOSITORY_PATTERN:-'vagrant@192.168.33.30:repo.git'}
