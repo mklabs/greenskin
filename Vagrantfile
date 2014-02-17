@@ -17,6 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "graphite" do |graphite|
     graphite.vm.box = "centos63.minimal"
     graphite.vm.hostname = "graphite.dev"
+    graphite.vm.box_url = "https://dl.dropbox.com/u/7225008/Vagrant/CentOS-6.3-x86_64-minimal.box"
 
     graphite.vm.synced_folder "graphite/ansible-graphite/", "/ansible"
 
@@ -32,6 +33,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "jenkins" do |jenkins|
     jenkins.vm.box = "centos63.minimal"
     jenkins.vm.hostname = "jenkins.dev"
+    jenkins.vm.box_url = "https://dl.dropbox.com/u/7225008/Vagrant/CentOS-6.3-x86_64-minimal.box"
 
     jenkins.vm.network "forwarded_port", guest: 8080, host: 8082
     jenkins.vm.network :private_network, ip: "192.168.33.11"
@@ -48,6 +50,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     slave.vm.box = "precise64"
     slave.vm.hostname = "jenkins-slave.dev"
     slave.vm.network :private_network, ip: '192.168.33.30'
+    slave.vm.box_url = "http://files.vagrantup.com/precise64.box"
 
     slave.vm.provision "shell", path: "jenkins-slave-ubuntu/install.sh"
   end
