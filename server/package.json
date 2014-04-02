@@ -1,0 +1,14 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "prestart": "npm install",
+    "start": "DEBUG=* node app.js"
+  },
+  "dependencies": {
+    "express": "3.5.1",
+    "hjs": "*",
+    "debug": "~0.8.0"
+  }
+}

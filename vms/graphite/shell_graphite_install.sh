@@ -1,6 +1,6 @@
 wget -O /tmp/epel-release-6-8.noarch.rpm http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 rpm -Uvh /tmp/epel-release-6-8.noarch.rpm
-yum install git ansible -y
+yum install git ansible python-setuptools -y
 
 # Iptables disable (Dev: required just on my boxes)
 service iptables save
