@@ -19,7 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     graphite.vm.hostname = "graphite.dev"
     graphite.vm.box_url = "https://dl.dropbox.com/u/7225008/Vagrant/CentOS-6.3-x86_64-minimal.box"
 
-    graphite.vm.synced_folder "graphite/ansible-graphite/", "/ansible"
+    graphite.vm.synced_folder "vms/graphite/ansible-graphite/", "/ansible"
 
     graphite.vm.network :private_network, ip: "192.168.33.33"
 
@@ -27,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     graphite.vm.network "forwarded_port", guest: 2003, host: 2003
     graphite.vm.network "forwarded_port", guest: 8125, host: 8125, protocol: 'udp'
 
-    graphite.vm.provision "shell", path: "graphite/shell_graphite_install.sh"
+    graphite.vm.provision "shell", path: "vms/graphite/shell_graphite_install.sh"
   end
 
   config.vm.define "jenkins" do |jenkins|
@@ -43,16 +43,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #   ansible.verbose = true;
     # end
 
-    jenkins.vm.provision "shell", path: "jenkins/install_jenkins.sh"
+    jenkins.vm.provision "shell", path: "vms/jenkins/install_jenkins.sh"
   end
 
   config.vm.define "jenkins-slave" do |slave|
-    slave.vm.box = "precise64"
+    slave.vm.box = "centos63.minimal"
     slave.vm.hostname = "jenkins-slave.dev"
     slave.vm.network :private_network, ip: '192.168.33.30'
-    slave.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    slave.vm.box_url = "https://dl.dropbox.com/u/7225008/Vagrant/CentOS-6.3-x86_64-minimal.box"
 
-    slave.vm.provision "shell", path: "jenkins-slave-ubuntu/install.sh"
+    slave.vm.provision "shell", path: "vms/jenkins-slave/install_jenkins_slave.sh"
   end
 
 end
