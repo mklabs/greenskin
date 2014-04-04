@@ -9,62 +9,77 @@
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_SERVER</name>
           <description>Remote graphite server to send data to</description>
-          <!-- <defaultValue>$GRAPHITE_SERVER</defaultValue> -->
           <defaultValue>192.168.33.33</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_PORT</name>
           <description></description>
-          <!-- <defaultValue>$GRAPHITE_PORT</defaultValue> -->
           <defaultValue>8125</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_PREFIX</name>
           <description>The metric prefix to use.</description>
-          <!-- <defaultValue>$GRAPHITE_PREFIX</defaultValue> -->
           <defaultValue>$name</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://kelkoo.fr http://voyages.kelkoo.fr</defaultValue>
+          <defaultValue>http://travel.kelkoo.co.uk http://kelkoo.fr http://example.com</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JSON_CONFIG</name>
+          <description>Phantomas JSON config.</description>
+          <defaultValue>{ &quot;film-strip&quot;: true, &quot;no-externals&quot;: true, &quot;allow-domain&quot;:  &quot;.kk-data.com&quot;, &quot;asserts&quot;: { &quot;timeToFirstByte&quot;: 300, &quot;windowOnLoadTime&quot;: 800 } }</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <com.gmail.ikeike443.PlayAutoTestJobProperty plugin="play-autotest-plugin@0.0.12"/>
   </properties>
-  <!-- <scm class="hudson.plugins.git.GitSCM" plugin="git@2.0.1"> -->
-  <!--   <configVersion>2</configVersion> -->
-  <!--   <userRemoteConfigs> -->
-  <!--     <hudson.plugins.git.UserRemoteConfig> -->
-  <!--       <url>$GIT_REPOSITORY</url> -->
-  <!--     </hudson.plugins.git.UserRemoteConfig> -->
-  <!--   </userRemoteConfigs> -->
-  <!--   <branches> -->
-  <!--     <hudson.plugins.git.BranchSpec> -->
-  <!--       <name>*/master</name> -->
-  <!--     </hudson.plugins.git.BranchSpec> -->
-  <!--   </branches> -->
-  <!--   <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations> -->
-  <!--   <submoduleCfg class="list"/> -->
-  <!--   <extensions/> -->
-  <!-- </scm> -->
+  <scm class="hudson.scm.NullSCM"/>
   <assignedNode>R8_3</assignedNode>
   <canRoam>false</canRoam>
-  <disabled>true</disabled>
+  <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
+  <triggers class="vector">
     <hudson.triggers.TimerTrigger>
       <spec>H/15 * * * *</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
-  <!-- <customWorkspace>/var/lib/jenkins/workspace/tools/phantomas</customWorkspace> -->
   <builders>
     <hudson.tasks.Shell>
-      <command>phantomas --help</command>
+      <command>#!/usr/bin/env bash
+
+echo &quot;{}&quot; &gt; package.json
+[ -e node_modules/phantomas ] || npm install phantomas tap-eater
+./node_modules/.bin/phantomas --version
+./node_modules/.bin/phantomas --help
+
+echo $JSON_CONFIG &gt; config.json
+PATH=$PATH:/usr/sbin
+
+for url in $PERF_URLS; do
+  echo &quot;&quot;&quot;
+  Phantomasing $url ...
+  &quot;&quot;&quot;;
+
+   TS=`date +%Y%m%d-%H:%M:%S`
+   TAP=$TS.tap
+
+  ./node_modules/.bin/phantomas $url --config config.json --film-strip-dir ./filmstrip/$(echo $url | sed &apos;s/^http:\/\///&apos;) --format tap &gt; $TAP
+   cat $TAP | ./node_modules/.bin/tap-eater -v --email-to &quot;mickael.daniel@kelkoo.com&quot; --email-subject &quot;phantomas - $url monitoring&quot;
+   cat $TAP | ./node_modules/.bin/tap-eater -v --email-to &quot;benjamin.falque@kelkoo.com&quot; --email-subject &quot;phantomas - $url monitoring&quot;
+done
+</command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.4">
+      <recipients>mickael.daniel@kelkoo.com benjamin.falque@kelkoo.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
   <buildWrappers/>
 </project>

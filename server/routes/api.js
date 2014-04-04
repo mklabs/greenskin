@@ -37,10 +37,23 @@ exports.edit = function edit(req, res, next){
   name = jobReg.test(name) ? name : config.job_prefix + name;
 
   var urls = params.urls;
+  debug('API edit', urls);
 
+  // Update relevant part in XML ... aie
+  var xml = params.xml;
+  // Figure out which line
+  var ln = 0;
+  var lines = xml.split(/\r?\n/);
+  lines.forEach(function(line, i) {
+    if (!/<name>PERF_URLS<\/name>/.test(line)) return;
+    ln = i + 2;
+  });
 
-  debug('Jenkins updating %s job with', name, params);
-  jenkins.job.config(params.name, params.xml, function(err) {
+  lines[ln] = lines[ln].replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue>' + urls.join(' ') + '</defaultValue>');
+  xml = lines.join('\n');
+
+  debug('Jenkins updating %s job with', name, urls);
+  jenkins.job.config(params.name, xml, function(err) {
     if (err) return next(err);
     debug('Jenkins job edition OK');
     res.redirect('/');
