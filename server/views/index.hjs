@@ -2,11 +2,46 @@
 <html>
   <head>
     <title>{{ title }}</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
     <h1>{{ title }}</h1>
     <p>Welcome to {{ title }}</p>
+
+    <h2>Jobs</h2>
+    <a class="btn btn-default" href="/create" role="button">Create</a>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>color</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#jobs}}
+          <tr>
+            <td>{{ name }}</td>
+            <td><a href="{{ url }}">{{ url }}</a></td>
+            <td>{{{ description }}}</td>
+            <td>{{ color }}</td>
+            <td>
+              <a class="btn btn-default" href="/edit/{{ name }}" role="button">Edit</a>
+            </td>
+            <td>
+              <a class="btn btn-danger" href="/delete/{{ name }}" role="button" onclick="return confirm('Sure ?')">Delete</a>
+            </td>
+          </tr>
+          {{/jobs}}
+        </tbody>
+      </table>
+    </div>
 
   </body>
 </html>

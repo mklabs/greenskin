@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.css">
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+
+    <form action="{{ action }}" class="form-horizontal" method="post">
+      <div class="form-group">
+        <label for="ipt_name" class="col-sm-2 control-label">Job name</label>
+        <div class="col-sm-10">
+          <input
+            required
+            {{#edit}}disabled{{/edit}}
+            id="ipt_name"
+            name="name"
+            value="{{ job.name }}"
+            type="text"
+            class="form-control"
+            placeholder="Fancy name">
+
+          {{#edit}}
+          <input type="hidden" name="name" value="{{ job.name }}">
+          {{/edit}}
+        </div>
+      </div>
+
+      <div class="form-group">
+          <label class="col-sm-2 control-label">&nbsp;</label>
+          <a class="btn btn-link js-xml-edit-toggle" href="#" role="button">Edit XML config</a>
+      </div>
+
+      <div class="form-group js-xml-edit is-hidden">
+        {{#edit}}
+          <label for="ipt_job_template" class="col-sm-2 control-label">XML Config</label>
+          <div class="col-sm-10">
+            <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
+          </div>
+        {{/edit}}
+
+        {{^edit}}
+          <label for="ipt_job_template" class="col-sm-2 control-label">Job template</label>
+          <div class="col-sm-10">
+            <select name="template" id="ipt_job_template" class="form-control">
+              <option value="phantomas">phantomas</option>
+            </select>
+          </div>
+        {{/edit}}
+      </div>
+
+      <div class="form-group js-urls">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th width="10%"></th>
+              <th width="10%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="is-hidden js-row-template">
+              <td>
+                <a href="#" class="js-link is-hidden"></a>
+                <input type="hidden" name="urls[]" class="js-hidden">
+                <input type="text" value="" class="js-input form-control" placeholder="http://example.com">
+              </td>
+              <td>
+                <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
+              </td>
+              <td>
+                <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+              </td>
+            </tr>
+
+            {{#job.urls}}
+            <tr>
+              <td>
+                <a href="{{ . }}" class="js-link" target="_blank">{{ . }}</a>
+                <input type="hidden" name="urls" class="js-hidden" value="{{ . }}">
+                <input type="text" value="{{ . }}" class="js-input form-control is-hidden">
+              </td>
+              <td>
+                <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
+              </td>
+              <td>
+                <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+              </td>
+            </tr>
+            {{/job.urls}}
+            <tr class="js-create-row">
+              <td colspan="3">
+                <a class="btn btn-default right js-add" href="#" role="button">Create</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" class="btn btn-primary right">Save</button>
+        </div>
+      </div>
+
+
+    </form>
+
+  </body>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/xml/xml.min.js"></script>
+  <script>
+  (function(doc) {
+    // Build codemirror instance
+    var textarea = doc.querySelector('[name=xml]');
+    if (!textarea) return;
+    var cm = CodeMirror.fromTextArea(textarea, {
+        mode: 'xml'
+    });
+
+    var el = doc.querySelector('.CodeMirror');
+    el.className += ' form-control';
+
+    // Bind toggle link
+    var link = doc.querySelector('.js-xml-edit-toggle');
+    console.log('link', link);
+    var xmlBox = doc.querySelector('.js-xml-edit');
+    console.log('xmlBox', xmlBox);
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var hidden = !!~xmlBox.className.indexOf('is-hidden');
+      if (!hidden) {
+        xmlBox.className += ' is-hidden';
+      } else {
+        xmlBox.className = xmlBox.className.replace(/\s?is-hidden\s?/, '');
+        cm.refresh();
+      }
+    }, false);
+
+    // URLs table
+    var urlsBox = doc.querySelector('.js-urls');
+    var urlAdd = doc.querySelector('.js-add');
+    var tbody = doc.querySelector('.js-urls tbody');
+    var template = doc.querySelector('.js-row-template');
+    var createRow = doc.querySelector('.js-create-row');
+
+    // Link for add button
+    urlAdd.addEventListener('click', function(e) {
+      e.preventDefault();
+      var tpl = template.cloneNode(true);
+      tpl.className = tpl.className.replace(/is-hidden/, '');
+
+      tbody.insertBefore(tpl, createRow);
+    }, false);
+
+    // Click links toggle edit mode
+    urlsBox.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = e.target;
+      if (!target) return;
+
+      console.log('Clicked!', e);
+      console.log('Target', target);
+      var row = target.parentElement;
+      var input = row.querySelector('.js-input');
+
+      if (target.classList.contains('js-link')) {
+        target.classList.add('is-hidden');
+        input.classList.remove('is-hidden');
+        input.focus();
+      }
+
+      if (target.classList.contains('js-edit')) {
+        row = target.parentElement.parentElement;
+        target = row.querySelector('.js-link');
+        input = row.querySelector('.js-input');
+        target.classList.add('is-hidden');
+        input.classList.remove('is-hidden');
+        input.focus();
+      }
+
+      if (target.classList.contains('js-delete')) {
+        console.log('rm');
+        row = target.parentElement.parentElement;
+        tbody.removeChild(row);
+      }
+
+    }, false);
+
+    // Blur event on inputs
+    urlsBox.addEventListener('blur', function(e) {
+      e.preventDefault();
+      var target = e.target;
+      if (!target) return;
+
+      console.log('Blured!', e);
+      console.log('Target', target);
+
+      var row = target.parentElement;
+      var link = row.querySelector('.js-link');
+      var hidden = row.querySelector('.js-hidden');
+
+      if (target.classList.contains('js-input')) {
+        target.classList.add('is-hidden');
+        link.classList.remove('is-hidden');
+        link.innerText = target.value;
+        hidden.value = target.value;
+      }
+
+    }, true);
+
+  })(document);
+  </script>
+</html>

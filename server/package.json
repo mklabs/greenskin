@@ -9,6 +9,12 @@
   "dependencies": {
     "express": "3.5.1",
     "hjs": "*",
-    "debug": "~0.8.0"
+    "debug": "~0.8.0",
+    "jenkins": "~0.2.1",
+    "xml2js": "~0.4.2"
+  },
+  "config": {
+    "jenkins": "http://danielmi:Mklabs023003@jenkins.corp.kelkoo.net:8080/",
+    "job_prefix": "R8_perf_"
   }
 }

@@ -6,3 +6,23 @@ body {
 a {
   color: #00B7FF;
 }
+
+.CodeMirror.form-control {
+    padding: 0;
+    min-height: 600px;
+}
+
+
+@media (max-width:767px) {
+  body {
+    padding: 1em;
+  }
+}
+
+.is-hidden {
+  display: none;
+}
+
+.right {
+  float: right;
+}
