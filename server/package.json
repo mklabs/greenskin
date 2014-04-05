@@ -13,7 +13,9 @@
     "jenkins": "~0.2.1",
     "xml2js": "~0.4.2",
     "request": "~2.34.0",
-    "phantomas": "~1.0.0"
+    "phantomas": "~1.0.0",
+    "async": "~0.6.2",
+    "optimist": "~0.6.1"
   },
   "config": {
     "jenkins": "http://192.168.33.11:8080/",

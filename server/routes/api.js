@@ -44,8 +44,6 @@ exports.create = function create(req, res, next){
 
 exports.edit = function edit(req, res, next){
   var params = req.body;
-  debug('API edit', params);
-
   var name = params.name;
   name = jobReg.test(name) ? name : config.job_prefix + name;
 
@@ -66,6 +64,7 @@ exports.edit = function edit(req, res, next){
   xml = replaceJSONConfig(xml, params.json_config);
 
   debug('Jenkins updating %s job with', name, urls);
+
   jenkins.job.config(params.name, xml, function(err) {
     if (err) return next(err);
     debug('Jenkins job edition OK');
@@ -122,7 +121,6 @@ function replaceJSONConfig(xml, json) {
     ln = i + 2;
   });
 
-  console.log('replace', lines[ln], 'with', json);
   lines[ln] = lines[ln].replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue>' + json + '</defaultValue>');
   xml = lines.join('\n');
 

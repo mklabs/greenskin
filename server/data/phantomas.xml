@@ -17,11 +17,6 @@
           <defaultValue>8125</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>GRAPHITE_PREFIX</name>
-          <description>The metric prefix to use.</description>
-          <defaultValue>$name</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
           <defaultValue>http://travel.kelkoo.co.uk http://kelkoo.fr http://example.com</defaultValue>
@@ -36,7 +31,7 @@
     <com.gmail.ikeike443.PlayAutoTestJobProperty plugin="play-autotest-plugin@0.0.12"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <assignedNode>R8_3</assignedNode>
+  <!-- <assignedNode>R8_3</assignedNode> -->
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -49,37 +44,175 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>#!/usr/bin/env bash
+      <command>[ -e node_modules ] || npm install phantomas debug async optimist tap-eater</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command><![CDATA[#!/usr/bin/env node
 
-echo &quot;{}&quot; &gt; package.json
-[ -e node_modules/phantomas ] || npm install phantomas tap-eater
-./node_modules/.bin/phantomas --version
-./node_modules/.bin/phantomas --help
+var path = require('path');
+var fs = require('fs');
+var base = path.resolve('node_modules');
 
-echo $JSON_CONFIG &gt; config.json
-PATH=$PATH:/usr/sbin
+var phantomas = require(path.join(base, 'phantomas'));
+var async = require(path.join(base, 'async'));
+var debug = require(path.join(base, 'debug'))('phantomas:cli');
+var options = {};
+var runs;
+var program = require(path.join(base, 'optimist'))('phantomas:cli');
 
-for url in $PERF_URLS; do
-  echo &quot;&quot;&quot;
-  Phantomasing $url ...
-  &quot;&quot;&quot;;
+// parse options
+program
+  .usage('PhantomJS-based web performance metrics collector\n\nphantomas <url> [options]')
 
-   TS=`date +%Y%m%d-%H:%M:%S`
-   TAP=$TS.tap
+  // mandatory
+  .describe('url', 'Set URL to work with').string('url')
 
-  ./node_modules/.bin/phantomas $url --config config.json --film-strip-dir ./filmstrip/$(echo $url | sed &apos;s/^http:\/\///&apos;) --format tap &gt; $TAP
-   cat $TAP | ./node_modules/.bin/tap-eater -v --email-to &quot;mickael.daniel@kelkoo.com&quot; --email-subject &quot;phantomas - $url monitoring&quot;
-   cat $TAP | ./node_modules/.bin/tap-eater -v --email-to &quot;benjamin.falque@kelkoo.com&quot; --email-subject &quot;phantomas - $url monitoring&quot;
-done
+  // version / help
+  .describe('version', 'Show version number and quit').boolean('version').alias('version', 'V')
+  .describe('help', 'This help text').boolean('help').alias('help', 'h')
+
+  // optional params
+  .describe('allow-domain', 'allow requests to given domain(s) - aka whitelist [domain],[domain],...')
+  .describe('block-domain', 'disallow requests to given domain(s) - aka blacklist [domain],[domain],...')
+  .describe('config', 'uses JSON-formatted config file to set parameters')
+  .describe('cookie', 'document.cookie formatted string for setting a single cookie (e.g. "bar=foo;domain=url")')
+  .describe('cookies-file', 'specifies the file name to store the persistent Cookies')
+  .describe('disable-js', 'disable JavaScript on the page that will be loaded').boolean('disable-js')
+  .describe('ignore-ssl-errors', 'ignores SSL errors, such as expired or self-signed certificate errors')
+  .describe('log', 'log to a given file')
+  .describe('modules', 'run selected modules only [moduleOne],[moduleTwo],...')
+  .describe('phone', 'force viewport and user agent of a mobile phone')
+  .describe('no-externals', 'block requests to 3rd party domains').boolean('no-externals')
+  .describe('post-load-delay', 'wait X seconds before generating a report')
+  .describe('progress', 'shows page loading progress bar (disables verbose mode)').boolean('progress')
+  .describe('proxy', 'specifies the proxy server to use (e.g. --proxy=192.168.1.42:8080)')
+  .describe('proxy-auth', 'specifies the authentication information for the proxy (e.g. --proxy-auth=username:password)')
+  .describe('proxy-type', 'specifies the type of the proxy server [http|socks5|none]')
+  .describe('reporter', 'output format / reporter').default('reporter', 'statsd').alias('reporter', 'R').alias('reporter', 'format')
+  .describe('runs', 'number of runs to perform')
+  .describe('screenshot', 'render fully loaded page to a given file')
+  .describe('har', 'save HAR to a given file')
+  .describe('silent', 'don\'t write anything to the console').boolean('silent')
+  .describe('skip-modules', 'skip selected modules [moduleOne],[moduleTwo],...')
+  .describe('tablet', 'force viewport and user agent of a tablet')
+  .describe('timeout', 'timeout for phantomas run').default('timeout', 15)
+  .describe('user-agent', 'provide a custom user agent')
+  .describe('verbose', 'writes debug messages to the console').boolean('verbose').alias('verbose', 'v')
+  .describe('viewport', 'phantomJS viewport dimensions [width]x[height [default: 1280x1024]')
+  .describe('wait-for-selector', 'wait for an element matching given CSS selector before generating a report')
+
+  // experimental features
+  .describe('analyze-css', 'emit in-depth CSS metrics - EXPERIMENTAL').boolean('analyze-css')
+  .describe('film-strip', 'register film strip when page is loading - EXPERIMENTAL').boolean('film-strip')
+  .describe('film-strip-dir', 'folder path to output film strip (default is ./filmstrip directory) - EXPERIMENTAL');
+
+// parse it
+options = program.parse(process.argv);
+debug('Command line options: %j', options);
+
+var config = JSON.parse(process.env.JSON_CONFIG);
+fs.writeFileSync('config.json', JSON.stringify(config));
+
+options.config = 'config.json';
+
+options['statsd-host'] = process.env.GRAPHITE_SERVER || 'localhost';
+options['statsd-port'] = process.env.GRAPHITE_PORT || 8125;
+options['statsd-prefix'] = process.env.JOB_NAME + '.$url';
+
+debug('Command line options: %j', options);
+
+var urls = process.env.PERF_URLS.split(' ');
+
+// perform a single run
+function task(callback) {
+  // spawn phantomas process
+  var child = phantomas(url, options, function(err, data, results) {
+    callback(err === 0 ? null : err, results);
+  });
+
+  // pipe --verbose messages to stderr
+  child.stderr.pipe(process.stderr);
+}
+
+// @see https://github.com/caolan/async#seriestasks-callback
+var series = [];
+
+runs = parseInt(options.runs || 1, 10);
+debug('Preparing %d run(s)...', runs);
+
+for (var r=0; r<runs; r++) {
+  series.push(task);
+}
+
+var urlSeries = urls.map(function(url) {
+  return function(callback) {
+    // spawn phantomas process
+
+    var urlGraphite = url.replace(/^https?:\/\//, '_').replace(/(\/|\?|-|&|=|\.)/g, '_');
+
+    var prefix = options['statsd-prefix'];
+    prefix = prefix.replace(/\$url/, urlGraphite);
+    options['statsd-prefix'] = prefix + '.';
+
+    options.har = 'har/' + process.env.BUILD_ID + '-' + urlGraphite + '.json';
+
+    var child = phantomas(url, options, function(err, data, results) {
+      callback(err === 0 ? null : err, results);
+    });
+
+    // pipe --verbose messages to stderr
+    child.stderr.pipe(process.stderr);
+  };
+});
+
+// TODO: Handle multiple runs
+async.series(
+  urlSeries,
+  function(err, results) {
+    var debug = require(path.join(base, 'debug'))('phantomas:runs'),
+      reporter,
+      res;
+
+    debug('err: %j', err);
+    debug('results: %j', results);
+
+    // this function is called when phantomas is done with all runs
+    function doneFn() {
+      // pass error code from PhantomJS process
+      debug('Exiting with code #%d', err);
+      process.exit(err);
+    }
+
+    // process JSON results by reporters
+    debug('%d of %d run(s) completed with exit code #%d', results.length, runs, err);
+
+    reporter = require(path.join(base, 'phantomas/reporters/statsd'));
+    tap = require(path.join(base, 'phantomas/reporters/tap'));
+
+    debug('Calling reporters...');
+
+    async.each(results, function(result, callback) {
+      var resTap = tap(result, options).render(function() {});
+      console.error(resTap);
+      console.error('Writing TAP results to', (process.env.BUILD_ID || 'tmp') + '.tap');
+      fs.writeFileSync((process.env.BUILD_ID || 'tmp') + '.tap', resTap);
+        
+      reporter(result, options).render(callback);
+    }, doneFn);
+  }
+);
+
+]]>
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers>
+  <!-- <publishers>
     <hudson.tasks.Mailer plugin="mailer@1.4">
       <recipients>mickael.daniel@kelkoo.com benjamin.falque@kelkoo.com</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
   </publishers>
+  -->
   <buildWrappers/>
 </project>
