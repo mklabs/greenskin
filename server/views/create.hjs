@@ -29,10 +29,12 @@
         </div>
       </div>
 
+      {{#edit}}
       <div class="form-group">
           <label class="col-sm-2 control-label">&nbsp;</label>
           <a class="btn btn-link js-xml-edit-toggle" href="#" role="button">Edit XML config</a>
       </div>
+      {{/edit}}
 
       <div class="form-group js-xml-edit is-hidden">
         {{#edit}}
@@ -50,6 +52,15 @@
             </select>
           </div>
         {{/edit}}
+      </div>
+
+      <div class="form-group">
+        <label for="ipt_frequency" class="col-sm-2 control-label">Frequency</label>
+        <div class="col-sm-10">
+          <div class="js-cron form-control"></div>
+          <input type="hidden" name="cron" class="js-cron-input">
+          <span class="js-cron-text"><span>
+        </div>
       </div>
 
       <div class="form-group js-urls">
@@ -113,105 +124,150 @@
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/xml/xml.min.js"></script>
+
+  <script src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
+  <script src="/js/jquery-cron.js"></script>
   <script>
   (function(doc) {
-    // Build codemirror instance
-    var textarea = doc.querySelector('[name=xml]');
-    if (!textarea) return;
-    var cm = CodeMirror.fromTextArea(textarea, {
-        mode: 'xml'
+
+    var page = Object.create({
+      init: function() {
+        this.codemirror();
+        this.urlTable();
+        this.cron();
+      },
+
+      cron: function cron() {
+        this._cron = $('.js-cron');
+        var input = $('.js-cron-input');
+        var span = $('.js-cron-text');
+
+        var values = {};
+
+        ['5', '10', '15', '20', '30', '45'].forEach(function(value) {
+          values[value + ' Minutes'] = '*/' + value + ' * * * *';
+        });
+
+        var initial = '{{ cron }}';
+
+        this._cron.cron({
+          initial: initial || '* * * * *',
+          
+          customValues: values,
+          onChange: function onChange() {
+            var val = $(this).cron('value');
+            input.val(val);
+            span.text(val);
+          }
+        });
+      },
+
+      codemirror: function codemirror() {
+        // Build codemirror instance
+        var textarea = doc.querySelector('[name=xml]');
+        if (!textarea) return;
+        var cm = CodeMirror.fromTextArea(textarea, {
+          mode: 'xml'
+        });
+
+        var el = doc.querySelector('.CodeMirror');
+        el.className += ' form-control';
+
+        // Bind toggle link
+        var link = doc.querySelector('.js-xml-edit-toggle');
+        console.log('link', link);
+        var xmlBox = doc.querySelector('.js-xml-edit');
+        console.log('xmlBox', xmlBox);
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          var hidden = !!~xmlBox.className.indexOf('is-hidden');
+          if (!hidden) {
+            xmlBox.className += ' is-hidden';
+          } else {
+            xmlBox.className = xmlBox.className.replace(/\s?is-hidden\s?/, '');
+            cm.refresh();
+          }
+        }, false);
+      }, 
+
+
+      urlTable: function urlTable() {
+        // URLs table
+        var urlsBox = doc.querySelector('.js-urls');
+        var urlAdd = doc.querySelector('.js-add');
+        var tbody = doc.querySelector('.js-urls tbody');
+        var template = doc.querySelector('.js-row-template');
+        var createRow = doc.querySelector('.js-create-row');
+
+        // Link for add button
+        urlAdd.addEventListener('click', function(e) {
+          e.preventDefault();
+          var tpl = template.cloneNode(true);
+          tpl.className = tpl.className.replace(/is-hidden/, '');
+
+          tbody.insertBefore(tpl, createRow);
+        }, false);
+
+        // Click links toggle edit mode
+        urlsBox.addEventListener('click', function(e) {
+          e.preventDefault();
+          var target = e.target;
+          if (!target) return;
+
+          console.log('Clicked!', e);
+          console.log('Target', target);
+          var row = target.parentElement;
+          var input = row.querySelector('.js-input');
+
+          if (target.classList.contains('js-link')) {
+            target.classList.add('is-hidden');
+            input.classList.remove('is-hidden');
+            input.focus();
+          }
+
+          if (target.classList.contains('js-edit')) {
+            row = target.parentElement.parentElement;
+            target = row.querySelector('.js-link');
+            input = row.querySelector('.js-input');
+            target.classList.add('is-hidden');
+            input.classList.remove('is-hidden');
+            input.focus();
+          }
+
+          if (target.classList.contains('js-delete')) {
+            console.log('rm');
+            row = target.parentElement.parentElement;
+            tbody.removeChild(row);
+          }
+
+        }, false);
+
+        // Blur event on inputs
+        urlsBox.addEventListener('blur', function(e) {
+          e.preventDefault();
+          var target = e.target;
+          if (!target) return;
+
+          console.log('Blured!', e);
+          console.log('Target', target);
+
+          var row = target.parentElement;
+          var link = row.querySelector('.js-link');
+          var hidden = row.querySelector('.js-hidden');
+
+          if (target.classList.contains('js-input')) {
+            target.classList.add('is-hidden');
+            link.classList.remove('is-hidden');
+            link.innerText = target.value;
+            hidden.value = target.value;
+          }
+
+        }, true);
+      }
     });
 
-    var el = doc.querySelector('.CodeMirror');
-    el.className += ' form-control';
 
-    // Bind toggle link
-    var link = doc.querySelector('.js-xml-edit-toggle');
-    console.log('link', link);
-    var xmlBox = doc.querySelector('.js-xml-edit');
-    console.log('xmlBox', xmlBox);
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      var hidden = !!~xmlBox.className.indexOf('is-hidden');
-      if (!hidden) {
-        xmlBox.className += ' is-hidden';
-      } else {
-        xmlBox.className = xmlBox.className.replace(/\s?is-hidden\s?/, '');
-        cm.refresh();
-      }
-    }, false);
-
-    // URLs table
-    var urlsBox = doc.querySelector('.js-urls');
-    var urlAdd = doc.querySelector('.js-add');
-    var tbody = doc.querySelector('.js-urls tbody');
-    var template = doc.querySelector('.js-row-template');
-    var createRow = doc.querySelector('.js-create-row');
-
-    // Link for add button
-    urlAdd.addEventListener('click', function(e) {
-      e.preventDefault();
-      var tpl = template.cloneNode(true);
-      tpl.className = tpl.className.replace(/is-hidden/, '');
-
-      tbody.insertBefore(tpl, createRow);
-    }, false);
-
-    // Click links toggle edit mode
-    urlsBox.addEventListener('click', function(e) {
-      e.preventDefault();
-      var target = e.target;
-      if (!target) return;
-
-      console.log('Clicked!', e);
-      console.log('Target', target);
-      var row = target.parentElement;
-      var input = row.querySelector('.js-input');
-
-      if (target.classList.contains('js-link')) {
-        target.classList.add('is-hidden');
-        input.classList.remove('is-hidden');
-        input.focus();
-      }
-
-      if (target.classList.contains('js-edit')) {
-        row = target.parentElement.parentElement;
-        target = row.querySelector('.js-link');
-        input = row.querySelector('.js-input');
-        target.classList.add('is-hidden');
-        input.classList.remove('is-hidden');
-        input.focus();
-      }
-
-      if (target.classList.contains('js-delete')) {
-        console.log('rm');
-        row = target.parentElement.parentElement;
-        tbody.removeChild(row);
-      }
-
-    }, false);
-
-    // Blur event on inputs
-    urlsBox.addEventListener('blur', function(e) {
-      e.preventDefault();
-      var target = e.target;
-      if (!target) return;
-
-      console.log('Blured!', e);
-      console.log('Target', target);
-
-      var row = target.parentElement;
-      var link = row.querySelector('.js-link');
-      var hidden = row.querySelector('.js-hidden');
-
-      if (target.classList.contains('js-input')) {
-        target.classList.add('is-hidden');
-        link.classList.remove('is-hidden');
-        link.innerText = target.value;
-        hidden.value = target.value;
-      }
-
-    }, true);
+    page.init();
 
   })(document);
   </script>

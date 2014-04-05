@@ -11,10 +11,11 @@
     "hjs": "*",
     "debug": "~0.8.0",
     "jenkins": "~0.2.1",
-    "xml2js": "~0.4.2"
+    "xml2js": "~0.4.2",
+    "request": "~2.34.0"
   },
   "config": {
-    "jenkins": "http://danielmi:Mklabs023003@jenkins.corp.kelkoo.net:8080/",
+    "jenkins": "http://192.168.33.11:8080/",
     "job_prefix": "R8_perf_"
   }
 }

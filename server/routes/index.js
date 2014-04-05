@@ -26,7 +26,8 @@ exports.index = function(req, res, next){
 exports.create = function(req, res, next){
   res.render('create', {
     title: 'Create job',
-    action: '/api/create'
+    action: '/api/create',
+    cron: '*/15 * * * *'
   });
 };
 
@@ -45,6 +46,7 @@ exports.edit = function edit(req, res, next){
       xml2js.parseString(config, function(err, result) {
         if (err) return next(err);
 
+        // Figure out the URLs in XML file
         var params = ((result.project.properties || [])[0] || {})['hudson.model.ParametersDefinitionProperty'];
 
         params = params &&
@@ -54,15 +56,23 @@ exports.edit = function edit(req, res, next){
           params[0].parameterDefinitions[0]['hudson.model.StringParameterDefinition'];
 
         var urls = [];
-        console.log(params, result.project.properties);
         if (params) {
           urls = params.filter(function(param) {
             return param.name[0] === 'PERF_URLS';
           }).map(function(param) {
             return param.defaultValue[0].split(' ');
           })[0];
+        }
 
-          console.log('pp', params, urls);
+        // As well as the cron frequency
+        var timer = result.project.triggers.filter(function(trigger) {
+          return trigger['hudson.triggers.TimerTrigger'];
+        })[0];
+
+        var cron = '';
+        if (timer) {
+          cron = timer['hudson.triggers.TimerTrigger'][0]['spec'][0]
+          console.log(timer, cron);
         }
 
         job.urls = urls;
@@ -71,7 +81,8 @@ exports.edit = function edit(req, res, next){
           title: 'Edit job',
           action: '/api/edit',
           edit: true,
-          job: job
+          job: job,
+          cron: cron
         });
       });
     });

@@ -7,6 +7,9 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
+var request = require('request');
+
+var config = require('./package.json').config;
 
 var app = express();
 
@@ -21,6 +24,7 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.directory(__dirname));
 
 // development only
 if ('development' == app.get('env')) {
@@ -33,6 +37,16 @@ app.get('/edit/:name', routes.edit);
 app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);
 app.post('/api/edit', routes.api.edit);
+
+// Proxy /jenkins prefix to jenkins instance
+if (config.proxy) app.all(/\/(jenkins|static)\/?.*/, function(req, res, next) {
+	var pathname = req.url.replace(/^\/jenkins\/?/, '');
+	var url = config.jenkins + pathname;
+	req.pipe(request(url)).pipe(res);
+});
+
+// Map over /static, jenkins uses this URL for static assets
+//app.all('');
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
