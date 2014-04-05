@@ -3,6 +3,15 @@ var debug = require('debug')('server:index');
 var jenkins = require('../lib/jenkins');
 var xml2js = require('xml2js');
 
+var phantomas = require('phantomas');
+var metadata = phantomas.metadata;
+var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
+  var metric = metadata.metrics[key];
+  metric.name = key;
+  return metric;
+});
+
+
 exports.api = require('./api');
 
 /*
@@ -24,10 +33,22 @@ exports.index = function(req, res, next){
  */
 
 exports.create = function(req, res, next){
+
   res.render('create', {
     title: 'Create job',
     action: '/api/create',
-    cron: '*/15 * * * *'
+    cron: '*/15 * * * *',
+    job: {
+      phantomasJSON: JSON.stringify(
+        JSON.parse('{"film-strip":true,"no-externals":true,"allow-domain":".kk-data.com"}'),
+        null,
+        2
+      )
+    },
+
+    phantomas: {
+      metrics: metrics
+    }
   });
 };
 
@@ -75,14 +96,33 @@ exports.edit = function edit(req, res, next){
           console.log(timer, cron);
         }
 
+        // As well as the phantomas config in JSON_CONFIG
+        var jsonconfig = params.filter(function(param) {
+            return param.name[0] === 'JSON_CONFIG';
+          }).map(function(param) {
+            var data = {};
+            try {
+              data = JSON.parse(param.defaultValue[0]);
+            } catch(e) {}
+
+            return data;
+          })[0];
+
         job.urls = urls;
+        job.phantomasConfig = jsonconfig;
+        job.phantomasJSON = JSON.stringify(jsonconfig, null, 2);
+
+        var phantomas = {};
+        phantomas.metrics = metrics.concat();
+
         debug('Render all');
         res.render('create', {
           title: 'Edit job',
           action: '/api/edit',
           edit: true,
           job: job,
-          cron: cron
+          cron: cron,
+          phantomas: phantomas
         });
       });
     });

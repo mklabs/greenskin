@@ -9,15 +9,42 @@ a {
 
 .CodeMirror.form-control {
     padding: 0;
-    min-height: 600px;
-}
+    
+  -webkit-transition: all 0.3s ease-out; 
+     -moz-transition: all 0.3s ease-out; 
+       -o-transition: all 0.3s ease-out; 
+          transition: all 0.3s ease-out; 
 
+}
+.CodeMirror.form-control.bg-danger {
+  background-color: #F2DEDE;
+
+}
 
 @media (max-width:767px) {
   body {
     padding: 1em;
   }
+  
+  .form-control {
+    margin-top: 8px;
+  }
 }
+
+@media (min-width:768px) {
+  
+  .form-control.col-sm-8 {
+    width: 66.66666667%;
+  }
+  
+  .form-control.col-sm-2 {
+    width: 16.66666667%;
+    margin-left: 8.33333333%;
+  }
+
+}
+
+
 
 .is-hidden {
   display: none;
@@ -45,4 +72,34 @@ a {
     margin-left: 10px;
     color: #c77;
     font-size: 0.9em;
+}
+
+.cron-text {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  color: #777;
+}
+
+.cron-box {
+  position: relative;  
+}
+
+// Styling of JSON editing
+.phantomas-config {
+  position: relative;
+}
+
+.phantomas-config .json-error {
+  position: absolute;
+  right: 20px;
+  bottom: 2px;
+  color: #777;
+  /* color: rgba(140, 87, 87, 0.9); */
+  margin-left: 26px;
+}
+
+
+.metric-unit {
+  padding: 6px;
 }
