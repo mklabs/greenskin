@@ -3,6 +3,9 @@ var debug = require('debug')('server:index');
 var jenkins = require('../lib/jenkins');
 var xml2js = require('xml2js');
 
+
+var Job = require('../lib/job');
+
 var phantomas = require('phantomas');
 var metadata = phantomas.metadata;
 var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
@@ -33,7 +36,6 @@ exports.index = function(req, res, next){
  */
 
 exports.create = function(req, res, next){
-
   res.render('create', {
     title: 'Create job',
     action: '/api/create',
@@ -58,74 +60,25 @@ exports.create = function(req, res, next){
 
 exports.edit = function edit(req, res, next){
   var name = req.params.name;
-  jenkins.job.get(name, function(err, job) {
-    if (err) return next(err);
-    jenkins.job.config(name, function(err, config) {
-      if (err) return next(err);
-      job.xml = config;
+  var job = new Job(name, next);
 
-      xml2js.parseString(config, function(err, result) {
-        if (err) return next(err);
+  job.on('end', function(data) {
+    data.title = 'Edit job';
+    data.action = '/api/edit';
+    data.edit = true;
+    res.render('create', data);
+  });
+};
 
-        // Figure out the URLs in XML file
-        var params = ((result.project.properties || [])[0] || {})['hudson.model.ParametersDefinitionProperty'];
+exports.view = function edit(req, res, next){
+  var name = req.params.name;
+  var job = new Job(name, next);
 
-        params = params &&
-          params[0] &&
-          params[0].parameterDefinitions &&
-          params[0].parameterDefinitions[0] &&
-          params[0].parameterDefinitions[0]['hudson.model.StringParameterDefinition'];
-
-        var urls = [];
-        if (params) {
-          urls = params.filter(function(param) {
-            return param.name[0] === 'PERF_URLS';
-          }).map(function(param) {
-            return param.defaultValue[0].split(' ');
-          })[0];
-        }
-
-        // As well as the cron frequency
-        var timer = result.project.triggers.filter(function(trigger) {
-          return trigger['hudson.triggers.TimerTrigger'];
-        })[0];
-
-        var cron = '';
-        if (timer) {
-          cron = timer['hudson.triggers.TimerTrigger'][0]['spec'][0]
-          console.log(timer, cron);
-        }
-
-        // As well as the phantomas config in JSON_CONFIG
-        var jsonconfig = params.filter(function(param) {
-            return param.name[0] === 'JSON_CONFIG';
-          }).map(function(param) {
-            var data = {};
-            try {
-              data = JSON.parse(param.defaultValue[0]);
-            } catch(e) {}
-
-            return data;
-          })[0];
-
-        job.urls = urls;
-        job.phantomasConfig = jsonconfig;
-        job.phantomasJSON = JSON.stringify(jsonconfig, null, 2);
-
-        var phantomas = {};
-        phantomas.metrics = metrics.concat();
-
-        debug('Render all');
-        res.render('create', {
-          title: 'Edit job',
-          action: '/api/edit',
-          edit: true,
-          job: job,
-          cron: cron,
-          phantomas: phantomas
-        });
-      });
-    });
+  job.on('end', function(data) {
+    data.title = 'View job';
+    data.edit = false;
+    console.log(data.job);
+    res.render('view', data);
   });
 };
 

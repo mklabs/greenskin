@@ -52,6 +52,7 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/create', routes.create);
+app.get('/view/:name', routes.view);
 app.get('/edit/:name', routes.edit);
 app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);

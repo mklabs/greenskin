@@ -1,5 +1,4 @@
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -22,10 +21,6 @@ a {
 }
 
 @media (max-width:767px) {
-  body {
-    padding: 1em;
-  }
-  
   .form-control {
     margin-top: 8px;
   }
@@ -42,6 +37,17 @@ a {
     margin-left: 8.33333333%;
   }
 
+}
+
+.description {
+  font-weight: normal;
+  color: rgb(102, 106, 114);
+  font-size: 15px;  
+  margin: 1em 0;
+}
+
+.job-tabs {
+  margin-top: 35px;  
 }
 
 

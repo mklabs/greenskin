@@ -10,8 +10,9 @@
           <tr>
             <th>Name</th>
             <th>URL</th>
-            <th>Description</th>
             <th>color</th>
+            <th></th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -20,8 +21,10 @@
           <tr>
             <td>{{ name }}</td>
             <td><a href="{{ url }}">{{ url }}</a></td>
-            <td>{{{ description }}}</td>
             <td>{{ color }}</td>
+            <td>
+              <a class="btn btn-default" href="/view/{{ name }}" role="button">View</a>
+            </td>
             <td>
               <a class="btn btn-default" href="/edit/{{ name }}" role="button">Edit</a>
             </td>

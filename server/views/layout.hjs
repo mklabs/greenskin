@@ -7,8 +7,14 @@
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.css">
 </head>
 <body>
-  <h1>{{ title }} <a href="/">/</a></h1>
-
-  {{{ yield }}}
+  <nav class="navbar navbar-default navbar-static-top" role="navigation">
+	<div class="container-fluid">
+	  <h1>{{ title }} <a href="/">/</a></h1>
+	</div>
+  </nav>
+  
+  <div class="container-fluid">
+	  {{{ yield }}}
+  </div>
 </body>
 </html>
