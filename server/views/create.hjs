@@ -1,491 +1,477 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/stylesheets/style.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.css">
-  </head>
-  <body>
-    <h1>{{ title }} <a href="/">/</a></h1>
-
-    <form action="{{ action }}" class="form-horizontal js-form" method="post">
-      <div class="form-group">
-        <label for="ipt_name" class="col-sm-2 control-label">Job name</label>
-        <div class="col-sm-10">
-          <input
-            required
-            {{#edit}}disabled{{/edit}}
-            id="ipt_name"
-            name="name"
-            value="{{ job.name }}"
-            type="text"
-            class="form-control"
-            placeholder="Fancy name">
-
-          {{#edit}}
-          <input type="hidden" name="name" value="{{ job.name }}">
-          {{/edit}}
-        </div>
-      </div>
+<form action="{{ action }}" class="form-horizontal js-form" method="post">
+  <div class="form-group">
+    <label for="ipt_name" class="col-sm-2 control-label">Job name</label>
+    <div class="col-sm-10">
+      <input
+        required
+        {{#edit}}disabled{{/edit}}
+        id="ipt_name"
+        name="name"
+        value="{{ job.name }}"
+        type="text"
+        class="form-control"
+        placeholder="Fancy name">
 
       {{#edit}}
-      <div class="form-group">
-          <label class="col-sm-2 control-label">&nbsp;</label>
-          <a class="btn btn-link js-xml-edit-toggle" href="#" role="button">Edit XML config</a>
-      </div>
+      <input type="hidden" name="name" value="{{ job.name }}">
       {{/edit}}
+    </div>
+  </div>
 
-      <div class="form-group js-xml-edit is-hidden">
-        {{#edit}}
-          <label for="ipt_job_template" class="col-sm-2 control-label">XML Config</label>
-          <div class="col-sm-10">
-            <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
-          </div>
-        {{/edit}}
+  {{#edit}}
+  <div class="form-group">
+      <label class="col-sm-2 control-label">&nbsp;</label>
+      <a class="btn btn-link js-xml-edit-toggle" href="#" role="button">Edit XML config</a>
+  </div>
+  {{/edit}}
 
-        {{^edit}}
-          <label for="ipt_job_template" class="col-sm-2 control-label">Job template</label>
-          <div class="col-sm-10">
-            <select name="template" id="ipt_job_template" class="form-control">
-              <option value="phantomas">phantomas</option>
-            </select>
-          </div>
-        {{/edit}}
+  <div class="form-group js-xml-edit is-hidden">
+    {{#edit}}
+      <label for="ipt_job_template" class="col-sm-2 control-label">XML Config</label>
+      <div class="col-sm-10">
+        <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
       </div>
+    {{/edit}}
 
-      <div class="form-group">
-        <label for="ipt_frequency" class="col-sm-2 control-label">Frequency</label>
-        <div class="col-sm-10">
-          <div class="js-cron form-control cron-box">
-
-            <span class="js-cron-text cron-text"><span>
-          </div>
-          <input type="hidden" name="cron" class="js-cron-input">
-        </div>
+    {{^edit}}
+      <label for="ipt_job_template" class="col-sm-2 control-label">Job template</label>
+      <div class="col-sm-10">
+        <select name="template" id="ipt_job_template" class="form-control">
+          <option value="phantomas">phantomas</option>
+        </select>
       </div>
+    {{/edit}}
+  </div>
 
+  <div class="form-group">
+    <label for="ipt_frequency" class="col-sm-2 control-label">Frequency</label>
+    <div class="col-sm-10">
+      <div class="js-cron form-control cron-box">
 
-      <div class="form-group">
-          <label for="ipt_job_template" class="col-sm-2 control-label">JSON Phantomas Config</label>
-          <div class="col-sm-10 phantomas-config">
-            <textarea class="form-control" rows="15" name="json_config">{{{ job.phantomasJSON }}}</textarea>
-            <span class="js-json-error json-error bg-danger is-hidden"></span>
-          </div>
+        <span class="js-cron-text cron-text"><span>
       </div>
+      <input type="hidden" name="cron" class="js-cron-input">
+    </div>
+  </div>
 
 
-      <div class="form-group js-urls">
-        <label class="col-sm-2 control-label">URLs</label>
-        <div class="col-sm-10">
-          <table class="table">
-            <thead>
-              <tr>
-                <th></th>
-                <th width="10%"></th>
-                <th width="10%"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="is-hidden js-row-template">
-                <td>
-                  <a href="#" class="js-link is-hidden"></a>
-                  <input type="hidden" name="urls[]" class="js-hidden">
-                  <input type="text" value="" class="js-input form-control" placeholder="http://example.com">
-                </td>
-                <td>
-                  <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
-                </td>
-                <td>
-                  <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
-                </td>
-              </tr>
-
-              {{#job.urls}}
-              <tr>
-                <td>
-                  <a href="{{ . }}" class="js-link" target="_blank">{{ . }}</a>
-                  <input type="hidden" name="urls" class="js-hidden" value="{{ . }}">
-                  <input type="text" value="{{ . }}" class="js-input form-control is-hidden">
-                </td>
-                <td>
-                  <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
-                </td>
-                <td>
-                  <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
-                </td>
-              </tr>
-              {{/job.urls}}
-              <tr class="js-create-row">
-                <td colspan="3">
-                  <a class="btn btn-default right js-add" href="#" role="button">Create</a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <div class="form-group">
+      <label for="ipt_job_template" class="col-sm-2 control-label">JSON Phantomas Config</label>
+      <div class="col-sm-10 phantomas-config">
+        <textarea class="form-control" rows="15" name="json_config">{{{ job.phantomasJSON }}}</textarea>
+        <span class="js-json-error json-error bg-danger is-hidden"></span>
       </div>
-
-       <div class="form-group js-metrics">
-        <label class="col-sm-2 control-label">Metrics</label>
-        <div class="col-sm-10">
-          <table class="table">
-            <thead>
-              <tr>
-                <th></th>
-                <th width="10%"></th>
-                <th width="10%"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="is-hidden js-row-template">
-                <td>
-                  <input type="hidden" name="metrics[]" class="js-hidden">
-                  <select class="js-select-metrics form-control col-sm-8">
-                    {{#phantomas.metrics}}
-                    <option value="{{ name }}" data-unit="{{ unit }}">{{ name }} - {{ desc }}</option>
-                    {{/phantomas.metrics}}
-                  </select>
-                  <input type="text" value="" class="form-control col-sm-2 js-metric-value">
-                  <span class="col-sm-1 metric-unit js-unit">number</span>
-                </td>
-                <td>
-                  <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
-                </td>
-                <td>
-                  <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
-                </td>
-              </tr>
-
-              <tr class="js-create-row">
-                <td colspan="3">
-                  <a class="btn btn-default right js-add" href="#" role="button">Create</a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-          <button type="submit" class="btn btn-primary right">Save</button>
-        </div>
-      </div>
+  </div>
 
 
-    </form>
+  <div class="form-group js-urls">
+    <label class="col-sm-2 control-label">URLs</label>
+    <div class="col-sm-10">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th width="10%"></th>
+            <th width="10%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="is-hidden js-row-template">
+            <td>
+              <a href="#" class="js-link is-hidden"></a>
+              <input type="hidden" name="urls[]" class="js-hidden">
+              <input type="text" value="" class="js-input form-control" placeholder="http://example.com">
+            </td>
+            <td>
+              <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
+            </td>
+            <td>
+              <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+            </td>
+          </tr>
 
-  </body>
+          {{#job.urls}}
+          <tr>
+            <td>
+              <a href="{{ . }}" class="js-link" target="_blank">{{ . }}</a>
+              <input type="hidden" name="urls" class="js-hidden" value="{{ . }}">
+              <input type="text" value="{{ . }}" class="js-input form-control is-hidden">
+            </td>
+            <td>
+              <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
+            </td>
+            <td>
+              <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+            </td>
+          </tr>
+          {{/job.urls}}
+          <tr class="js-create-row">
+            <td colspan="3">
+              <a class="btn btn-default right js-add" href="#" role="button">Create</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/xml/xml.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/javascript/javascript.js"></script>
+   <div class="form-group js-metrics">
+    <label class="col-sm-2 control-label">Metrics</label>
+    <div class="col-sm-10">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th width="10%"></th>
+            <th width="10%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="is-hidden js-row-template">
+            <td>
+              <input type="hidden" name="metrics[]" class="js-hidden">
+              <select class="js-select-metrics form-control col-sm-8">
+                {{#phantomas.metrics}}
+                <option value="{{ name }}" data-unit="{{ unit }}">{{ name }} - {{ desc }}</option>
+                {{/phantomas.metrics}}
+              </select>
+              <input type="text" value="" class="form-control col-sm-2 js-metric-value">
+              <span class="col-sm-1 metric-unit js-unit">number</span>
+            </td>
+            <td>
+              <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
+            </td>
+            <td>
+              <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+            </td>
+          </tr>
 
-  <script src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
-  <script src="/js/jquery-cron.js"></script>
-  <script src="/js/jsonlint.js"></script>
-  <script>
-  (function(doc) {
+          <tr class="js-create-row">
+            <td colspan="3">
+              <a class="btn btn-default right js-add" href="#" role="button">Create</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    var page = Object.create({
-      init: function() {
-        this.codemirror();
-        this.table(doc.querySelector('.js-urls'));
-        this.table(doc.querySelector('.js-metrics'));
-
-        this.cron();
-        this.phantomasConfig();
-        this.events();
-
-        this.initMetricTable(doc.querySelector('.js-metrics'));
-      },
-
-      events: function() {
-        var self = this;
-        $('.js-form').on('submit', function(e) {
-          var el = $('[name=json_config]');
-          var err = self.checkJSON(el.val());
-          if (err) return false;
-        });
-
-      },
-
-      checkJSON: function(json) {
-        json = json || {};
-        try {
-          jsonlint.parse(json);
-        } catch(e) {
-          return e;
-        }
-      },
-
-      cron: function cron() {
-        this._cron = $('.js-cron');
-        var input = $('.js-cron-input');
-        var span = $('.js-cron-text');
-
-        var values = {};
-
-        ['5', '10', '15', '20', '30', '45'].forEach(function(value) {
-          values[value + ' Minutes'] = '*/' + value + ' * * * *';
-        });
-
-        var initial = '{{ cron }}';
-
-        this._cron.cron({
-          initial: initial || '* * * * *',
-          
-          customValues: values,
-          onChange: function onChange() {
-            var val = $(this).cron('value');
-            input.val(val);
-            span.text(val);
-          }
-        });
-      },
-
-      phantomasConfig: function phantomasConfig() {
-        var textarea = doc.querySelector('[name=json_config]');
-        if (!textarea) return;
-        var cm = CodeMirror.fromTextArea(textarea, {
-          mode: 'javascript',
-          json: true,
-          tabSize: 2
-        });
-
-        $('.CodeMirror').addClass('form-control');
-        
-        $(textarea).data('codemirror', cm);
-
-        var self = this;
-        cm.on('change', function(e) {
-          var el = $('.js-json-error');
-          var err = self.checkJSON(cm.getValue());
-          if (err) {
-            el
-            .removeClass('is-hidden').text(err.message)
-            .closest('.form-group').addClass('has-error')
-            .find('.form-control').addClass('bg-danger');
-          } else {
-            el
-            .addClass('is-hidden').text('')
-            .closest('.form-group').removeClass('has-error')
-            .find('.form-control').removeClass('bg-danger');
-
-            if (!self._lock) self.initMetricTable(doc.querySelector('.js-metrics'));
-            self._lock = false;
-          }
-        });
-      },
-
-      codemirror: function codemirror() {
-        // Build codemirror instance
-        var textarea = doc.querySelector('[name=xml]');
-        if (!textarea) return;
-        var cm = CodeMirror.fromTextArea(textarea, {
-          mode: 'xml',
-          tabSize: 2
-        });
-
-        $('.CodeMirror').addClass('form-control');
-        $(textarea).data('codemirror', cm);
-
-        // Bind toggle link
-        var link = doc.querySelector('.js-xml-edit-toggle');
-        var xmlBox = doc.querySelector('.js-xml-edit');
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          var hidden = !!~xmlBox.className.indexOf('is-hidden');
-          if (!hidden) {
-            xmlBox.className += ' is-hidden';
-          } else {
-            xmlBox.className = xmlBox.className.replace(/\s?is-hidden\s?/, '');
-            cm.refresh();
-          }
-        }, false);
-      }, 
-
-      metricChanged: function metricChanged(e) {
-          console.log('metricChanged', e);
-          var row = $(e.target).closest('tr');
-          var select = row.find('.js-select-metrics');
-          var value = row.find('.js-metric-value');
-          var input = row.find('.js-hidden');
-
-          var metric = select.val();
-          var selected = select.find('[value="' + metric + '"]')
-          var unit = row.find('.js-unit').text(selected.data('unit') || '');
-
-          var val = parseInt(value.val(), 10);
-          if (isNaN(val) || !/^\d+$/.test(value.val())) {
-            val = '';
-            row.addClass('has-error');
-            return;
-          } else {
-            row.removeClass('has-error');
-          }
-
-          var metricValue = metric + ':' + val;
-          input.val(metricValue);
-
-          row[0].className = row[0].className.replace(/metric-[^\s]+/, 'metric-' + metric);
-
-          this._lock = true;
-          this.updateJSONFromMetricsTable(row);
-      },
-
-      updateJSONFromMetricsTable: function updateJSONFromMetricsTable(row) {
-          // Update JSON config textarea and editor
-          var metrics = row.closest('table').find('[name="metrics[]"]').serializeArray();
-
-          metrics = metrics.filter(function(metric) {
-            return metric.value;
-          }).map(function(metric) {
-            return metric.value.split(':')
-          }).reduce(function (a, b) {
-            a[b[0]] = parseInt(b[1], 10);
-            return a;
-          }, {});
-
-          var cm = $('[name=json_config]').data('codemirror');
-          var json = cm.getValue();
-
-          var data = {};
-          try {
-            data = JSON.parse(json);
-          } catch(e) {
-            return;
-          }
-
-          // data.metrics = $.extend({}, data.metrics, metrics);
-          data.asserts = metrics;
-
-          json = JSON.stringify(data, null, 2);
-          cm.setValue(json);
-      },
-
-      initMetricTable: function(table) {
-          var cm = $('[name=json_config]').data('codemirror');
-          var json = cm.getValue();
-          var data = {};
-
-          try {
-            data = JSON.parse(json);
-          } catch(e) {
-            console.error(e);
-            return;
-          }
-
-          var asserts = data.asserts || {};
-
-          var template = table.querySelector('.js-row-template');
-          var tbody = table.querySelector('tbody');
-          var createRow = table.querySelector('.js-create-row');
-
-          Object.keys(asserts).forEach(function(assert) {
-            var valid = $(tbody).find('option[value="' + assert + '"]').length;
-
-            if (!valid) return;
-
-            var existing = $(tbody).find('.metric-' + assert);
-            var tpl = existing.length ? existing[0] : template.cloneNode(true);
-            tpl.className = tpl.className.replace(/is-hidden/, 'metric-' + assert);
-            tpl.className = tpl.className.replace(/js-row-template/, '');
-
-            if (!existing.length) tbody.insertBefore(tpl, createRow);
-
-            var value = asserts[assert];
-            $(tpl).find('.js-metric-value').val(value);
-            $(tpl).find('.js-select-metrics').val(assert);
-            $(tpl).find('.js-hidden').val(assert + ':' + value);
-          }, this);
-        
-      },
-
-      table: function table(el) {
-        // URLs table
-        var urlAdd = el.querySelector('.js-add');
-        var tbody = el.querySelector('tbody');
-        var template = el.querySelector('.js-row-template');
-        var createRow = el.querySelector('.js-create-row');
-        var self = this;
-
-        $(el).on('change', '.js-select-metrics', $.proxy(this.metricChanged, this));
-        $(el).on('keyup', '.js-metric-value', $.proxy(this.metricChanged, this));
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-primary right">Save</button>
+    </div>
+  </div>
 
 
-        // Link for add button
-        urlAdd.addEventListener('click', function(e) {
-          e.preventDefault();
-          var tpl = template.cloneNode(true);
-          var replacement = tpl.querySelector('select') ? 'metric-DOMinserts' : '';
-          tpl.className = tpl.className.replace(/is-hidden/, '');
-          tpl.className = tpl.className.replace(/js-row-template/, replacement);
+</form>
 
-          tbody.insertBefore(tpl, createRow);
-        }, false);
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/xml/xml.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/javascript/javascript.js"></script>
 
-        // Click links toggle edit mode
-        el.addEventListener('click', function(e) {
-          e.preventDefault();
-          var target = e.target;
-          if (!target) return;
+<script src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
+<script src="/js/jquery-cron.js"></script>
+<script src="/js/jsonlint.js"></script>
+<script>
+(function(doc) {
 
-          var row = target.parentElement;
-          var input = row.querySelector('.js-input');
+  var page = Object.create({
+    init: function() {
+      this.codemirror();
+      this.table(doc.querySelector('.js-urls'));
+      this.table(doc.querySelector('.js-metrics'));
 
-          if (target.classList.contains('js-link')) {
-            target.classList.add('is-hidden');
-            input.classList.remove('is-hidden');
-            input.focus();
-          }
+      this.cron();
+      this.phantomasConfig();
+      this.events();
 
-          if (target.classList.contains('js-edit')) {
-            row = target.parentElement.parentElement;
-            target = row.querySelector('.js-link');
-            input = row.querySelector('.js-input');
-            target.classList.add('is-hidden');
-            input.classList.remove('is-hidden');
-            input.focus();
-          }
+      this.initMetricTable(doc.querySelector('.js-metrics'));
+    },
 
-          if (target.classList.contains('js-delete')) {
-            row = target.parentElement.parentElement;
-            tbody.removeChild(row);
-            self.updateJSONFromMetricsTable($(tbody));
-          }
+    events: function() {
+      var self = this;
+      $('.js-form').on('submit', function(e) {
+        var el = $('[name=json_config]');
+        var err = self.checkJSON(el.val());
+        if (err) return false;
+      });
 
-        }, true);
+    },
 
-        // Blur event on inputs
-        el.addEventListener('blur', function(e) {
-          e.preventDefault();
-          var target = e.target;
-          if (!target) return;
-
-          var row = target.parentElement;
-          var link = row.querySelector('.js-link');
-          var hidden = row.querySelector('.js-hidden');
-          if (!target.value) return;
-
-          if (target.classList.contains('js-input')) {
-            console.log('Blured!', e);
-            console.log('Target', target);
-
-            target.classList.add('is-hidden');
-            link.classList.remove('is-hidden');
-            link.innerText = target.value;
-            hidden.value = target.value;
-          }
-
-        }, true);
+    checkJSON: function(json) {
+      json = json || {};
+      try {
+        jsonlint.parse(json);
+      } catch(e) {
+        return e;
       }
-    });
+    },
+
+    cron: function cron() {
+      this._cron = $('.js-cron');
+      var input = $('.js-cron-input');
+      var span = $('.js-cron-text');
+
+      var values = {};
+
+      ['5', '10', '15', '20', '30', '45'].forEach(function(value) {
+        values[value + ' Minutes'] = '*/' + value + ' * * * *';
+      });
+
+      var initial = '{{ cron }}';
+
+      this._cron.cron({
+        initial: initial || '* * * * *',
+        
+        customValues: values,
+        onChange: function onChange() {
+          var val = $(this).cron('value');
+          input.val(val);
+          span.text(val);
+        }
+      });
+    },
+
+    phantomasConfig: function phantomasConfig() {
+      var textarea = doc.querySelector('[name=json_config]');
+      if (!textarea) return;
+      var cm = CodeMirror.fromTextArea(textarea, {
+        mode: 'javascript',
+        json: true,
+        tabSize: 2
+      });
+
+      $('.CodeMirror').addClass('form-control');
+      
+      $(textarea).data('codemirror', cm);
+
+      var self = this;
+      cm.on('change', function(e) {
+        var el = $('.js-json-error');
+        var err = self.checkJSON(cm.getValue());
+        if (err) {
+          el
+          .removeClass('is-hidden').text(err.message)
+          .closest('.form-group').addClass('has-error')
+          .find('.form-control').addClass('bg-danger');
+        } else {
+          el
+          .addClass('is-hidden').text('')
+          .closest('.form-group').removeClass('has-error')
+          .find('.form-control').removeClass('bg-danger');
+
+          if (!self._lock) self.initMetricTable(doc.querySelector('.js-metrics'));
+          self._lock = false;
+        }
+      });
+    },
+
+    codemirror: function codemirror() {
+      // Build codemirror instance
+      var textarea = doc.querySelector('[name=xml]');
+      if (!textarea) return;
+      var cm = CodeMirror.fromTextArea(textarea, {
+        mode: 'xml',
+        tabSize: 2
+      });
+
+      $('.CodeMirror').addClass('form-control');
+      $(textarea).data('codemirror', cm);
+
+      // Bind toggle link
+      var link = doc.querySelector('.js-xml-edit-toggle');
+      var xmlBox = doc.querySelector('.js-xml-edit');
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var hidden = !!~xmlBox.className.indexOf('is-hidden');
+        if (!hidden) {
+          xmlBox.className += ' is-hidden';
+        } else {
+          xmlBox.className = xmlBox.className.replace(/\s?is-hidden\s?/, '');
+          cm.refresh();
+        }
+      }, false);
+    }, 
+
+    metricChanged: function metricChanged(e) {
+        console.log('metricChanged', e);
+        var row = $(e.target).closest('tr');
+        var select = row.find('.js-select-metrics');
+        var value = row.find('.js-metric-value');
+        var input = row.find('.js-hidden');
+
+        var metric = select.val();
+        var selected = select.find('[value="' + metric + '"]')
+        var unit = row.find('.js-unit').text(selected.data('unit') || '');
+
+        var val = parseInt(value.val(), 10);
+        if (isNaN(val) || !/^\d+$/.test(value.val())) {
+          val = '';
+          row.addClass('has-error');
+          return;
+        } else {
+          row.removeClass('has-error');
+        }
+
+        var metricValue = metric + ':' + val;
+        input.val(metricValue);
+
+        row[0].className = row[0].className.replace(/metric-[^\s]+/, 'metric-' + metric);
+
+        this._lock = true;
+        this.updateJSONFromMetricsTable(row);
+    },
+
+    updateJSONFromMetricsTable: function updateJSONFromMetricsTable(row) {
+        // Update JSON config textarea and editor
+        var metrics = row.closest('table').find('[name="metrics[]"]').serializeArray();
+
+        metrics = metrics.filter(function(metric) {
+          return metric.value;
+        }).map(function(metric) {
+          return metric.value.split(':')
+        }).reduce(function (a, b) {
+          a[b[0]] = parseInt(b[1], 10);
+          return a;
+        }, {});
+
+        var cm = $('[name=json_config]').data('codemirror');
+        var json = cm.getValue();
+
+        var data = {};
+        try {
+          data = JSON.parse(json);
+        } catch(e) {
+          return;
+        }
+
+        // data.metrics = $.extend({}, data.metrics, metrics);
+        data.asserts = metrics;
+
+        json = JSON.stringify(data, null, 2);
+        cm.setValue(json);
+    },
+
+    initMetricTable: function(table) {
+        var cm = $('[name=json_config]').data('codemirror');
+        var json = cm.getValue();
+        var data = {};
+
+        try {
+          data = JSON.parse(json);
+        } catch(e) {
+          console.error(e);
+          return;
+        }
+
+        var asserts = data.asserts || {};
+
+        var template = table.querySelector('.js-row-template');
+        var tbody = table.querySelector('tbody');
+        var createRow = table.querySelector('.js-create-row');
+
+        Object.keys(asserts).forEach(function(assert) {
+          var valid = $(tbody).find('option[value="' + assert + '"]').length;
+
+          if (!valid) return;
+
+          var existing = $(tbody).find('.metric-' + assert);
+          var tpl = existing.length ? existing[0] : template.cloneNode(true);
+          tpl.className = tpl.className.replace(/is-hidden/, 'metric-' + assert);
+          tpl.className = tpl.className.replace(/js-row-template/, '');
+
+          if (!existing.length) tbody.insertBefore(tpl, createRow);
+
+          var value = asserts[assert];
+          $(tpl).find('.js-metric-value').val(value);
+          $(tpl).find('.js-select-metrics').val(assert);
+          $(tpl).find('.js-hidden').val(assert + ':' + value);
+        }, this);
+      
+    },
+
+    table: function table(el) {
+      // URLs table
+      var urlAdd = el.querySelector('.js-add');
+      var tbody = el.querySelector('tbody');
+      var template = el.querySelector('.js-row-template');
+      var createRow = el.querySelector('.js-create-row');
+      var self = this;
+
+      $(el).on('change', '.js-select-metrics', $.proxy(this.metricChanged, this));
+      $(el).on('keyup', '.js-metric-value', $.proxy(this.metricChanged, this));
 
 
-    page.init();
+      // Link for add button
+      urlAdd.addEventListener('click', function(e) {
+        e.preventDefault();
+        var tpl = template.cloneNode(true);
+        var replacement = tpl.querySelector('select') ? 'metric-DOMinserts' : '';
+        tpl.className = tpl.className.replace(/is-hidden/, '');
+        tpl.className = tpl.className.replace(/js-row-template/, replacement);
 
-  })(document);
-  </script>
-</html>
+        tbody.insertBefore(tpl, createRow);
+      }, false);
+
+      // Click links toggle edit mode
+      el.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = e.target;
+        if (!target) return;
+
+        var row = target.parentElement;
+        var input = row.querySelector('.js-input');
+
+        if (target.classList.contains('js-link')) {
+          target.classList.add('is-hidden');
+          input.classList.remove('is-hidden');
+          input.focus();
+        }
+
+        if (target.classList.contains('js-edit')) {
+          row = target.parentElement.parentElement;
+          target = row.querySelector('.js-link');
+          input = row.querySelector('.js-input');
+          target.classList.add('is-hidden');
+          input.classList.remove('is-hidden');
+          input.focus();
+        }
+
+        if (target.classList.contains('js-delete')) {
+          row = target.parentElement.parentElement;
+          tbody.removeChild(row);
+          self.updateJSONFromMetricsTable($(tbody));
+        }
+
+      }, true);
+
+      // Blur event on inputs
+      el.addEventListener('blur', function(e) {
+        e.preventDefault();
+        var target = e.target;
+        if (!target) return;
+
+        var row = target.parentElement;
+        var link = row.querySelector('.js-link');
+        var hidden = row.querySelector('.js-hidden');
+        if (!target.value) return;
+
+        if (target.classList.contains('js-input')) {
+          console.log('Blured!', e);
+          console.log('Target', target);
+
+          target.classList.add('is-hidden');
+          link.classList.remove('is-hidden');
+          link.innerText = target.value;
+          hidden.value = target.value;
+        }
+
+      }, true);
+    }
+  });
+
+
+  page.init();
+
+})(document);
+</script>

@@ -5,6 +5,8 @@
 
 var express = require('express');
 var routes = require('./routes');
+
+var fs = require('fs');
 var http = require('http');
 var path = require('path');
 var request = require('request');
@@ -16,6 +18,23 @@ var app = express();
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
+
+// Lame layout system hack
+var hjs = require('hjs');
+var __express = hjs.__express;
+hjs.__express = function(name, options, fn) {
+	var layout = options._layout || 'layout';
+	__express(name, options, function(err, body) {
+		if (err) return fn(err);
+		fs.readFile(path.join(__dirname, 'views', layout + '.hjs'), 'utf8', function(err, layout) {
+			if (err) return fn(err);
+			var tpl = hjs.compile(layout);
+			options.yield = body;
+			return fn(null, tpl.render(options))
+		});
+	});
+};
+
 app.set('view engine', 'hjs');
 app.use(express.favicon());
 app.use(express.logger('dev'));
