@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var debug = require('debug')('routes:api');
+var debug = require('debug')('server:routes:api');
 var jenkins = require('../lib/jenkins');
 
 var config = require('../package.json').config;
@@ -10,7 +10,6 @@ var jobReg = new RegExp('^' + config.job_prefix);
 exports.create = function create(req, res, next){
   var params = req.body;
   debug('API create', params);
-
 
   // Get back XML file from job template param
   fs.readFile(path.join(__dirname, '../data', params.template + '.xml'), 'utf8', function(err, xml) {
@@ -53,9 +52,9 @@ exports.edit = function edit(req, res, next){
   var xml = replaceUrlsXML(params.xml, urls);
   xml = replaceTimerXML(xml, params.cron);
 
-  var config;
+  var jsonconfig;
   try {
-    config = JSON.parse(params.json_config);
+    jsonconfig = JSON.parse(params.json_config);
     params.json_config = JSON.stringify(config);
   } catch(e) {
     return next(e);

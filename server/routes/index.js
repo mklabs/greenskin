@@ -37,21 +37,12 @@ exports.index = function(req, res, next){
  */
 
 exports.create = function(req, res, next){
-  res.render('create', {
-    title: 'Create job',
-    action: '/api/create',
-    cron: '*/15 * * * *',
-    job: {
-      phantomasJSON: JSON.stringify(
-        JSON.parse('{"film-strip":true,"no-externals":true,"allow-domain":".kk-data.com"}'),
-        null,
-        2
-      )
-    },
+  var job = new Job('', next);
 
-    phantomas: {
-      metrics: metrics
-    }
+  job.on('end', function(data) {
+    data.title = 'Create job';
+    data.action = '/api/create';
+    res.render('create', data);
   });
 };
 

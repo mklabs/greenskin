@@ -4,7 +4,7 @@
   <description>Testing out phantomas metrics</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
-    <numToKeep>3</numToKeep>
+    <numToKeep>20</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
     <artifactNumToKeep>-1</artifactNumToKeep>
   </logRotator>
@@ -25,12 +25,12 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://travel.kelkoo.co.uk http://voyages.kelkoo.fr http://voyages.kelkoo.fr http://viaggi.kelkoo.it/ http://viajes.kelkoo.es/</defaultValue>
+          <defaultValue>http://example.com http://example.com/another-url</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue>{"film-strip":true,"no-externals":true,"allow-domain":".kk-data.com","asserts":{"notFound":0,"onDOMReadyTime":1500}}</defaultValue>
+          <defaultValue>{"film-strip":true, "a": 2, "no-externals":true,"allow-domain":".kk-data.com","asserts":{}}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
@@ -234,7 +234,7 @@ async.series(
 
       debug('Writing TAP results to', 'latest.tap');
       fs.writeFileSync('latest.tap', resTap);
-        
+
       reporter(result, options).render(callback);
     }, doneFn);
   }
