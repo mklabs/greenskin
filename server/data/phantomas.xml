@@ -1,4 +1,3 @@
-
 <?xml version="1.0" encoding="UTF-8"?><project>
   <actions/>
   <description>Testing out phantomas metrics</description>
@@ -41,6 +40,7 @@
     </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>R8_3</assignedNode>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -53,7 +53,8 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>[ -e node_modules ] || npm install phantomas debug async optimist tap-eater mkdirp</command>
+      <command>echo &quot;{}&quot; &gt; package.json
+[ -e node_modules ] || npm install phantomas debug async optimist tap-eater mkdirp</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/usr/bin/env node

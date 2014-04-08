@@ -21,30 +21,30 @@ var phantomasXmlTemplate = fs.readFileSync(path.join(__dirname, '../data', 'phan
 module.exports = Job;
 
 function Job(name, next, options) {
-	this.options = options || {};
-	this.name = name;
-	this.next = next;
+  this.options = options || {};
+  this.name = name;
+  this.next = next;
   this.xmlTemplate = this.options.xmlTemplate || phantomasXmlTemplate;
-	this.init();
+  this.init();
 }
 
 util.inherits(Job, events.EventEmitter);
 
 Job.prototype.init = function() {
-	var name = this.name;
-	var next = this.next;
-	var self = this;
+  var name = this.name;
+  var next = this.next;
+  var self = this;
 
   // No name, inited from raw XML
   if (!name) {
     return process.nextTick(this.config.bind(this, null, this.xmlTemplate));
   }
 
-	jenkins.job.get(name, function(err, job) {
-		if (err) return next(err);
-    this._job = job;
-		jenkins.job.config(name, this.config.bind(this));
-	});
+  jenkins.job.get(name, function(err, job) {
+    if (err) return next(err);
+    self._job = job;
+    jenkins.job.config(name, self.config.bind(self));
+  });
 };
 
 

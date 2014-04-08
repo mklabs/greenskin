@@ -2,7 +2,7 @@
 var debug = require('debug')('server:index');
 var jenkins = require('../lib/jenkins');
 var xml2js = require('xml2js');
-
+var request = require('request');
 
 var Job = require('../lib/job');
 
@@ -22,7 +22,7 @@ exports.api = require('./api');
  * GET home page.
  */
 
-exports.index = function(req, res, next){
+exports.index = function(req, res, next) {
   debug('Index', req.url);
   jenkins.all(function(err, jobs) {
     if (err) return next(err);
@@ -36,7 +36,7 @@ exports.index = function(req, res, next){
  * GET create job page
  */
 
-exports.create = function(req, res, next){
+exports.create = function(req, res, next) {
   var job = new Job('', next);
 
   job.on('end', function(data) {
@@ -50,7 +50,7 @@ exports.create = function(req, res, next){
  * GET edit job page
  */
 
-exports.edit = function edit(req, res, next){
+exports.edit = function edit(req, res, next) {
   var name = req.params.name;
   var job = new Job(name, next);
 
@@ -62,19 +62,27 @@ exports.edit = function edit(req, res, next){
   });
 };
 
-exports.view = function view(req, res, next){
+exports.view = function view(req, res, next) {
   var name = req.params.name;
   var job = new Job(name, next);
 
   job.on('end', function(data) {
     data.title = 'View job';
     data.edit = false;
-    console.log(data.job);
     res.render('view', data);
   });
 };
 
-exports.buildView = function buildView(req, res, next){
+exports.har = function har(req, res, next) {
+  var name = req.params.name;
+  var number = req.params.number;
+  var url = req.params.url;
+
+  var jenkinsHarUrl = (config.jenkins).replace(/:\/\/\w.+:\w+@/, '://') + 'job/' + name + '/ws/results/' + number + '/' + url + '/har.json';
+  req.pipe(request(jenkinsHarUrl)).pipe(res);
+};
+
+exports.buildView = function buildView(req, res, next) {
   var name = req.params.name;
   var number = req.params.number;
   var job = new Job(name, next);
@@ -83,11 +91,56 @@ exports.buildView = function buildView(req, res, next){
     data.title = 'View job';
     data.edit = false;
     data.number = number;
-    console.log(data.job);
+
+    var jenkinsBase = (config.jenkins).replace(/:\/\/\w.+:\w+@/, '://') + 'job/' + data.job.name + '/ws/results/' + data.number + '/';
 
     data.config = config;
-    data.job._urls = data.job.urls.map(cleanUrl);
-    res.render('build', data);
+    data.job._urls = [];
+
+    // Async each on URLs to get the JSON file index from Jenkins workspace
+    var urls = data.job.urls.concat();
+    (function loop(url) {
+      if (!url) {
+        return res.render('build', data);
+      }
+
+      var id = cleanUrl(url);
+      var fileindex = jenkinsBase + id + '/filmstrip/files.json';
+
+      var urlData = {
+        url: url,
+        id: id,
+        jenkinsHar: jenkinsBase + id + '/har.json',
+        localHar: '/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
+        jenkinsFilmstripDir: jenkinsBase + id + '/filmstrip/',
+        fileindex: fileindex
+      };
+
+      request(fileindex, { json: true }, function(err, res, response) {
+        if (err) return next(err);
+
+        function extractTime(obj) {
+          var value = obj.split('-').slice(-1)[0].replace('.png', '');
+          return parseInt(value, 10);
+        }
+
+        var files = Array.isArray(response) ? response : [];
+        urlData.screenshots = files.map(function(file) {
+          return {
+            url: urlData.jenkinsFilmstripDir + file,
+            time: extractTime(file)
+          };
+        }).sort(function(a, b) {
+          return a.time > b.time;
+        });
+
+        data.job._urls.push(urlData);
+        loop(urls.shift());
+      });
+
+    })(urls.shift());
+
+
   });
 };
 
@@ -104,7 +157,7 @@ function cleanUrl(url) {
  * GET delete job
  */
 
-exports.destroy = function destroy(req, res, next){
+exports.destroy = function destroy(req, res, next) {
   var name = req.params.name;
   jenkins.job.delete(name, function(err) {
     if (err) return next(err);

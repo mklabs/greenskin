@@ -3,8 +3,12 @@
 <head>
   <title>{{ title }}</title>
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/stylesheets/style.css">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.css">
+
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="stylesheet" href="/vendor/har-view/har-viewer.css">
+  <link rel="stylesheet" href="/vendor/har-view/jquery-ui.css">
+  {{{ moreCss }}
 </head>
 <body>
   <nav class="navbar navbar-default navbar-static-top" role="navigation">
@@ -12,9 +16,27 @@
 	  <h1>{{ title }} <a href="/">/</a></h1>
 	</div>
   </nav>
-  
+
   <div class="container-fluid">
 	  {{{ yield }}}
   </div>
+
+  <script src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/codemirror.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/xml/xml.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/javascript/javascript.js"></script>
+
+  <script src="/vendor/jquery-cron.js"></script>
+  <script src="/vendor/jsonlint.js"></script>
+  <script src="/vendor/select2/select2.js"></script>
+  <script src="/vendor/mustache.js"></script>
+  <script src="/vendor/humanize.min.js"></script>
+  <script src="/vendor/jquery-ui.min.js"></script>
+  <script src="/vendor/har-viewer.js"></script>
+
+  <script src="/js/pages/create.js"></script>
+  <script src="/js/pages/build.js"></script>
+
+  {{{ moreJs }}
 </body>
 </html>

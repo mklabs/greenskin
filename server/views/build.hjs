@@ -12,12 +12,39 @@
   <li class="active"><a href="#">Build {{ number }}</a></li>
 </ul>
 
-<p>
-  {{#job._urls}}
-  <a href="{{ config.jenkins }}/job/{{ job.name }}/ws/results/{{ number }}/{{ . }}/har.json">{{ . }}</a> |
-  {{/job._urls}}
-</p>
+{{#job._urls}}
+<div class="build-url js-build">
+  <h3 class="build-url-title"><a href="{{ url }}">{{ url }}</a></h3>
+  <p class="build-url-description">
+    HAR file: <a href="{{ jenkinsHar }}">{{ id }}</a>
+  </p>
+  <p class="build-url-description">
+    Filmstrip directory: <a href="{{ jenkinsFilmstripDir }}">{{ jenkinsFilmstripDir }}</a>
+  </p>
+  <div class="build-url-timeline">
+    <table>
+      <tr>
+      {{#screenshots}}
+        <td>
+          {{ time }}ms
+        </td>
+      {{/screenshots}}
+      </tr>
 
-<div class="js-har">
-HAR
+      <tr>
+      {{#screenshots}}
+        <td>
+          <a href="{{ url }}">
+            <img src="{{ url }}" width="200" height="120">
+          </a>
+        </td>
+      {{/screenshots}}
+      </tr>
+    </table>
+  </div>
+
+  <div class="build-url-har js-har" data-file="{{ localHar }}"></div>
+
 </div>
+{{/job._urls}}
+

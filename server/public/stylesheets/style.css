@@ -8,11 +8,11 @@ a {
 
 .CodeMirror.form-control {
     padding: 0;
-    
-  -webkit-transition: all 0.3s ease-out; 
-     -moz-transition: all 0.3s ease-out; 
-       -o-transition: all 0.3s ease-out; 
-          transition: all 0.3s ease-out; 
+
+  -webkit-transition: all 0.3s ease-out;
+     -moz-transition: all 0.3s ease-out;
+       -o-transition: all 0.3s ease-out;
+          transition: all 0.3s ease-out;
 
 }
 .CodeMirror.form-control.bg-danger {
@@ -27,11 +27,11 @@ a {
 }
 
 @media (min-width:768px) {
-  
+
   .form-control.col-sm-8 {
     width: 66.66666667%;
   }
-  
+
   .form-control.col-sm-2 {
     width: 16.66666667%;
     margin-left: 8.33333333%;
@@ -42,12 +42,12 @@ a {
 .description {
   font-weight: normal;
   color: rgb(102, 106, 114);
-  font-size: 15px;  
+  font-size: 15px;
   margin: 1em 0;
 }
 
 .job-tabs {
-  margin-top: 35px;  
+  margin-top: 35px;
 }
 
 
@@ -64,8 +64,8 @@ a {
     height: 16px;
     padding-left: 20px;
     margin-left: 5px;
-    background-repeat: no-repeat; 
-    background-position: center center; 
+    background-repeat: no-repeat;
+    background-position: center center;
     cursor: pointer;
 }
 
@@ -88,10 +88,10 @@ a {
 }
 
 .cron-box {
-  position: relative;  
+  position: relative;
 }
 
-// Styling of JSON editing
+/* Styling of JSON editing */
 .phantomas-config {
   position: relative;
 }
@@ -108,4 +108,21 @@ a {
 
 .metric-unit {
   padding: 6px;
+}
+
+/** Build View **/
+.build-url-title {
+  border-bottom: 1px solid #dedede;
+  padding-bottom: 0.5em;
+}
+
+.build-url-timeline {}
+
+.build-url-timeline img {
+  border: 1px solid #ccc;
+}
+
+.build-url-har {
+  margin-top: 35px;
+  border: 1px solid #dedede;
 }
