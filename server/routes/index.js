@@ -14,6 +14,7 @@ var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
   return metric;
 });
 
+var config = require('../package.json').config;
 
 exports.api = require('./api');
 
@@ -70,7 +71,7 @@ exports.edit = function edit(req, res, next){
   });
 };
 
-exports.view = function edit(req, res, next){
+exports.view = function view(req, res, next){
   var name = req.params.name;
   var job = new Job(name, next);
 
@@ -81,6 +82,32 @@ exports.view = function edit(req, res, next){
     res.render('view', data);
   });
 };
+
+exports.buildView = function buildView(req, res, next){
+  var name = req.params.name;
+  var number = req.params.number;
+  var job = new Job(name, next);
+
+  job.on('end', function(data) {
+    data.title = 'View job';
+    data.edit = false;
+    data.number = number;
+    console.log(data.job);
+
+    data.config = config;
+    data.job._urls = data.job.urls.map(cleanUrl);
+    res.render('build', data);
+  });
+};
+
+
+// Helper to cleanup URL for filesystem I/O or graphite keys
+function cleanUrl(url) {
+  return url
+    .replace(/^https?:\/\//, '')
+    .replace(/\/$/g, '')
+    .replace(/(\/|\?|-|&amp;|=|\.)/g, '_');
+}
 
 /*
  * GET delete job

@@ -1,0 +1,23 @@
+<h3>{{ job.name }}</h3>
+
+<p class="description">
+  {{ job.description }}
+</p>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs job-tabs">
+  <li><a href="#current" data-toggle="tab">Build History</a></li>
+  <li><a href="#builds" data-toggle="tab">Current</a></li>
+  <li><a href="#metrics" data-toggle="tab">Metrics</a></li>
+  <li class="active"><a href="#">Build {{ number }}</a></li>
+</ul>
+
+<p>
+  {{#job._urls}}
+  <a href="{{ config.jenkins }}/job/{{ job.name }}/ws/results/{{ number }}/{{ . }}/har.json">{{ . }}</a> |
+  {{/job._urls}}
+</p>
+
+<div class="js-har">
+HAR
+</div>

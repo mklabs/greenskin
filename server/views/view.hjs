@@ -19,7 +19,7 @@
         {{#job.builds}}
         <tr>
           <td>{{ number }} </td>
-          <td><a href="{{ url }}">{{ url }}</a></td>
+          <td><a href="/view/{{ job.name }}/{{ number }}">{{ url }}</a></td>
         </tr>
         {{/job.builds}}
       </tbody>

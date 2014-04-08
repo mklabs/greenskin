@@ -1,7 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<project>
+
+<?xml version="1.0" encoding="UTF-8"?><project>
   <actions/>
-  <description>&lt;p&gt;Some desc&lt;/p&gt;</description>
+  <description>Testing out phantomas metrics</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>3</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -13,41 +19,44 @@
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_PORT</name>
-          <description></description>
+          <description/>
           <defaultValue>8125</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://travel.kelkoo.co.uk http://kelkoo.fr http://example.com</defaultValue>
+          <defaultValue>http://travel.kelkoo.co.uk http://voyages.kelkoo.fr http://voyages.kelkoo.fr http://viaggi.kelkoo.it/ http://viajes.kelkoo.es/</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue>{ &quot;film-strip&quot;: true, &quot;no-externals&quot;: true, &quot;allow-domain&quot;:  &quot;.kk-data.com&quot;, &quot;asserts&quot;: { &quot;timeToFirstByte&quot;: 300, &quot;windowOnLoadTime&quot;: 800 } }</defaultValue>
+          <defaultValue>{"film-strip":true,"no-externals":true,"allow-domain":".kk-data.com","asserts":{"notFound":0,"onDOMReadyTime":1500}}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>DEBUG</name>
+          <description>Log debug option</description>
+          <defaultValue>*</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <com.gmail.ikeike443.PlayAutoTestJobProperty plugin="play-autotest-plugin@0.0.12"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <!-- <assignedNode>R8_3</assignedNode> -->
-  <canRoam>false</canRoam>
+  <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector">
+  <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H/15 * * * *</spec>
+      <spec>*/30 * * * *</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>[ -e node_modules ] || npm install phantomas debug async optimist tap-eater</command>
+      <command>[ -e node_modules ] || npm install phantomas debug async optimist tap-eater mkdirp</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command><![CDATA[#!/usr/bin/env node
+      <command>#!/usr/bin/env node
 
 var path = require('path');
 var fs = require('fs');
@@ -56,13 +65,15 @@ var base = path.resolve('node_modules');
 var phantomas = require(path.join(base, 'phantomas'));
 var async = require(path.join(base, 'async'));
 var debug = require(path.join(base, 'debug'))('phantomas:cli');
+var mkdirp = require(path.join(base, 'mkdirp'));
+
 var options = {};
 var runs;
 var program = require(path.join(base, 'optimist'))('phantomas:cli');
 
 // parse options
 program
-  .usage('PhantomJS-based web performance metrics collector\n\nphantomas <url> [options]')
+  .usage('PhantomJS-based web performance metrics collector\n\nphantomas &lt;url&gt; [options]')
 
   // mandatory
   .describe('url', 'Set URL to work with').string('url')
@@ -134,13 +145,21 @@ function task(callback) {
   child.stderr.pipe(process.stderr);
 }
 
+// Helper to cleanup URL for filesystem I/O or graphite keys
+function cleanUrl(url) {
+  return url
+    .replace(/^https?:\/\//, '')
+    .replace(/\/$/g, '')
+    .replace(/(\/|\?|-|&amp;|=|\.)/g, '_');
+}
+
 // @see https://github.com/caolan/async#seriestasks-callback
 var series = [];
 
 runs = parseInt(options.runs || 1, 10);
 debug('Preparing %d run(s)...', runs);
 
-for (var r=0; r<runs; r++) {
+for (var r=0; r&lt;runs; r++) {
   series.push(task);
 }
 
@@ -148,13 +167,16 @@ var urlSeries = urls.map(function(url) {
   return function(callback) {
     // spawn phantomas process
 
-    var urlGraphite = url.replace(/^https?:\/\//, '_').replace(/(\/|\?|-|&|=|\.)/g, '_');
+    var urlGraphite = cleanUrl(url);
+    var buildId = process.env.BUILD_NUMBER;
+    var dir = path.join('results', buildId, urlGraphite);
 
     var prefix = options['statsd-prefix'];
     prefix = prefix.replace(/\$url/, urlGraphite);
     options['statsd-prefix'] = prefix + '.';
 
-    options.har = 'har/' + process.env.BUILD_ID + '-' + urlGraphite + '.json';
+    options.har = path.join(dir, 'har.json');
+    options['film-strip-dir'] = path.join(dir, 'filmstrip');
 
     var child = phantomas(url, options, function(err, data, results) {
       callback(err === 0 ? null : err, results);
@@ -169,9 +191,7 @@ var urlSeries = urls.map(function(url) {
 async.series(
   urlSeries,
   function(err, results) {
-    var debug = require(path.join(base, 'debug'))('phantomas:runs'),
-      reporter,
-      res;
+    var debug = require(path.join(base, 'debug'))('phantomas:runs');
 
     debug('err: %j', err);
     debug('results: %j', results);
@@ -186,33 +206,57 @@ async.series(
     // process JSON results by reporters
     debug('%d of %d run(s) completed with exit code #%d', results.length, runs, err);
 
-    reporter = require(path.join(base, 'phantomas/reporters/statsd'));
-    tap = require(path.join(base, 'phantomas/reporters/tap'));
+    var reporter = require(path.join(base, 'phantomas/reporters/statsd'));
+    var tap = require(path.join(base, 'phantomas/reporters/tap'));
 
     debug('Calling reporters...');
 
     async.each(results, function(result, callback) {
       var resTap = tap(result, options).render(function() {});
+
+      console.error(result);
+      var url = result.getUrl();
+
+      // Clean up the URL for Filesystem I/O
+      url = cleanUrl(url);
+      var dir = path.join('results', process.env.BUILD_NUMBER, url);
+
+      debug('URL', result.getUrl(), url);
       console.error(resTap);
-      console.error('Writing TAP results to', (process.env.BUILD_ID || 'tmp') + '.tap');
-      fs.writeFileSync((process.env.BUILD_ID || 'tmp') + '.tap', resTap);
+
+      debug('Creating DIR', dir);
+      mkdirp.sync(dir);
+
+      var tapfile = path.join(dir, 'results.tap');
+
+      debug('Writing TAP results to', tapfile);
+      fs.writeFileSync(tapfile, resTap);
+
+      debug('Writing TAP results to', 'latest.tap');
+      fs.writeFileSync('latest.tap', resTap);
         
       reporter(result, options).render(callback);
     }, doneFn);
   }
 );
 
-]]>
+
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <!-- <publishers>
-    <hudson.tasks.Mailer plugin="mailer@1.4">
-      <recipients>mickael.daniel@kelkoo.com benjamin.falque@kelkoo.com</recipients>
-      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
-      <sendToIndividuals>false</sendToIndividuals>
-    </hudson.tasks.Mailer>
+  <publishers>
+    <org.tap4j.plugin.TapPublisher plugin="tap@1.18">
+      <testResults>latest.tap</testResults>
+      <failIfNoResults>false</failIfNoResults>
+      <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
+      <outputTapToConsole>false</outputTapToConsole>
+      <enableSubtests>false</enableSubtests>
+      <discardOldReports>false</discardOldReports>
+      <todoIsFailure>false</todoIsFailure>
+      <includeCommentDiagnostics>false</includeCommentDiagnostics>
+      <validateNumberOfTests>false</validateNumberOfTests>
+      <planRequired>true</planRequired>
+    </org.tap4j.plugin.TapPublisher>
   </publishers>
-  -->
   <buildWrappers/>
 </project>
