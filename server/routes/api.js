@@ -55,7 +55,7 @@ exports.edit = function edit(req, res, next){
   var jsonconfig;
   try {
     jsonconfig = JSON.parse(params.json_config);
-    params.json_config = JSON.stringify(config);
+    params.json_config = JSON.stringify(jsonconfig);
   } catch(e) {
     return next(e);
   }

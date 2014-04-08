@@ -20,11 +20,12 @@
           {{#jobs}}
           <tr>
             <td>{{ name }}</td>
-            <td><a href="{{ url }}">{{ url }}</a></td>
-            <td>{{ color }}</td>
+            <td></td>
             <td>
-              <a class="btn btn-default" href="/view/{{ name }}" role="button">View</a>
+              <a href="/view/{{ name }}">{{ url }}</a>
+              <a href="{{ url }}">(jenkins)</a>
             </td>
+            <td>{{ color }}</td>
             <td>
               <a class="btn btn-default" href="/edit/{{ name }}" role="button">Edit</a>
             </td>

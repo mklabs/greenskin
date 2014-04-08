@@ -24,12 +24,12 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://example.com http://example.com/another-url</defaultValue>
+          <defaultValue>http://travel.kelkoo.co.uk http://voyages.kelkoo.fr</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue>{"film-strip":true, "a": 2, "no-externals":true,"allow-domain":".kk-data.com","asserts":{}}</defaultValue>
+          <defaultValue>{"no-externals":true,"allow-domain":".kk-data.com","asserts":{}}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
@@ -131,8 +131,6 @@ options['statsd-host'] = process.env.GRAPHITE_SERVER || 'localhost';
 options['statsd-port'] = process.env.GRAPHITE_PORT || 8125;
 options['statsd-prefix'] = process.env.JOB_NAME + '.$url';
 
-debug('Command line options: %j', options);
-
 var urls = process.env.PERF_URLS.split(' ');
 
 // perform a single run
@@ -159,6 +157,7 @@ var series = [];
 
 runs = parseInt(options.runs || 1, 10);
 debug('Preparing %d run(s)...', runs);
+debug('On %d URLs', urls.length, urls);
 
 for (var r=0; r&lt;runs; r++) {
   series.push(task);
@@ -167,20 +166,29 @@ for (var r=0; r&lt;runs; r++) {
 var urlSeries = urls.map(function(url) {
   return function(callback) {
     // spawn phantomas process
+    var opts = JSON.parse(JSON.stringify(options));
 
     var urlGraphite = cleanUrl(url);
     var buildId = process.env.BUILD_NUMBER;
     var dir = path.join('results', buildId, urlGraphite);
+    var filmstripdir = path.join(dir, 'filmstrip');
 
-    var prefix = options['statsd-prefix'];
+    var prefix = opts['statsd-prefix'];
     prefix = prefix.replace(/\$url/, urlGraphite);
-    options['statsd-prefix'] = prefix + '.';
+    opts['statsd-prefix'] = prefix + '.';
 
-    options.har = path.join(dir, 'har.json');
-    options['film-strip-dir'] = path.join(dir, 'filmstrip');
+    opts.har = path.join(dir, 'har.json');
+    opts['film-strip'] = true;
+    opts['film-strip-dir'] = filmstripdir;
 
-    var child = phantomas(url, options, function(err, data, results) {
-      callback(err === 0 ? null : err, results);
+    var child = phantomas(url, opts, function(err, data, results) {
+      if (err) return callback(err);
+
+      var files = fs.readdirSync(filmstripdir);
+      debug('Writing filmstrip list of files in %s: ', path.join(filmstripdir, 'files.json'), files);
+      fs.writeFileSync(path.join(filmstripdir, 'files.json'), JSON.stringify(files));
+      
+      callback(null, results);
     });
 
     // pipe --verbose messages to stderr
@@ -215,7 +223,10 @@ async.series(
     async.each(results, function(result, callback) {
       var resTap = tap(result, options).render(function() {});
 
-      console.error(result);
+      if (result === false) {
+        throw new Error('Error with phantomjs invokation. Please double check config / urls.');
+      }
+
       var url = result.getUrl();
 
       // Clean up the URL for Filesystem I/O
@@ -223,7 +234,7 @@ async.series(
       var dir = path.join('results', process.env.BUILD_NUMBER, url);
 
       debug('URL', result.getUrl(), url);
-      console.error(resTap);
+      debug(resTap);
 
       debug('Creating DIR', dir);
       mkdirp.sync(dir);

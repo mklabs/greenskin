@@ -101,7 +101,6 @@ a {
   right: 20px;
   bottom: 2px;
   color: #777;
-  /* color: rgba(140, 87, 87, 0.9); */
   margin-left: 26px;
 }
 
@@ -116,13 +115,24 @@ a {
   padding-bottom: 0.5em;
 }
 
-.build-url-timeline {}
+.build-url-timeline {
+    overflow: auto;
+}
 
 .build-url-timeline img {
   border: 1px solid #ccc;
 }
 
-.build-url-har {
-  margin-top: 35px;
+.build-box {
   border: 1px solid #dedede;
+}
+
+.build-box-header {
+  padding: 1em;
+  background-color: #dedede;
+  margin-top: 0;
+}
+
+.build-box-header a {
+  color: inherit;
 }

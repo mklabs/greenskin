@@ -15,35 +15,38 @@
 {{#job._urls}}
 <div class="build-url js-build">
   <h3 class="build-url-title"><a href="{{ url }}">{{ url }}</a></h3>
-  <p class="build-url-description">
-    HAR file: <a href="{{ jenkinsHar }}">{{ id }}</a>
-  </p>
-  <p class="build-url-description">
-    Filmstrip directory: <a href="{{ jenkinsFilmstripDir }}">{{ jenkinsFilmstripDir }}</a>
-  </p>
-  <div class="build-url-timeline">
-    <table>
-      <tr>
-      {{#screenshots}}
-        <td>
-          {{ time }}ms
-        </td>
-      {{/screenshots}}
-      </tr>
 
-      <tr>
-      {{#screenshots}}
-        <td>
-          <a href="{{ url }}">
-            <img src="{{ url }}" width="200" height="120">
-          </a>
-        </td>
-      {{/screenshots}}
-      </tr>
-    </table>
+  <div class="build-box">
+    <h4 class="build-box-header">
+      <a href="{{ jenkinsFilmstripDir }}" title="{{ jenkinsFilmstripDir }}">Timeline</a>
+      /
+      <a href="{{ jenkinsHar }}" title="{{ jenkinsHar }}">HAR</a>
+    </h4>
+
+    <div class="build-url-timeline">
+      <table>
+        <tr>
+        {{#screenshots}}
+          <td>
+            {{ time }}ms
+          </td>
+        {{/screenshots}}
+        </tr>
+
+        <tr>
+        {{#screenshots}}
+          <td>
+            <a href="{{ url }}">
+              <img src="{{ url }}" width="200" height="120">
+            </a>
+          </td>
+        {{/screenshots}}
+        </tr>
+      </table>
+    </div>
+
+    <div class="build-url-har js-har" data-file="{{ localHar }}"></div>
   </div>
-
-  <div class="build-url-har js-har" data-file="{{ localHar }}"></div>
 
 </div>
 {{/job._urls}}
