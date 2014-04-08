@@ -10,6 +10,21 @@
       this.data = $.extend({}, this.$el.data(), config || {});
 
       this.initHar();
+      this.events();
+    },
+
+    events: function() {
+      this.$el.on('click', '.js-har-toggle', function(e) {
+        var buildBox = $(e.target).closest('.build-box');
+        var harbox = buildBox.find('.js-har');
+        harbox.toggle();
+      });
+
+      this.$el.on('click', '.js-timeline-toggle', function(e) {
+        var buildBox = $(e.target).closest('.build-box');
+        var timeline = buildBox.find('.build-url-timeline');
+        timeline.toggle();
+      });
     },
 
     initHar: function initHar() {

@@ -1,16 +1,13 @@
 
-    <p>Welcome to {{ title }}</p>
-
-    <h2>Jobs</h2>
     <a class="btn btn-default" href="/create" role="button">Create</a>
 
     <div class="table-responsive">
       <table class="table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>URL</th>
-            <th>color</th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>
@@ -20,7 +17,6 @@
           {{#jobs}}
           <tr>
             <td>{{ name }}</td>
-            <td></td>
             <td>
               <a href="/view/{{ name }}">{{ url }}</a>
               <a href="{{ url }}">(jenkins)</a>

@@ -1,14 +1,19 @@
-<h3>{{ job.name }}</h3>
-
 <p class="description">
   {{ job.description }}
+</p>
+
+<p class="description">
+  {{#job.urls}}
+  <a href="{{.}}">
+  {{ . }}
+  </a>
+  {{/job.urls}}
 </p>
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs job-tabs">
   <li class="active"><a href="#current" data-toggle="tab">Build History</a></li>
-  <li><a href="#builds" data-toggle="tab">Current</a></li>
-  <li><a href="#metrics" data-toggle="tab">Metrics</a></li>
+  <li><a href="/edit/{{ job.name }}">Edit</a></li>
 </ul>
 
 <!-- Tab panes -->
@@ -19,7 +24,10 @@
         {{#job.builds}}
         <tr>
           <td>{{ number }} </td>
-          <td><a href="/view/{{ job.name }}/{{ number }}">{{ url }}</a></td>
+          <td>
+            <a href="/view/{{ job.name }}/{{ number }}">{{ url }}</a>
+            <a href="{{ url }}">(jenkins)</a>
+          </td>
         </tr>
         {{/job.builds}}
       </tbody>

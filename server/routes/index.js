@@ -27,7 +27,7 @@ exports.index = function(req, res, next) {
   jenkins.all(function(err, jobs) {
     if (err) return next(err);
     debug('Render all', jobs);
-    res.render('index', { title: 'Express', jobs: jobs });
+    res.render('index', { jobs: jobs });
   });
 };
 
@@ -55,7 +55,7 @@ exports.edit = function edit(req, res, next) {
   var job = new Job(name, next);
 
   job.on('end', function(data) {
-    data.title = 'Edit job';
+    data.title = name;
     data.action = '/api/edit';
     data.edit = true;
     res.render('create', data);
@@ -67,7 +67,7 @@ exports.view = function view(req, res, next) {
   var job = new Job(name, next);
 
   job.on('end', function(data) {
-    data.title = 'View job';
+    data.title = name;
     data.edit = false;
     res.render('view', data);
   });
@@ -88,7 +88,7 @@ exports.buildView = function buildView(req, res, next) {
   var job = new Job(name, next);
 
   job.on('end', function(data) {
-    data.title = 'View job';
+    data.title = name;
     data.edit = false;
     data.number = number;
 

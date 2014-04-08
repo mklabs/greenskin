@@ -13,7 +13,15 @@
 <body>
   <nav class="navbar navbar-default navbar-static-top" role="navigation">
 	<div class="container-fluid">
-	  <h1>{{ title }} <a href="/">/</a></h1>
+	  <h1>
+      <a href="/" class="small">
+        <span class="glyphicon glyphicon-home"></span>
+      </a>
+      <span class="small">/</span>
+      <span class="page-title">
+        {{ title }}
+      </span>
+    </h1>
 	</div>
   </nav>
 
