@@ -20,6 +20,8 @@
  * See https://github.com/s3u/har-view/blob/master/examples/index.html for an example.
  */
 (function ($) {
+    var uid = 0;
+
     var HarView = function (element, options) {
         var reqTemplate = "<div id='{{id}}-req' class='request'>\
             <span class='plus' id='{{id}}'>&nbsp;&nbsp;&nbsp;</span>\
@@ -30,7 +32,7 @@
             <span><span class='time' id='{{id}}-time'>0</span> msec</span>\
             <span class='timelineBar' id='{{id}}-timeline'></span>\
         </div>";
-        var summaryTemplate = "<div id='summary' class='summary'>\
+        var summaryTemplate = "<div class='summary'>\
             <span class='reqCount' id='reqCount'></span>\
             <span class='reqSize' id='totalReqSize'></span>\
             <span class='respSize' id='totalRespSize'></span>\
@@ -94,10 +96,13 @@
         var totalReqSize = 0;
         var totalRespSize = 0;
         var totalTime = 0;
+        this.uid = uid++;
+        
 
         this.render = function(har) {
             $(element).addClass('har');
-            $(element).append($(summaryTemplate));
+
+            this.summary = $(summaryTemplate).appendTo(element);
 
             totals = {};
             log = {
@@ -113,10 +118,11 @@
 
             var that = this;
             var pageref;
+            var uid = this.uid;
             $.each(har.log.entries, function (index, entry) {
                 pageref = pageref || entry.pageref;
                 if(entry.pageref === pageref) {
-                    that.entry(index, entry);
+                    that.entry('v' + uid + '-' + index, entry);
                 }
             });
         }
@@ -146,7 +152,7 @@
 
         this.request = function (id, request) {
             if(!$('#' + id + '-req').html()) {
-                _render(id);
+                _render.call(this, id);
             }
             if(log.entries[id]) {
                 log.entries[id].request = request;
@@ -236,7 +242,7 @@
                 timings: timings
             });
 
-            $(html).insertBefore($('#summary'));
+            $(html).insertBefore(this.summary);
 
             html = Mustache.to_html(detailsTemplate, {
                 id: id,
@@ -246,7 +252,7 @@
                 timings: timings
             });
 
-            $(html).insertBefore($('#summary'));
+            $(html).insertBefore(this.summary);
 
             source = $('#' + id);
             source.click(function (event) {
