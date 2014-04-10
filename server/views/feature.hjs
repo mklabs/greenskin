@@ -1,0 +1,17 @@
+
+<div class="js-page-feature">
+  <p>
+    <em>Gherkin mode</em>
+    <a href="{{ runAction }}" class="js-run btn btn-default">Run</a>
+  </p>
+
+  <form class="js-form-feature col-sm-6"><textarea id="code" name="code" style="display: none;">{{{ body}}}</textarea></form>
+
+  <div class="col-sm-6">
+    <div id="log-container">
+      <pre id="log">
+        Booom
+      </pre>
+    </div>
+  </div>
+</div>

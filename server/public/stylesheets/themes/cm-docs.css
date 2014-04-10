@@ -1,0 +1,19 @@
+body {
+    background: #f8f8f8;
+    line-height: 1.5;
+}
+
+p { margin-top: 0; }
+
+h2, h3 {
+  font-weight: normal;
+  margin-bottom: .7em;
+}
+h2 { font-size: 120%; }
+h3 { font-size: 110%; }
+article > h2:first-child, section:first-child > h2 { margin-top: 0; }
+
+a, a:visited, a:link, .quasilink {
+  color: #A21313;
+  text-decoration: none;
+}

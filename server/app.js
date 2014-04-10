@@ -5,6 +5,7 @@
 
 var express = require('express');
 var routes = require('./routes');
+var feature = require('./routes/feature');
 
 var fs = require('fs');
 var http = require('http');
@@ -59,6 +60,44 @@ app.get('/har/:name/:number/:url.json', routes.har);
 app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);
 app.post('/api/edit', routes.api.edit);
+
+// Experiment with Gherkin editing
+// /^\/commits\/(\w+)(?:\.\.(\w+))?$/
+app.get(/^\/feature\/(.+)\/?$/, function(req, res, next) {
+	var filename = req.url.replace(/^\/feature\//, '');
+	console.log('Hey', filename, req.url);
+	if (!filename) return next(new Error('Error getting feature file. No filename param.'));
+
+	var data = {};
+	data.title = 'Edit feature ' + filename;
+	data.filename = filename;
+	console.log(data.filename);
+	fs.readFile(path.join(__dirname, 'test/features', filename), 'utf8', function(err, body) {
+		if (err) return next();
+		data.body = body;
+		data.runAction = '/run-feature/' + filename;
+		res.render('feature', data);
+	});
+});
+
+// Run
+app.get(/^\/run-feature\/(.+)\/?$/, function(req, res, next) {
+	var filename = req.url.replace(/^\/run-feature\//, '');
+	console.log('Hey', filename, req.url);
+	if (!filename) return next(new Error('Error getting feature file. No filename param.'));
+
+	var data = {};
+	data.title = 'Edit feature ' + filename;
+	data.filename = filename;
+	fs.readFile(path.join(__dirname, 'test/features', filename), 'utf8', function(err, body) {
+		if (err) return next();
+		data.body = body;
+		res.render('feature', data);
+	});
+});
+
+app.use('/feature', express.directory(path.join(__dirname, 'test/features')));
+// app.get('/feature', feature.index);
 
 // Proxy /jenkins prefix to jenkins instance
 if (config.proxy) app.all(/\/(jenkins|static)\/?.*/, function(req, res, next) {
