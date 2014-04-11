@@ -1,4 +1,6 @@
-# Perfite
+# Hermód
+
+Source : mythologie Nordique, Dieu des messagers, il peut aussi courir beaucoup plus vite que tous les autres dieux Asgardiens, rivalisant avec le mutant Vif-Argent et Hermès le dieu grec. 
 
 Problématique: Conception / Développement d'une solution de monitoring
 de perfs coté clients.
