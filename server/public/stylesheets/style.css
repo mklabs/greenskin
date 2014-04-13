@@ -264,7 +264,7 @@ pre#log {
     min-height: 12px;
     margin-top: 25px;
     margin-top: 1em;
-    padding: 15px 0;
+    padding: 1em;
     color: #f1f1f1;
     font-family: monospace;
     font-size: 12px;
@@ -362,4 +362,112 @@ pre#log .fold-start:not(.fold),pre#log .fold-end {
 
 #log.loading {
     padding: 25px 0 0 10px
+}
+
+.ansi .bold {
+    font-weight: bold
+}
+
+.ansi .italic {
+    font-style: italic
+}
+
+.ansi .black {
+    color: #4e4e4e
+}
+
+.ansi .black.bold {
+    color: #7c7c7c
+}
+
+.ansi .red {
+    color: #ff6c60
+}
+
+.ansi .red.bold {
+    color: #ffb6b0
+}
+
+.ansi .green {
+    color: #0a0
+}
+
+.ansi .green.bold {
+    color: #ceffab
+}
+
+.ansi .yellow {
+    color: #ffffb6
+}
+
+.ansi .yellow.bold {
+    color: #ffffcb
+}
+
+.ansi .blue {
+    color: #96cbfe
+}
+
+.ansi .blue.bold {
+    color: #b5dcfe
+}
+
+.ansi .magenta {
+    color: #ff73fd
+}
+
+.ansi .magenta.bold {
+    color: #ff9cfe
+}
+
+.ansi .cyan {
+    color: #0aa
+}
+
+.ansi .cyan {
+    color: #5ff
+}
+
+.ansi .white {
+    color: #eee
+}
+
+.ansi .white.bold {
+    color: #fff
+}
+
+.ansi .grey {
+    color: #969696
+}
+
+.ansi .bg-black {
+    background-color: #4e4e4e
+}
+
+.ansi .bg-red {
+    background-color: #ff6c60
+}
+
+.ansi .bg-green {
+    background-color: #0a0
+}
+
+.ansi .bg-yellow {
+    background-color: #ffffb6
+}
+
+.ansi .bg-blue {
+    background-color: #96cbfe
+}
+
+.ansi .bg-magenta {
+    background-color: #ff73fd
+}
+
+.ansi .bg-cyan {
+    background-color: #0aa
+}
+
+.ansi .bg-white {
+    background-color: #eee
 }

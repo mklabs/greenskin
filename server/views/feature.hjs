@@ -1,17 +1,30 @@
-
 <div class="js-page-feature">
-  <p>
-    <em>Gherkin mode</em>
-    <a href="{{ runAction }}" class="js-run btn btn-default">Run</a>
-  </p>
+    <div class="row">
+        <div class="col-sm-6">
+          <em>Gherkin mode</em>
+          <a href="{{ runAction }}" class="js-run btn btn-default">Run</a>
+        </div>
 
-  <form class="js-form-feature col-sm-6"><textarea id="code" name="code" style="display: none;">{{{ body}}}</textarea></form>
-
-  <div class="col-sm-6">
-    <div id="log-container">
-      <pre id="log">
-        Booom
-      </pre>
+        <div class="col-sm-6 description">
+           <p>You can Ctrl-S to save the file to filesystem</p>
+           <p>You can Ctrl-R to save & run the feature</p>
+        </div>
     </div>
-  </div>
+
+    <hr />
+
+    <div class="row">
+
+      <form class="js-form-feature col-sm-6" action="{{ saveAction }}">
+        <textarea id="code" name="code" style="display: none;">{{{ body}}}</textarea>
+      </form>
+
+      <div class="col-sm-6">
+        <div id="log-container">
+          <pre id="log" class="js-log ansi">
+            Booom
+          </pre>
+        </div>
+      </div>
+    </div>
 </div>

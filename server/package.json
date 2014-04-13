@@ -15,7 +15,12 @@
     "request": "~2.34.0",
     "phantomas": "~1.0.0",
     "async": "~0.6.2",
-    "optimist": "~0.6.1"
+    "optimist": "~0.6.1",
+    "socket.io": "^0.9.16",
+    "gherkin": "^2.12.2",
+    "mocha": "^1.18.2",
+    "nopt": "^2.2.0",
+    "phantomjs": "^1.9.7-3"
   },
   "config": {
     "jenkins": "http://192.168.33.11:8080/",

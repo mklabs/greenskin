@@ -12,6 +12,8 @@ var http = require('http');
 var path = require('path');
 var request = require('request');
 
+var io = require('socket.io');
+
 var config = require('./package.json').config;
 
 var app = express();
@@ -61,44 +63,6 @@ app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);
 app.post('/api/edit', routes.api.edit);
 
-// Experiment with Gherkin editing
-// /^\/commits\/(\w+)(?:\.\.(\w+))?$/
-app.get(/^\/feature\/(.+)\/?$/, function(req, res, next) {
-	var filename = req.url.replace(/^\/feature\//, '');
-	console.log('Hey', filename, req.url);
-	if (!filename) return next(new Error('Error getting feature file. No filename param.'));
-
-	var data = {};
-	data.title = 'Edit feature ' + filename;
-	data.filename = filename;
-	console.log(data.filename);
-	fs.readFile(path.join(__dirname, 'test/features', filename), 'utf8', function(err, body) {
-		if (err) return next();
-		data.body = body;
-		data.runAction = '/run-feature/' + filename;
-		res.render('feature', data);
-	});
-});
-
-// Run
-app.get(/^\/run-feature\/(.+)\/?$/, function(req, res, next) {
-	var filename = req.url.replace(/^\/run-feature\//, '');
-	console.log('Hey', filename, req.url);
-	if (!filename) return next(new Error('Error getting feature file. No filename param.'));
-
-	var data = {};
-	data.title = 'Edit feature ' + filename;
-	data.filename = filename;
-	fs.readFile(path.join(__dirname, 'test/features', filename), 'utf8', function(err, body) {
-		if (err) return next();
-		data.body = body;
-		res.render('feature', data);
-	});
-});
-
-app.use('/feature', express.directory(path.join(__dirname, 'test/features')));
-// app.get('/feature', feature.index);
-
 // Proxy /jenkins prefix to jenkins instance
 if (config.proxy) app.all(/\/(jenkins|static)\/?.*/, function(req, res, next) {
 	var pathname = req.url.replace(/^\/jenkins\/?/, '');
@@ -106,9 +70,12 @@ if (config.proxy) app.all(/\/(jenkins|static)\/?.*/, function(req, res, next) {
 	req.pipe(request(url)).pipe(res);
 });
 
-// Map over /static, jenkins uses this URL for static assets
-//app.all('');
+var server = http.createServer(app);
+var ws = app.ws = io.listen(server);
 
-http.createServer(app).listen(app.get('port'), function(){
+server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+// Experiment with Gherkin editing
+require('./routes/feature')(app);
