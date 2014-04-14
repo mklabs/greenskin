@@ -18,7 +18,7 @@
 
 {{/edit}}
 
-<form action="{{ action }}" class="form-horizontal {{#edit}}form-edit{{/edit}} js-form" method="post" data-cron="{{ cron }}">
+<form action="{{ action }}" class="form-horizontal {{#edit}}form-edit{{/edit}} js-job-form" method="post" data-cron="{{ cron }}">
 
   <div class="form-group">
     <label for="ipt_name" class="col-sm-2 control-label">Job name</label>

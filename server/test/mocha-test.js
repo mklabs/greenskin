@@ -14,34 +14,60 @@ mocha.reporter('spec');
 mocha.timeout(15000);
 
 var nopt = require('nopt')({
-	stepdir: path
+	stepdir: String
 });
 
 var files = nopt.argv.remain;
 
 var steps = [];
 
-steps.push({
-	keyword: 'Given',
-    reg: /I browse URL "([^"]+)"/,
-    handler: function(url, done) {
-        var page = this.page = require('webpage').create();
-        page.open(url, function(status) {
-            if (status !== 'success') return done(new Error(status));
-            done();
-        });
-    }
-});
+var stepfiles = [];
 
-steps.push({
-	keyword: 'Then',
-    reg: /I want to render the page at "([^"]+)"/,
-    handler: function(filename, done) {
-    	console.log('render', filename);
-        this.page.render(filename);
-        done();
-    }
-});
+global.Given = function Given(reg, handler) {
+    reg = typeof reg === 'string' ? new RegExp('^' + reg + '$') : reg;
+    steps.push({
+    	keyword: 'Given',
+        reg: reg,
+        handler: handler
+    });
+};
+
+global.When = function When(reg, handler) {
+    reg = typeof reg === 'string' ? new RegExp('^' + reg + '$') : reg;
+    steps.push({
+    	keyword: 'When',
+        reg: reg,
+        handler: handler
+    });
+};
+
+global.Then = function Then(reg, handler) {
+    reg = typeof reg === 'string' ? new RegExp('^' + reg + '$') : reg;
+    steps.push({
+    	keyword: 'Then',
+        reg: reg,
+        handler: handler
+    });
+};
+
+if (nopt.stepdir) {
+	stepfiles = fs.list(nopt.stepdir).filter(function(file) {
+        if (file === '.') return false;
+        if (file === '..') return false;
+        return fs.isFile(path.join(nopt.stepdir, file));
+    }).map(function(file) {
+        return path.join(nopt.stepdir, file);
+    });
+    
+    stepfiles.forEach(function(file) {
+        file = fs.isAbsolute(file) ? file : path.join(fs.workingDirectory, file);
+        require(file);
+    });
+}
+
+
+/* * /
+/* */
 
 // Process, scan files, translate into mocha suites
 files = files.map(function(file) {

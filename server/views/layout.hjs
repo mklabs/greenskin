@@ -55,6 +55,7 @@
   <script src="/js/pages/create.js"></script>
   <script src="/js/pages/build.js"></script>
   <script src="/js/pages/feature.js"></script>
+  <script src="/js/pages/step.js"></script>
 
   {{{ moreJs }}
 </body>

@@ -1,4 +1,4 @@
-<div class="js-page-feature">
+<div class="js-page-feature" data-stepdir="{{ stepdir }}">
     <div class="row">
         <div class="col-sm-6">
           <em>Gherkin mode</em>
@@ -8,6 +8,7 @@
         <div class="col-sm-6 description">
            <p>You can Ctrl-S to save the file to filesystem</p>
            <p>You can Ctrl-R to save & run the feature</p>
+           <p>You can edit steps by editing those <a href="{{ stepfile }}">files</a></p>
         </div>
     </div>
 
@@ -21,10 +22,14 @@
 
       <div class="col-sm-6">
         <div id="log-container">
-          <pre id="log" class="js-log ansi">
-            Booom
-          </pre>
+          <pre id="log" class="js-log ansi">You can Ctrl-S to save the file to filesystem
+You can Ctrl-R to save & run the feature</pre>
         </div>
       </div>
     </div>
 </div>
+
+<script src="/js/gherkin-interface.js"></script>
+{{#stepfiles}}
+<script src="{{ . }}"></script>
+{{/stepfiles}}

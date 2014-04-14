@@ -1,5 +1,12 @@
-Feature: Basic browsing 2
+Feature: Basic browsing
 
-  Scenario: Browsing offer page
-  	Given I browse URL "http://kelkoo.fr"
-    Then I want to render the page at "debug.png"
+  Scenario: Browsing homepage
+    Given I browse URL "http://voyages.kelkoo.fr"
+    Then I fill "LYS" in "from"
+    And I fill "PAR" in "to"
+    And I submit the form "[name=flights_search]"
+    And I want to render the page at "debug.png"
+   
+    
+    
+   

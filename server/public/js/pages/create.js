@@ -303,7 +303,7 @@
 
 
   $(function() {
-    page.init($('.js-form')[0]);
+    page.init($('.js-job-form')[0]);
   });
 
 })(document);

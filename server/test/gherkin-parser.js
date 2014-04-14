@@ -82,12 +82,14 @@ Parser.prototype.step = function step(keyword, token, line) {
         }
     }
     
-    var test = new Test(keyword + ' ' + token, fn);
+    if (!step) token = token + ' (Pending)';
+    
+    var test = new Test(_keyword + ' ' + token, fn);
     
     test.file = this.file;
     suite.addTest(test);
     
-    this.lastKeyword = keyword;
+    this.lastKeyword = _keyword;
     return test;
 };
 
