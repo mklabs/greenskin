@@ -1,6 +1,6 @@
-(function(doc) {
+(function(doc, exports) {
 
-  var page = Object.create({
+  var page = exports.CreatePage = Object.create({
     init: function(el, config) {
       this.el = el;
       this.$el = $(this.el);
@@ -312,4 +312,4 @@
     page.init($('.js-job-form')[0]);
   });
 
-})(document);
+})(document, this);

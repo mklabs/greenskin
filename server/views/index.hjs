@@ -1,5 +1,6 @@
 
-    <a class="btn btn-default" href="/create" role="button">Create</a>
+    <a class="btn btn-default" href="/create" role="button">Create Job (simple metrics)</a>
+    <a class="btn btn-default" href="/create/feature" role="button">Create Job (Functional)</a>
 
     <div class="table-responsive">
       <table class="table">
