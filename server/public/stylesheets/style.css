@@ -165,7 +165,6 @@ a {
   border-top: 1px solid rgb(225, 225, 232);
 }
 
-
 #log-container {
     position: relative
 }
@@ -470,4 +469,8 @@ pre#log .fold-start:not(.fold),pre#log .fold-end {
 
 .ansi .bg-white {
     background-color: #eee
+}
+
+.select2-container {
+  padding: 0;
 }

@@ -15,9 +15,14 @@
 
       this.cron();
       this.phantomasConfig();
+      this.select();
       this.events();
 
       this.initMetricTable(doc.querySelector('.js-metrics'));
+    },
+
+    select: function() {
+      this.$('select').select2();
     },
 
     events: function() {
@@ -125,13 +130,14 @@
     },
 
     metricChanged: function metricChanged(e) {
-        console.log('metricChanged', e);
         var row = $(e.target).closest('tr');
         var select = row.find('.js-select-metrics');
         var value = row.find('.js-metric-value');
         var input = row.find('.js-hidden');
 
         var metric = select.val();
+        if (!metric) metric = select.select2('val');
+
         var selected = select.find('[value="' + metric + '"]');
         var unit = row.find('.js-unit').text(selected.data('unit') || '');
 
@@ -216,6 +222,7 @@
           var value = asserts[assert];
           $(tpl).find('.js-metric-value').val(value);
           $(tpl).find('.js-select-metrics').val(assert);
+          $(tpl).find('.js-select-metrics').select2();
           $(tpl).find('.js-hidden').val(assert + ':' + value);
         }, this);
 
@@ -232,7 +239,6 @@
       $(el).on('change', '.js-select-metrics', $.proxy(this.metricChanged, this));
       $(el).on('keyup', '.js-metric-value', $.proxy(this.metricChanged, this));
 
-
       // Link for add button
       urlAdd.addEventListener('click', function(e) {
         e.preventDefault();
@@ -240,7 +246,7 @@
         var replacement = tpl.querySelector('select') ? 'metric-DOMinserts' : '';
         tpl.className = tpl.className.replace(/is-hidden/, '');
         tpl.className = tpl.className.replace(/js-row-template/, replacement);
-
+        $(tpl).find('.js-select-metrics').select2();
         tbody.insertBefore(tpl, createRow);
       }, false);
 

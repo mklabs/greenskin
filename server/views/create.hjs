@@ -151,7 +151,7 @@
           <tr class="is-hidden js-row-template">
             <td>
               <input type="hidden" name="metrics[]" class="js-hidden">
-              <select class="js-select-metrics form-control col-sm-8">
+              <select class="js-select-metrics col-sm-8">
                 {{#phantomas.metrics}}
                 <option value="{{ name }}" data-unit="{{ unit }}">{{ name }} - {{ desc }}</option>
                 {{/phantomas.metrics}}

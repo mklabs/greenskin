@@ -21,7 +21,7 @@
 {{#job._urls}}
 <div class="build-url build-box js-build">
   <h4 class="build-box-header">
-    <a class="label label-default" href="{{ url }}">{{ url }}</a> - 
+    <a class="label label-default" href="{{ url }}">{{ url }}</a> -
     <a class="build-box-header-link js-timeline-toggle" href="#"" title="Click to toggle">Timeline</a>
     <a class="build-box-header-link small" href="{{ jenkinsFilmstripDir }}" title="{{ jenkinsFilmstripDir }}">
       (link)
@@ -38,7 +38,7 @@
       <tr>
       {{#screenshots}}
         <td>
-          {{ time }}ms
+          {{ time }} ms
         </td>
       {{/screenshots}}
       </tr>
