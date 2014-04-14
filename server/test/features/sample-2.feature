@@ -6,7 +6,3 @@ Feature: Basic browsing
     And I fill "PAR" in "to"
     And I submit the form "[name=flights_search]"
     And I want to render the page at "debug.png"
-   
-    
-    
-   

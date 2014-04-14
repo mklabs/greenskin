@@ -33,17 +33,17 @@ function addProcess() {
     phantom.exit(status);
   };
   process.stdout = {
-    write: function(string) { fs.write("/dev/stdout", string, "w"); }
+    write: function(string) { /*fs.write("/dev/stdout", string, "w");*/ }
   };
   process.stderr = {
-    write: function(string) { fs.write("/dev/stderr", string, "w"); }
+    write: function(string) { /*fs.write("/dev/stderr", string, "w");*/ }
   };
   process.argv = ['nodify'].concat(require('system').args);
   process.argv[1] = path.join(rootPath, path.basename(require('system').args[0]));
   process.cwd = function() {
     return rootPath;
   };
-  
+
   var phantomSetTimeout = setTimeout;
   setTimeout = function(fn, delay) {
     return phantomSetTimeout(function() {
@@ -59,7 +59,7 @@ function addProcess() {
 // make errors in event listeners propagate to uncaughtException
 function patchEvents() {
   var EventEmitter = require('events').EventEmitter;
-  
+
   var eventEmitterEmit = EventEmitter.prototype.emit;
   EventEmitter.prototype.emit = function() {
     try {
