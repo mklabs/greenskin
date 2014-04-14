@@ -13,6 +13,11 @@
       this.table(doc.querySelector('.js-features'));
   };
 
+  CreateFeaturePage.added = function added(row) {
+    console.log('Added row', row);
+    this.codemirror('gherkin', row);
+  };
+ 
 
   $(function() {
     $('.js-job-feature-form').each(function() {

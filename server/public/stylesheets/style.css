@@ -165,11 +165,11 @@ a {
   border-top: 1px solid rgb(225, 225, 232);
 }
 
-#log-container {
+.log-container {
     position: relative
 }
 
-#log-container #tail {
+.log-container #tail {
     z-index: 99;
     position: absolute;
     display: block;
@@ -199,30 +199,30 @@ a {
     background: linear-gradient(#ffffff,#e0e0e0)
 }
 
-#log-container #tail label {
+.log-container #tail label {
     display: none;
     cursor: pointer
 }
 
-#log-container #tail:hover {
+.log-container #tail:hover {
     padding: 1px 4px 1px 6px
 }
 
-#log-container #tail:hover label {
+.log-container #tail:hover label {
     display: inline
 }
 
-#log-container #tail.scrolling {
+.log-container #tail.scrolling {
     position: fixed;
     right: 32px
 }
 
-#log-container #tail.bottom {
+.log-container #tail.bottom {
     bottom: 45px;
     top: inherit
 }
 
-#log-container #tail .status {
+.log-container #tail .status {
     display: inline-block;
     margin-right: 1px;
     width: 8px;
@@ -238,11 +238,11 @@ a {
     box-shadow: #fff 1px 1px 2px
 }
 
-#log-container #tail.active .status {
+.log-container #tail.active .status {
     background-color: #6b0
 }
 
-#log-container .to-top {
+.log-container .to-top {
     z-index: 99;
     position: absolute;
     display: block;
@@ -257,7 +257,7 @@ a {
 }
 
 
-pre#log {
+pre.log {
     position: relative;
     clear: left;
     min-height: 12px;
@@ -276,29 +276,29 @@ pre#log {
     counter-reset: line-numbering
 }
 
-pre#log .cut {
+pre.log .cut {
     padding: 20px 15px 0 55px
 }
 
-pre#log p {
+pre.log p {
     padding: 0 15px 0 55px;
     margin: 0;
     min-height: 16px
 }
 
-pre#log p:hover {
+pre.log p:hover {
     background-color: #444 !important
 }
 
-pre#log p.highlight {
+pre.log p.highlight {
     background-color: #666
 }
 
-pre#log p.highlight a {
+pre.log p.highlight a {
     color: #fff
 }
 
-pre#log p a {
+pre.log p a {
     display: inline-block;
     text-align: right;
     min-width: 40px;
@@ -307,42 +307,42 @@ pre#log p a {
     text-decoration: none
 }
 
-pre#log p a::before {
+pre.log p a::before {
     content: counter(line-numbering);
     counter-increment: line-numbering;
     padding-right: 1em
 }
 
-pre#log .fold {
+pre.log .fold {
     height: 16px;
     overflow: hidden;
     cursor: pointer
 }
 
-pre#log .fold.open {
+pre.log .fold.open {
     height: auto
 }
 
-pre#log .fold p:first-of-type {
+pre.log .fold p:first-of-type {
     padding-right: 130px
 }
 
-pre#log .fold p:first-of-type {
+pre.log .fold p:first-of-type {
     background: #333 url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAMAAAC67D+PAAAAHlBMVEVsbGxTU1NMTExjY2NpaWlhYWFYWFhmZmZbW1v///8KeaPqAAAACnRSTlP///////////8AsswszwAAADRJREFUCNdj4IQDBmQmMwMYsAOZTBAmI0gBB4jFClHLAmQyQZiMDAxsMBOYWeCGMTGimQsAgtkCe9l/f/AAAAAASUVORK5CYII=') no-repeat 8px 3px
 }
 
-pre#log .fold p:first-of-type.highlight {
+pre.log .fold p:first-of-type.highlight {
     background-color: #777
 }
 
-pre#log .fold:not(.open) p:first-of-type {
+pre.log .fold:not(.open) p:first-of-type {
     visibility: visible;
     height: auto;
     min-height: 16px;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAVElEQVQY02P4//8/AzEYzggICPhvbW39n6DCyMjI/yDs6en5nyiFIBwWFvbf0dHxP0GFMIzsHLwKkU3GqdDNzQ2/1X5+flh9D2cEBwdjeACrQkIYAPlQBuHA99bHAAAAAElFTkSuQmCC')
 }
 
-pre#log .fold .fold-name {
+pre.log .fold .fold-name {
     position: absolute;
     display: block;
     right: 12px;
@@ -355,11 +355,11 @@ pre#log .fold .fold-name {
     color: #bbb
 }
 
-pre#log .fold-start:not(.fold),pre#log .fold-end {
+pre.log .fold-start:not(.fold),pre.log .fold-end {
     display: none
 }
 
-#log.loading {
+.log.loading {
     padding: 25px 0 0 10px
 }
 
@@ -474,3 +474,9 @@ pre#log .fold-start:not(.fold),pre#log .fold-end {
 .select2-container {
   padding: 0;
 }
+
+.feature-edit-row pre.log {
+  min-height: 300px;
+  margin: 0;
+}
+

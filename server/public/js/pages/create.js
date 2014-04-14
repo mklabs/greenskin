@@ -10,6 +10,7 @@
       this.data = $.extend({}, this.$el.data(), config || {});
 
       this.codemirror();
+      // this.xmlToggleLink();
       this.table(doc.querySelector('.js-urls'));
       this.table(doc.querySelector('.js-metrics'));
 
@@ -22,7 +23,7 @@
     },
 
     select: function() {
-      this.$('select').select2();
+      this.$el.find('.js-select').select2();
     },
 
     events: function() {
@@ -102,21 +103,34 @@
       });
     },
 
-    codemirror: function codemirror() {
+    codemirror: function codemirror(mode, context) {
+      mode = mode || 'xml';
       // Build codemirror instance
-      var textarea = doc.querySelector('[name=xml]');
-      if (!textarea) return;
-      var cm = CodeMirror.fromTextArea(textarea, {
-        mode: 'xml',
-        tabSize: 2
+      context = context || doc;
+
+      var textareas = $('[name=' + mode + ']', context);
+
+      if (!textareas.length) return;
+
+      textareas.each(function() {
+        var textarea = $(this);
+
+        console.log('Init', this, mode);
+        var cm = CodeMirror.fromTextArea(this, {
+          mode: mode,
+          tabSize: 2
+        });
+
+        textarea.next('.CodeMirror').addClass('form-control');
+        textarea.data('codemirror', cm);
       });
+    },
 
-      $('.CodeMirror').addClass('form-control');
-      $(textarea).data('codemirror', cm);
-
+    xmlToggleLink: function xmlToggleLink() {
       // Bind toggle link
       var link = doc.querySelector('.js-xml-edit-toggle');
       var xmlBox = doc.querySelector('.js-xml-edit');
+      var editor = this.editor;
       link.addEventListener('click', function(e) {
         e.preventDefault();
         var hidden = !!~xmlBox.className.indexOf('is-hidden');
@@ -124,7 +138,7 @@
           xmlBox.className += ' is-hidden';
         } else {
           xmlBox.className = xmlBox.className.replace(/\s?is-hidden\s?/, '');
-          cm.refresh();
+          if (editor) editor.refresh();
         }
       }, false);
     },
@@ -246,8 +260,13 @@
         var replacement = tpl.querySelector('select') ? 'metric-DOMinserts' : '';
         tpl.className = tpl.className.replace(/is-hidden/, '');
         tpl.className = tpl.className.replace(/js-row-template/, replacement);
-        $(tpl).find('.js-select-metrics').select2();
+        var el = $(tpl);
+        el.find('.js-select-metrics').select2();
         tbody.insertBefore(tpl, createRow);
+
+        if (typeof self.added === 'function') {
+          self.added(tpl);
+        }
       }, false);
 
       // Click links toggle edit mode

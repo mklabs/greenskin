@@ -120,4 +120,8 @@ module.exports = function(app) {
     });
   });
 
+  app.get('/create/feature/edit', function(req, res, next) {
+    next();
+  });
+
 };
