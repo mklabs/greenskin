@@ -19,19 +19,17 @@
 
     var socket = this.socket = io.connect('/');
     this.socket.on('log', function(data) {
-       var ansiparsed = ansiparse(data.line);
+        var ansiparsed = ansiparse(data.line);
+        var tokens = ansiparsed.map(function(token) {
+          var klass = token.foreground || '';
 
-    var tokens = ansiparsed.map(function(token) {
-      var klass = token.foreground || '';
+          if (klass === 'cyan' && /Pending/.test(token.text)) {
+            return '<a href="#" class="' + klass + ' js-pending">' + token.text + '</a>';
+          }
 
-      if (klass === 'cyan' && /Pending/.test(token.text)) {
-        return '<a href="#" class="' + klass + ' js-pending">' + token.text + '</a>';
-      }
-
-      return '<span class="' + klass + '">' + token.text + '</span>';
-    });
-
-    log.append(tokens.join(''));
+          return '<span class="' + klass + '">' + token.text + '</span>';
+        });
+        log.append(tokens.join(''));
     });
   },
 
