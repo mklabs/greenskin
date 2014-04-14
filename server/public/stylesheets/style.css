@@ -167,6 +167,8 @@ a {
 
 .log-container {
     position: relative
+;
+    /* max-height: 600px; */
 }
 
 .log-container #tail {

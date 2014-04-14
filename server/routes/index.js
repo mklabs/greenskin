@@ -15,6 +15,7 @@ var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
 });
 
 var config = require('../package.json').config;
+var request = require('request');
 
 exports.api = require('./api');
 
@@ -104,50 +105,55 @@ exports.buildView = function buildView(req, res, next) {
     data.config = config;
     data.job._urls = [];
 
-    // Async each on URLs to get the JSON file index from Jenkins workspace
-    var urls = data.job.urls.concat();
-    (function loop(url) {
-      if (!url) {
-        return res.render('build', data);
-      }
+    // http://192.168.33.11:8080/job/R8_perf_zzz/11/consoleText
+    request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', function(err, response, body) {
+      if (err) return next(err);
 
-      var id = cleanUrl(url);
-      var fileindex = jenkinsBase + id + '/filmstrip/files.json';
+      data.job.log = body;
 
-      var urlData = {
-        url: url,
-        id: id,
-        jenkinsHar: jenkinsBase + id + '/har.json',
-        localHar: '/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
-        jenkinsFilmstripDir: jenkinsBase + id + '/filmstrip/',
-        fileindex: fileindex
-      };
-
-      request(fileindex, { json: true }, function(err, res, response) {
-        if (err) return next(err);
-
-        function extractTime(obj) {
-          var value = obj.split('-').slice(-1)[0].replace('.png', '');
-          return parseInt(value, 10);
+      // Async each on URLs to get the JSON file index from Jenkins workspace
+      var urls = data.job.urls.concat();
+      (function loop(url) {
+        if (!url) {
+          return res.render('build', data);
         }
 
-        var files = Array.isArray(response) ? response : [];
-        urlData.screenshots = files.map(function(file) {
-          return {
-            url: urlData.jenkinsFilmstripDir + file,
-            time: extractTime(file)
-          };
-        }).sort(function(a, b) {
-          return a.time > b.time;
+        var id = cleanUrl(url);
+        var fileindex = jenkinsBase + id + '/filmstrip/files.json';
+
+        var urlData = {
+          url: url,
+          id: id,
+          jenkinsHar: jenkinsBase + id + '/har.json',
+          localHar: '/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
+          jenkinsFilmstripDir: jenkinsBase + id + '/filmstrip/',
+          fileindex: fileindex
+        };
+
+        request(fileindex, { json: true }, function(err, res, response) {
+          if (err) return next(err);
+
+          function extractTime(obj) {
+            var value = obj.split('-').slice(-1)[0].replace('.png', '');
+            return parseInt(value, 10);
+          }
+
+          var files = Array.isArray(response) ? response : [];
+          urlData.screenshots = files.map(function(file) {
+            return {
+              url: urlData.jenkinsFilmstripDir + file,
+              time: extractTime(file)
+            };
+          }).sort(function(a, b) {
+            return a.time > b.time;
+          });
+
+          data.job._urls.push(urlData);
+          loop(urls.shift());
         });
 
-        data.job._urls.push(urlData);
-        loop(urls.shift());
-      });
-
-    })(urls.shift());
-
-
+      })(urls.shift());
+    });
   });
 };
 

@@ -11,6 +11,7 @@
 
       this.initHar();
       this.events();
+      this.ansiparse();
     },
 
     events: function() {
@@ -43,6 +44,24 @@
           har.render(data);
         });
       });
+    },
+
+    ansiparse: function _ansiparse() {
+      var el = this.$el.find('.js-log');
+      var text = el.text();
+      var ansiparsed = ansiparse(text);
+
+      var tokens = ansiparsed.map(function(token) {
+        var klass = token.foreground || '';
+
+        if (klass === 'cyan' && /Pending/.test(token.text)) {
+          return '<a href="#" class="' + klass + ' js-pending">' + token.text + '</a>';
+        }
+
+        return '<span class="' + klass + '">' + token.text + '</span>';
+      });
+
+      el.html(tokens.join(''));
     }
   });
 

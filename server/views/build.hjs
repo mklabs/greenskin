@@ -18,44 +18,52 @@
   <li class="active"><a href="#">Build {{ number }}</a></li>
 </ul>
 
-{{#job._urls}}
-<div class="build-url build-box js-build">
-  <h4 class="build-box-header">
-    <a class="label label-default" href="{{ url }}">{{ url }}</a> -
-    <a class="build-box-header-link js-timeline-toggle" href="#"" title="Click to toggle">Timeline</a>
-    <a class="build-box-header-link small" href="{{ jenkinsFilmstripDir }}" title="{{ jenkinsFilmstripDir }}">
-      (link)
-    </a>
-    /
-    <a class="build-box-header-link js-har-toggle" href="#"" title="Click to toggle">HAR</a>
-    <a class="build-box-header-link small" href="{{ jenkinsHar }}" title="{{ jenkinsHar }}">
-      (link)
-    </a>
-  </h4>
+<div class="js-build">
 
-  <div class="build-url-timeline">
-    <table>
-      <tr>
-      {{#screenshots}}
-        <td>
-          {{ time }} ms
-        </td>
-      {{/screenshots}}
-      </tr>
+  {{#job._urls}}
+  <div class="build-url build-box">
+    <h4 class="build-box-header">
+      <a class="label label-default" href="{{ url }}">{{ url }}</a> -
+      <a class="build-box-header-link js-timeline-toggle" href="#"" title="Click to toggle">Timeline</a>
+      <a class="build-box-header-link small" href="{{ jenkinsFilmstripDir }}" title="{{ jenkinsFilmstripDir }}">
+        (link)
+      </a>
+      /
+      <a class="build-box-header-link js-har-toggle" href="#"" title="Click to toggle">HAR</a>
+      <a class="build-box-header-link small" href="{{ jenkinsHar }}" title="{{ jenkinsHar }}">
+        (link)
+      </a>
+    </h4>
 
-      <tr>
-      {{#screenshots}}
-        <td>
-          <a href="{{ url }}" class="thumbnail">
-            <img src="{{ url }}" width="200" height="120">
-          </a>
-        </td>
-      {{/screenshots}}
-      </tr>
-    </table>
+    <div class="build-url-timeline">
+      <table>
+        <tr>
+        {{#screenshots}}
+          <td>
+            {{ time }} ms
+          </td>
+        {{/screenshots}}
+        </tr>
+
+        <tr>
+        {{#screenshots}}
+          <td>
+            <a href="{{ url }}" class="thumbnail">
+              <img src="{{ url }}" width="200" height="120">
+            </a>
+          </td>
+        {{/screenshots}}
+        </tr>
+      </table>
+    </div>
+
+    <div class="build-url-har js-har" data-file="{{ localHar }}"></div>
+
   </div>
+  {{/job._urls}}
 
-  <div class="build-url-har js-har" data-file="{{ localHar }}"></div>
-
+  <h4 class="build-box-header">Logs</h4>
+  <div class="log-container">
+    <pre class="js-log log ansi" style="max-height: 600px">{{ job.log }}</pre>
+  </div>
 </div>
-{{/job._urls}}
