@@ -58,7 +58,14 @@ exports.edit = function edit(req, res, next) {
     data.title = name;
     data.action = '/api/edit';
     data.edit = true;
-    res.render('create', data);
+
+    var template = 'create';
+    if (data.job.feature) {
+      template = 'create-feature';
+      data.runUrl = '/create/run-feature/';
+    }
+
+    res.render(template, data);
   });
 };
 

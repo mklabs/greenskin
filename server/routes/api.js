@@ -7,9 +7,17 @@ var jenkins = require('../lib/jenkins');
 var config = require('../package.json').config;
 var jobReg = new RegExp('^' + config.job_prefix);
 
+// Phantomjs scripts
+var mochaRunner = fs.readFileSync(path.join(__dirname, '../test/mocha-test.js'), 'utf8');
+var mochaSteps = [{ name: 'stepfile.js', body: '' }];
+mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../test/mocha-stepfile.js'), 'utf8');
+
 exports.create = function create(req, res, next){
   var params = req.body;
   debug('API create', params);
+
+  params.urls = params.urls || [];
+  params.json_config = params.json_config || params.jsonconfig || params.config || {};
 
   // Get back XML file from job template param
   fs.readFile(path.join(__dirname, '../data', params.template + '.xml'), 'utf8', function(err, xml) {
@@ -29,9 +37,22 @@ exports.create = function create(req, res, next){
       return next(e);
     }
 
+    if (params.template === 'feature') {
+      xml = xml.replace('SCRIPT_BODY', function() {
+        return mochaRunner;        
+      });
+
+      if (!jsonconfig.steps) {
+        jsonconfig.steps = mochaSteps;
+        params.json_config = JSON.stringify(jsonconfig);
+      }
+    }
+
     xml = replaceJSONConfig(xml, params.json_config);
 
     debug('Jenkins creating %s job with %s template', name, params.template);
+    console.log(mochaRunner);
+    console.log(xml);
     jenkins.job.create(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job creation OK');
@@ -46,7 +67,7 @@ exports.edit = function edit(req, res, next){
   var name = params.name;
   name = jobReg.test(name) ? name : config.job_prefix + name;
 
-  var urls = params.urls;
+  var urls = params.urls || [];
   debug('API edit', urls);
 
   var xml = replaceUrlsXML(params.xml, urls);
@@ -58,6 +79,13 @@ exports.edit = function edit(req, res, next){
     params.json_config = JSON.stringify(jsonconfig);
   } catch(e) {
     return next(e);
+  }
+
+  if (params.template === 'feature') {
+    if (!jsonconfig.steps) {
+      jsonconfig.steps = mochaSteps;
+      params.json_config = JSON.stringify(jsonconfig);
+    }
   }
 
   xml = replaceJSONConfig(xml, params.json_config);

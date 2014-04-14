@@ -20,7 +20,9 @@
     "gherkin": "^2.12.2",
     "mocha": "^1.18.2",
     "nopt": "^2.2.0",
-    "phantomjs": "^1.9.7-3"
+    "phantomjs": "^1.9.7-3",
+    "rimraf": "^2.2.6",
+    "mkdirp": "^0.3.5"
   },
   "config": {
     "jenkins": "http://192.168.33.11:8080/",

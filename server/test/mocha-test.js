@@ -1,23 +1,122 @@
-require('./phantomjs-nodify');
+var env = require('system').env;
+require(env.WORKSPACE ? (env.WORKSPACE + '/phantomjs-nodify') : './phantomjs-nodify');
 
 var fs = require('fs');
 var path = require('path');
 
-var Parser = require('./gherkin-parser');
-var Gherkin = require('gherkin').Lexer('en');
+
+var base = env.WORKSPACE ? path.join(env.WORKSPACE, 'node_modules') : path.resolve('../node_modules');
 
 // Require & init mocha
-var Mocha = require('mocha');
+var Mocha = require(path.join(base, 'mocha'));
 var mocha = new Mocha();
 
 mocha.reporter('spec');
 mocha.timeout(15000);
+var Suite = Mocha.Suite;
+var Test = Mocha.Test;
+var utils = Mocha.utils;
+
+// Parser
+function Parser(suite, file, steps) {
+    this.steps = steps || [];
+    this.file = file;
+    this.suite = suite;
+    this.body = [''];
+    this.suites = [suite];
+    this.lastKeyword = 'Given';
+}
+
+var events = [
+    'comment',
+    'tag',
+    'feature',
+    'background',
+    'scenario',
+    'scenario_outline',
+    'examples',
+    'step',
+    'doc_string',
+    'row',
+    'eof'
+];
+
+events.forEach(function(ev) {
+    Parser.prototype[ev] = function(keyword, token, line) {
+      /* * /
+      console.log(ev);
+      console.log('f', keyword);
+      console.log('f', token);
+      console.log('f', line);
+      console.log();
+      /* */
+    };
+});
+
+/**
+ * Describe a "suite" with the given `title`
+ * and callback `fn` containing nested suites
+ * and/or tests.
+ */
+
+Parser.prototype.feature =
+Parser.prototype.scenario =
+function feature(keyword, token, line) {
+  var suite = Suite.create(this.suites[0], token);
+  this.suites.unshift(suite);
+  return suite;
+};
+
+Parser.prototype.step = function step(keyword, token, line) {
+    var suites = this.suites;
+    var suite = suites[0];
+    
+    keyword = keyword.trim();
+    
+    var _keyword = keyword === 'And' ? this.lastKeyword : keyword;
+    
+    var step = this.steps.filter(function(step) {
+        if (_keyword !== step.keyword) return;
+        if (!step.reg.test(token)) return;
+        return true;
+    })[0];
+    
+    var fn = step ? step.handler : null;
+    
+    var matches = [];
+    if (step) {
+        matches = token.match(step.reg);
+        if (matches) {
+            matches = matches.slice(1).slice(-2);
+            fn = function(done) {
+               step.handler.apply(this, matches.concat([done]));
+            };
+        }
+    }
+    
+    if (!step) token = token + ' (Pending)';
+    
+    var test = new Test(_keyword + ' ' + token, fn);
+    
+    test.file = this.file;
+    suite.addTest(test);
+    
+    this.lastKeyword = _keyword;
+    return test;
+};
+
+Parser.prototype.add = function add(line) {
+  this.body.push(line);
+};
+
+
+var Gherkin = require(path.join(base, 'gherkin')).Lexer('en');
 
 // Stubs for nopt
 require.stub('url', function() {});
 require.stub('stream', function() { return { Stream: function() {} }; });
 
-var nopt = require('nopt')({
+var nopt = require(path.join(base, 'nopt'))({
   stepdir: String,
   config: String,
   tmpdir: String
@@ -28,8 +127,13 @@ var tmpfiles = [];
 
 var files = nopt.argv.remain;
 var config = {};
+
 if (nopt.config) {
   config = require(fs.isAbsolute(nopt.config) ? nopt.config : path.join(fs.workingDirectory, nopt.config));
+} else if (env.JSON_CONFIG) {
+  try {
+    config = JSON.parse(env.JSON_CONFIG);
+  } catch(e) {}
 }
 
 var steps = [];
@@ -77,7 +181,6 @@ if (nopt.stepdir) {
 if (config.steps) {
   config.steps.forEach(function(step) {
     var filename = path.join(tmpdir, step.name);
-    console.log('Writes %s temporary step file', filename);
     fs.write(filename, (step.body || '') + '\n');
   });
 
@@ -93,7 +196,6 @@ if (config.steps) {
 if (config.features) {
   config.features.forEach(function(feature) {
     var filename = path.join(tmpdir, feature.name);
-    console.log('Writes %s temporary feature file', filename);
     fs.write(filename, (feature.body || '') + '\n');
   });
 
@@ -128,9 +230,9 @@ files = files.map(function(file) {
 });
 
 var runner = mocha.run(function(code) {
-  tmpfiles.forEach(function(file) {
-    fs.remove(file);
-  });
-
   process.exit(code);
 });
+
+
+// done
+

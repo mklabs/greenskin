@@ -85,7 +85,6 @@ Job.prototype.config = function(err, config) {
     var cron = '';
     if (timer) {
       cron = timer['hudson.triggers.TimerTrigger'][0].spec[0];
-      console.log(timer, cron);
     }
 
     // As well as the phantomas config in JSON_CONFIG
@@ -100,15 +99,26 @@ Job.prototype.config = function(err, config) {
         return data;
       })[0];
 
-    job.urls = urls;
-    job.phantomasConfig = jsonconfig;
-    job.phantomasJSON = JSON.stringify(jsonconfig, null, 2);
+    job.urls = urls || [];
+    job.config = jsonconfig;
+    job.json = JSON.stringify(jsonconfig, null, 2);
+
+    job.type = 'phantomas';
+    if (job.config && job.config.features) {
+      job.type = 'feature';
+    }
 
     var phantomas = {};
     phantomas.metrics = metrics.concat();
 
+    if (job.type === 'phantomas') {
+      job.phantomas = true;
+    } else if (job.type === 'feature') {
+      job.feature = true;
+    }
+
+    console.log(job.config);
     debug('Render all');
-    console.log('exec conf', result);
 
     self.emit('end', {
       job: job,

@@ -1,16 +1,19 @@
 var debug = require('debug')('server:feature');
 
-var express = require('express');
 var fs = require('fs');
 var path = require('path');
 var spawn = require('child_process').spawn;
+
+var mkdirp = require('mkdirp');
+var rimraf = require('rimraf');
+var express = require('express');
 var config = require('../package.json').config;
 var Job = require('../lib/job');
 
 // Phantomjs script
 var phantomjs = require('phantomjs').path;
 var mochaRunner = path.join(__dirname, '../test/mocha-test.js');
-var mochaSteps = require('../test/mocha-steps.json');
+var mochaSteps = [{ name: 'stepfile.js', body: '' }];
 mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../test/mocha-stepfile.js'), 'utf8');
 
 module.exports = function(app) {
@@ -146,32 +149,42 @@ module.exports = function(app) {
       data.steps = mochaSteps;
     }
 
-    var configfile = path.join(tmpdir, 'config.json');
+    var runtmpdir = path.join(tmpdir, timestamp);
+    var configfile = path.join(runtmpdir, 'config.json');
 
-    console.log('exec with');
+    console.log('exec with', configfile);
     console.log(data);
-    fs.writeFile(configfile, JSON.stringify(data, null, 2), function(err) {
+
+    mkdirp(runtmpdir, function(err) {
       if (err) return next(err);
 
-      var args = [mochaRunner, '--config', configfile];
+      fs.writeFile(configfile, JSON.stringify(data, null, 2), function(err) {
+        if (err) return next(err);
 
-      var phantom = spawn(phantomjs, args);
-      phantom.stdout.pipe(process.stdout);
-      phantom.stderr.pipe(process.stderr);
+        var args = [mochaRunner, '--config', configfile, '--tmpdir', path.dirname(configfile)];
 
-      phantom.stdout.on('data', function(data) {
-        data = data + '';
-        ws.sockets.emit('log.' + timestamp, { line: data });
-      });
 
-      phantom.on('exit', function(code) {
-        if (code !== 0) return next(new Error('Error spawning phantomjs'));
-        fs.unlink(configfile, function(err) {
-          if (err) return next(err);
-          res.json({ code: code });
+        console.log(args);
+        var phantom = spawn(phantomjs, args);
+        phantom.stdout.pipe(process.stdout);
+        phantom.stderr.pipe(process.stderr);
+
+        phantom.stdout.on('data', function(data) {
+          data = data + '';
+          ws.sockets.emit('log.' + timestamp, { line: data });
+        });
+
+        phantom.on('exit', function(code) {
+          if (code !== 0) return next(new Error('Error spawning phantomjs'));
+          rimraf(runtmpdir, function() {
+            if (err) return next(err);
+            res.json({ code: code });
+          })
         });
       });
+
     });
+
 
   });
 

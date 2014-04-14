@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <actions/>
+  <description>Testing out phantomas metrics</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>20</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>GRAPHITE_SERVER</name>
+          <description>Remote graphite server to send data to</description>
+          <defaultValue>192.168.33.33</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GRAPHITE_PORT</name>
+          <description/>
+          <defaultValue>8125</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        
+        <hudson.model.StringParameterDefinition>
+          <name>JSON_CONFIG</name>
+          <description>JSON config.</description>
+          <defaultValue>{}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+
+        <hudson.model.StringParameterDefinition>
+          <name>DEBUG</name>
+          <description>Log debug option</description>
+          <defaultValue>*</defaultValue>
+        </hudson.model.StringParameterDefinition>
+
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>R8_3</assignedNode>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>*/30 * * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo &quot;{}&quot; &gt; package.json
+[ -e node_modules ] || npm install phantomjs gherkin mocha nopt</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>
+[ -e phantomjs-nodify ] || git clone git://github.com/jgonera/phantomjs-nodify.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command><![CDATA[#!/usr/bin/env phantomjs
+
+SCRIPT_BODY
+
+// done
+
+]]></command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    
+  </publishers>
+  <buildWrappers/>
+</project>

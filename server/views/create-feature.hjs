@@ -7,7 +7,6 @@
   <li><a href="/view/{{ job.name }}/" data-toggle="tab">Build History</a></li>
   <li class="active"><a href="/edit/{{ job.name }}">Edit</a></li>
 </ul>
-
 {{/edit}}
 
 <form
@@ -15,7 +14,13 @@
   class="form-horizontal {{#edit}}form-edit{{/edit}} js-job-feature-form"
   method="post"
   data-cron="{{ cron }}"
-  data-run-url="{{ runUrl}}">
+  data-run-url="{{ runUrl }}">
+
+  <input type="hidden" name="template" value="feature">
+  <input type="hidden" name="json_config" value="{{ job.json }}">
+  <div class="is-hidden">
+    <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
+  </div>
 
   <div class="form-group">
     <label for="ipt_name" class="col-sm-2 control-label">Job name</label>
@@ -57,7 +62,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="is-hidden js-row-template feature-edit-row">
+          <tr class="is-hidden js-row-template feature-edit-row js-edit-row">
             <td>
               <div class="row">
 
@@ -79,7 +84,7 @@
 
               <div class="row" style="margin-top: 1em;">
                 <div class="js-feature-edit feature-edit col-sm-6">
-                  <textarea name="gherkin" class="form-control">Given ...</textarea>
+                  <textarea name="gherkin" class="form-control">Given I browse URL "http://example.com"</textarea>
                 </div>
 
                 <div class="col-sm-6">

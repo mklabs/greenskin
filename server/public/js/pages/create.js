@@ -204,6 +204,8 @@
     },
 
     initMetricTable: function(table) {
+        if (!table) return;
+        
         var cm = $('[name=json_config]').data('codemirror');
         var json = cm.getValue();
         var data = {};
@@ -243,12 +245,17 @@
     },
 
     table: function table(el) {
+      if (!el) return;
+
       // URLs table
       var urlAdd = el.querySelector('.js-add');
       var tbody = el.querySelector('tbody');
       var template = el.querySelector('.js-row-template');
       var createRow = el.querySelector('.js-create-row');
       var self = this;
+
+      if (!urlAdd) return;
+      if (!tbody) return;
 
       $(el).on('change', '.js-select-metrics', $.proxy(this.metricChanged, this));
       $(el).on('keyup', '.js-metric-value', $.proxy(this.metricChanged, this));

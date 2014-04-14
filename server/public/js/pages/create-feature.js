@@ -13,8 +13,30 @@
     this.cron();
     this.table(doc.querySelector('.js-features'));
 
+    this.submit();
+    this.initTableFromJSON();
+
     var socket = this.socket = io.connect('/');
   };
+
+  CreateFeaturePage.submit = function submit() {
+    var self = this;
+
+    var form = this.$el;
+    form.on('submit', function(e) {
+      var rows = self.$el.find('.js-features .js-edit-row').not('.js-row-template');
+      var errors = self.validateTable(rows);
+
+      if (errors) {
+        e.preventDefault();
+        return;
+      }
+
+      var data = self.serializeTable(rows);
+      form.find('[name=json_config]').val(JSON.stringify(data));
+    });
+  };
+
 
   CreateFeaturePage.added = function added(row) {
     this.codemirror('gherkin', row);
@@ -51,8 +73,10 @@
 
     log.html('Running ' + this.runUrl + ' ...\n');
 
-    if (!this.validateTable()) {
-      return;
+    var error = this.validateTable(log.closest('tr'));
+
+    if (error) {
+      return log.html(error.message || '');
     }
 
     var data = this.serializeTable(log.closest('tr'));
@@ -85,9 +109,7 @@
     });
   };
 
-  CreateFeaturePage.validateTable = function validateTable(table) {
-    table = table || this.$el.find('.js-features table');
-    var rows = table.find('.feature-edit-row').not('.js-row-template');
+  CreateFeaturePage.validateTable = function validateTable(rows) {
     var err = false;
 
     rows.each(function() {
@@ -96,11 +118,11 @@
       var name = input.val();
       input.closest('div')[name ? 'removeClass' : 'addClass']('has-error');
       if (!name) {
-        err = true;
+        err = { message: 'Missing feature name' };
       }
     });
 
-    return !err;
+    return err;
   };
 
   CreateFeaturePage.serializeTable = function serializeTable(rows) {
@@ -161,27 +183,14 @@
 
   CreateFeaturePage.table = function table(el) {
     // URLs table
-    var urlAdd = el.querySelector('.js-add');
-    var tbody = el.querySelector('tbody');
-    var template = el.querySelector('.js-row-template');
-    var createRow = el.querySelector('.js-create-row');
+    var urlAdd = this.urlAdd = el.querySelector('.js-add');
+    var tbody = this.tbody = el.querySelector('tbody');
+    var createRow = this.createRow = el.querySelector('.js-create-row');
+    var template = this.template = el.querySelector('.js-row-template');
     var self = this;
 
     // Link for add button
-    urlAdd.addEventListener('click', function(e) {
-      e.preventDefault();
-      var tpl = template.cloneNode(true);
-      var replacement = tpl.querySelector('select') ? 'metric-DOMinserts' : '';
-      tpl.className = tpl.className.replace(/is-hidden/, '');
-      tpl.className = tpl.className.replace(/js-row-template/, replacement);
-      var el = $(tpl);
-      el.find('.js-select-metrics').select2();
-      tbody.insertBefore(tpl, createRow);
-
-      if (typeof self.added === 'function') {
-        self.added(tpl);
-      }
-    }, false);
+    urlAdd.addEventListener('click', this.addRow.bind(this), false);
 
     // Click links toggle edit mode
     el.addEventListener('click', function(e) {
@@ -203,11 +212,32 @@
       }
 
       if (target.classList.contains('js-delete')) {
-        row = target.parentElement.parentElement;
-        tbody.removeChild(row);
+        $(target).closest('tr').remove();
       }
 
     }, true);
+  };
+
+  CreateFeaturePage.addRow = function addRow(e) {
+    if (e && e.preventDefault) e.preventDefault();
+
+    var template = this.template;
+    var tbody = this.tbody;
+    var createRow = this.createRow;
+
+    var tpl = template.cloneNode(true);
+    var replacement = tpl.querySelector('select') ? 'metric-DOMinserts' : '';
+    tpl.className = tpl.className.replace(/is-hidden/, '');
+    tpl.className = tpl.className.replace(/js-row-template/, replacement);
+    var el = $(tpl);
+    el.find('.js-select-metrics').select2();
+    tbody.insertBefore(tpl, createRow);
+
+    if (typeof this.added === 'function') {
+      this.added(tpl);
+    }
+
+    return tpl;
   };
 
   CreateFeaturePage.addLog = function addLog(log, data) {
@@ -223,6 +253,35 @@
     });
 
     log.append(tokens.join(''));
+  };
+
+  CreateFeaturePage.initTableFromJSON = function initTableFromJSON() {
+    var json = this.$el.find('[name=json_config]');
+    if (!json.length) return;
+
+    var data = {};
+    try {
+      data = JSON.parse(json.val());
+    } catch(e) {}
+
+    console.log('dd', data);
+
+    var el = this.el;
+    var urlAdd = this.urlAdd = el.querySelector('.js-add');
+    var tbody = this.tbody = el.querySelector('tbody');
+    var createRow = this.createRow = el.querySelector('.js-create-row');
+    var template = this.template = el.querySelector('.js-row-template');
+
+    data.features.forEach(function(feature) {
+      var el = this.addRow();
+      var row = $(el);
+      row.find('.js-input').val(feature.name);
+      var textarea = row.find('[name=gherkin]');
+      textarea.val(feature.body);
+      var editor = textarea.data('codemirror');
+      editor.refresh();
+      editor.setValue(feature.body);
+    }, this);
   };
 
   $(function() {
