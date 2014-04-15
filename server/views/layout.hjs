@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/vendor/har-view/har-viewer.css">
   <link rel="stylesheet" href="/vendor/har-view/jquery-ui.css">
   <link rel="stylesheet" href="/vendor/select2/select2.css">
+  <link rel="stylesheet" href="/vendor/animate.css">
   {{{ moreCss }}
 </head>
 <body>

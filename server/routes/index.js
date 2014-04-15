@@ -28,6 +28,11 @@ exports.index = function(req, res, next) {
   jenkins.all(function(err, jobs) {
     if (err) return next(err);
     debug('Render all', jobs);
+
+    jobs.forEach(function(job) {
+      job.animated = /anime/.test(job.color);
+    });
+
     res.render('index', { jobs: jobs, config: config });
   });
 };
