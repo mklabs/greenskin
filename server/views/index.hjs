@@ -2,35 +2,36 @@
     <a class="btn btn-default" href="/create" role="button">Create Job (simple metrics)</a>
     <a class="btn btn-default" href="/create/feature" role="button">Create Job (Functional)</a>
 
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#jobs}}
-          <tr>
-            <td>{{ name }}</td>
-            <td>
-              <a href="/view/{{ name }}">{{ url }}</a>
-              <a href="{{ url }}">(jenkins)</a>
-            </td>
-            <td>{{ color }}</td>
-            <td>
-              <a class="btn btn-default" href="/edit/{{ name }}" role="button">Edit</a>
-            </td>
-            <td>
-              <a class="btn btn-danger" href="/delete/{{ name }}" role="button" onclick="return confirm('Sure ?')">Delete</a>
-            </td>
-          </tr>
-          {{/jobs}}
-        </tbody>
-      </table>
-    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#jobs}}
+        <tr>
+          <td>{{ name }}</td>
+          <td>
+            <a href="/view/{{ name }}">{{ url }}</a>
+            <a href="{{ url }}">(jenkins)</a>
+          </td>
+          <td>{{ color }}</td>
+          <td>
+            <a href="{{ config.jenkins }}job/{{ name }}/build" class="btn btn-default" role="button">Run</a>
+          </td>
+          <td>
+            <a class="btn btn-default" href="/edit/{{ name }}" role="button">Edit</a>
+          </td>
+          <td>
+            <a class="btn btn-danger" href="/delete/{{ name }}" role="button" onclick="return confirm('Sure ?')">Delete</a>
+          </td>
+        </tr>
+        {{/jobs}}
+      </tbody>
+    </table>

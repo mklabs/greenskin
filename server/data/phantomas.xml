@@ -74,7 +74,7 @@ var program = require(path.join(base, 'optimist'))('phantomas:cli');
 
 // parse options
 program
-  .usage('PhantomJS-based web performance metrics collector\n\nphantomas &lt;url&gt; [options]')
+  .usage('PhantomJS-based web performance metrics collector\n\nphantomas <url> [options]')
 
   // mandatory
   .describe('url', 'Set URL to work with').string('url')
@@ -149,7 +149,7 @@ function cleanUrl(url) {
   return url
     .replace(/^https?:\/\//, '')
     .replace(/\/$/g, '')
-    .replace(/(\/|\?|-|&amp;|=|\.)/g, '_');
+    .replace(/(\/|\?|-|&|=|\.)/g, '_');
 }
 
 // @see https://github.com/caolan/async#seriestasks-callback
@@ -159,7 +159,7 @@ runs = parseInt(options.runs || 1, 10);
 debug('Preparing %d run(s)...', runs);
 debug('On %d URLs', urls.length, urls);
 
-for (var r=0; r&lt;runs; r++) {
+for (var r=0; r<runs; r++) {
   series.push(task);
 }
 
@@ -182,7 +182,7 @@ var urlSeries = urls.map(function(url) {
     opts['film-strip-dir'] = filmstripdir;
 
     var child = phantomas(url, opts, function(err, data, results) {
-      if (err) return callback(err);
+      if (err) return callback(err, data, results);
 
       var files = fs.readdirSync(filmstripdir);
       debug('Writing filmstrip list of files in %s: ', path.join(filmstripdir, 'files.json'), files);
@@ -221,6 +221,7 @@ async.series(
     debug('Calling reporters...');
 
     async.each(results, function(result, callback) {
+      result = Array.isArray(result) ? result[1] : result;
       var resTap = tap(result, options).render(function() {});
 
       if (result === false) {
@@ -251,6 +252,7 @@ async.series(
     }, doneFn);
   }
 );
+
 
 
 </command>
