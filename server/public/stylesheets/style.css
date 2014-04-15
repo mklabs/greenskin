@@ -126,6 +126,14 @@ a {
   margin: 20px 0;
 }
 
+.build-summary .left {
+  margin-left: 20px;
+}
+
+.build-summary .left:first-of-type {
+  margin-left: 0;
+}
+
 .build-summary .build-label {
   float: left;
   width: 90px;
@@ -135,7 +143,7 @@ a {
 
 .build-summary .build-value {
   float: left;
-  width: 150px;
+  min-width: 150px;
   min-height: 25px;
 }
 }
@@ -526,7 +534,7 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
     background-image: radial-gradient(3px 3px 45deg, circle cover, #72d472 0%, #397439 100%)
 }
 
-.doony-circle-warning {
+.doony-circle-yellow, .doony-circle-yellow_anime  {
     background: #f0ad4e;
     background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #f0ad4e 0%, #d58512 100%);
     background-image: -webkit-radial-gradient(3px 3px, circle cover, #f0ad4e, #d58512);

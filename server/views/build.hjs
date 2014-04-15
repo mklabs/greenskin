@@ -40,10 +40,6 @@
         <span class="build-value js-timestamp" data-timestamp="{{ build.timestamp }}">{{ build.finished }}</span>
       </p>
 
-      <p class="clearfix">
-        <span class="build-label">Duration</span>
-        <span class="build-value js-duration" data-duration="{{ build.duration }}">{{ build._duration }}</span>
-      </p>
     </div>
 
     <div class="left">
@@ -52,11 +48,33 @@
         <span class="build-value">{{ build.result }}</span>
       </p>
 
+
+      <p class="clearfix">
+        <span class="build-label">Duration</span>
+        <span class="build-value js-duration" data-duration="{{ build.duration }}">{{ build._duration }}</span>
+      </p>
+
+    </div>
+
+    <div class="left">
+      <p class="clearfix">
+        <span class="build-label">TAP Results</span>
+        <span class="build-value">
+          <a href="{{ config.jenkins }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/">
+          {{ config.jenkins }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/
+          </a>
+        </span>
+      </p>
+
+
       <p class="clearfix">
         <span class="build-label">URL</span>
         <span class="build-value"><a href="{{ build.url }}">{{ build.url }}</a></span>
       </p>
 
+    </div>
+    
+    <div class="left">
       <p class="clearfix">
         <span class="build-label">Workspace</span>
         <span class="build-value"><a href="{{ build.ws }}">{{ build.ws }}</a></span>
