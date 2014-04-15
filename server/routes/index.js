@@ -104,6 +104,7 @@ exports.lastBuild = function lastBuild(req, res, next) {
     var last = data.job.lastBuild && data.job.lastBuild.number;
     if (!last) return next(new Error('Error getting last build info'));
     
+    data.config = config;
     data.json = JSON.stringify(data.job, null, 2);
     data.title = name;
     data.edit = false;

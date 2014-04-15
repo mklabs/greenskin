@@ -53,8 +53,8 @@
       </p>
 
       <p class="clearfix">
-        <span class="build-label">ID</span>
-        <span class="build-value">{{ build.id }}</span>
+        <span class="build-label">URL</span>
+        <span class="build-value"><a href="{{ build.url }}">{{ build.url }}</a></span>
       </p>
 
       <p class="clearfix">
@@ -62,8 +62,12 @@
         <span class="build-value"><a href="{{ build.ws }}">{{ build.ws }}</a></span>
       </p>
     </div>
-
+    
+    <div class="btn-group right">
+      <a href="{{ config.jenkins }}job/{{ job.name }}/build" class="btn btn-default" role="button">Run</a>
+    </div>
   </div>
+
   {{/last}}
 
   {{#job._urls}}
