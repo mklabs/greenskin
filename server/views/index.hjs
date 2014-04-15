@@ -19,7 +19,7 @@
           </td>
           <td>{{ name }}</td>
           <td>
-            <a href="/view/{{ name }}">{{ url }}</a>
+            <a href="/view/{{ name }}/last">{{ url }}</a>
             <a href="{{ url }}">(jenkins)</a>
           </td>
           <td>

@@ -58,8 +58,6 @@ Job.prototype.config = function(err, config) {
 
   if (err) return next(err);
   job.xml = config;
-  console.log('tmp', config);
-  console.log('options', this.options);
 
   xml2js.parseString(config, function(err, result) {
     if (err) return next(err);
@@ -122,7 +120,6 @@ Job.prototype.config = function(err, config) {
       job.feature = true;
     }
 
-    console.log(job.config);
     debug('Render all');
 
     self.emit('end', {

@@ -43,6 +43,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/mode/javascript/javascript.js"></script>
   <script src="//codemirror.net/mode/gherkin/gherkin.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/addon/hint/show-hint.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
 
   <script src="/vendor/jquery-cron.js"></script>
   <script src="/vendor/jsonlint.js"></script>

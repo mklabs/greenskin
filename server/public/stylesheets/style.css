@@ -50,6 +50,10 @@ a {
   margin-top: 35px;
 }
 
+.tab-content .table tbody tr:first-of-type td {
+  border-top: none;
+}
+
 
 
 .is-hidden {
@@ -58,6 +62,10 @@ a {
 
 .right {
   float: right;
+}
+
+.left {
+  float: left;
 }
 
 .cron-button {
@@ -111,10 +119,25 @@ a {
 
 /** Build View **/
 .build-url-title {
-  /* border-bottom: 1px solid #dedede; */
-  /* padding-bottom: 4px; */
   margin-bottom: 0;
-  /* margin-top: 35px; */
+}
+
+.build-summary {
+  margin: 20px 0;
+}
+
+.build-summary .build-label {
+  float: left;
+  width: 90px;
+  min-height: 25px;
+  color: #777;
+}
+
+.build-summary .build-value {
+  float: left;
+  width: 150px;
+  min-height: 25px;
+}
 }
 
 .build-url-timeline {
@@ -166,9 +189,7 @@ a {
 }
 
 .log-container {
-    position: relative
-;
-    /* max-height: 600px; */
+    position: relative;
 }
 
 .log-container #tail {

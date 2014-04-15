@@ -57,8 +57,14 @@ app.get('/', routes.index);
 app.get('/create', routes.create);
 app.get('/view/:name', routes.view);
 app.get('/edit/:name', routes.edit);
+
+
+app.get('/view/:name/last', routes.lastBuild);
+app.get('/view/:name/current', routes.lastBuild);
+
 app.get('/view/:name/:number', routes.buildView);
 app.get('/har/:name/:number/:url.json', routes.har);
+
 app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);
 app.post('/api/edit', routes.api.edit);

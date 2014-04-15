@@ -3,6 +3,7 @@ var debug = require('debug')('server:index');
 var jenkins = require('../lib/jenkins');
 var xml2js = require('xml2js');
 var request = require('request');
+var moment = require('moment');
 
 var Job = require('../lib/job');
 
@@ -95,7 +96,43 @@ exports.har = function har(req, res, next) {
   req.pipe(request(jenkinsHarUrl)).pipe(res);
 };
 
-exports.buildView = function buildView(req, res, next) {
+exports.lastBuild = function lastBuild(req, res, next) {
+  var name = req.params.name;
+  var job = new Job(name, next);
+
+  job.on('end', function(data) {
+    var last = data.job.lastBuild && data.job.lastBuild.number;
+    if (!last) return next(new Error('Error getting last build info'));
+    
+    data.json = JSON.stringify(data.job, null, 2);
+    data.title = name;
+    data.edit = false;
+    data.last = true;
+
+    jenkins.build.get(name, last, function(err, build) {
+      if (err) return next(err);
+      console.log(build);
+      data.build = build;
+
+      build.finished = moment(build.timestamp).fromNow();
+      build._duration = moment.duration(build.duration).humanize();
+      build.ws = config.jenkins + 'job/' + name + '/ws';
+
+      requestJobLog(name, last, function(err, response, body) {
+        if (err) return next(err);
+
+        data.job.log = body;
+        res.render('build', data);
+      });
+    });
+  });
+};
+
+exports.buildView = buildView;
+
+// Build view request handler, for both normal view and last job view
+// TODO: Rework me...
+function buildView(req, res, next) {
   var name = req.params.name;
   var number = req.params.number;
   var job = new Job(name, next);
@@ -110,8 +147,7 @@ exports.buildView = function buildView(req, res, next) {
     data.config = config;
     data.job._urls = [];
 
-    // http://192.168.33.11:8080/job/R8_perf_zzz/11/consoleText
-    request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', function(err, response, body) {
+    requestJobLog(name, number, function(err, response, body) {
       if (err) return next(err);
 
       data.job.log = body;
@@ -159,9 +195,13 @@ exports.buildView = function buildView(req, res, next) {
 
       })(urls.shift());
     });
-  });
-};
+  }); 
+}
 
+function requestJobLog(name, number, done) {
+   // http://192.168.33.11:8080/job/R8_perf_zzz/11/consoleText
+  request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', done);
+}
 
 // Helper to cleanup URL for filesystem I/O or graphite keys
 function cleanUrl(url) {

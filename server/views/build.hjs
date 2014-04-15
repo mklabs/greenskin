@@ -13,12 +13,58 @@
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs job-tabs">
-  <li><a href="/view/{{ job.name }}/" data-toggle="tab">Build History</a></li>
+  <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
+  <li><a href="/view/{{ job.name }}/">Build History</a></li>
   <li><a href="/edit/{{ job.name }}">Edit</a></li>
+
+  {{^last}}
   <li class="active"><a href="#">Build {{ number }}</a></li>
+  {{/last}}
 </ul>
 
 <div class="js-build">
+
+  {{#last}}
+  <div class="build-summary row">
+    <div class="left">
+      <p class="clearfix">
+        <span class="build-label">Build</span>
+        <span class="build-value">
+          <span class="doony-circle doony-circle-{{ job.color }}{{#animated}} bounceIn animated infinite{{/animated}}" style="display: inline-block; margin: 0; width: 1em; height: 1em;"></span>
+          <a href="{{ job.lastBuild.url }}">{{ job.lastBuild.number }}</a>
+        </span>
+      </p>
+
+      <p class="clearfix">
+        <span class="build-label">Finished</span>
+        <span class="build-value js-timestamp" data-timestamp="{{ build.timestamp }}">{{ build.finished }}</span>
+      </p>
+
+      <p class="clearfix">
+        <span class="build-label">Duration</span>
+        <span class="build-value js-duration" data-duration="{{ build.duration }}">{{ build._duration }}</span>
+      </p>
+    </div>
+
+    <div class="left">
+      <p class="clearfix">
+        <span class="build-label">State</span>
+        <span class="build-value">{{ build.result }}</span>
+      </p>
+
+      <p class="clearfix">
+        <span class="build-label">ID</span>
+        <span class="build-value">{{ build.id }}</span>
+      </p>
+
+      <p class="clearfix">
+        <span class="build-label">Workspace</span>
+        <span class="build-value"><a href="{{ build.ws }}">{{ build.ws }}</a></span>
+      </p>
+    </div>
+
+  </div>
+  {{/last}}
 
   {{#job._urls}}
   <div class="build-url build-box">
@@ -62,8 +108,7 @@
   </div>
   {{/job._urls}}
 
-  <h4 class="build-box-header">Logs</h4>
   <div class="log-container">
-    <pre class="js-log log ansi" style="max-height: 600px">{{ job.log }}</pre>
+    <pre class="js-log log ansi" style="margin-top: 35px;">{{ job.log }}</pre>
   </div>
 </div>
