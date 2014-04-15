@@ -21,7 +21,7 @@
           <description/>
           <defaultValue>8125</defaultValue>
         </hudson.model.StringParameterDefinition>
-        
+
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>JSON config.</description>
@@ -69,7 +69,7 @@ SCRIPT_BODY
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    
+
   </publishers>
   <buildWrappers/>
 </project>

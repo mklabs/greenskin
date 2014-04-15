@@ -16,7 +16,10 @@ var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
   return metric;
 });
 
-var phantomasXmlTemplate = fs.readFileSync(path.join(__dirname, '../data', 'phantomas.xml'), 'utf8');
+var templates = {
+  phantomas: fs.readFileSync(path.join(__dirname, '../data', 'phantomas.xml'), 'utf8'),
+  feature: fs.readFileSync(path.join(__dirname, '../data', 'feature.xml'), 'utf8')
+};
 
 module.exports = Job;
 
@@ -24,7 +27,7 @@ function Job(name, next, options) {
   this.options = options || {};
   this.name = name;
   this.next = next;
-  this.xmlTemplate = this.options.xmlTemplate || phantomasXmlTemplate;
+  this.xmlTemplate = templates[this.options.xmlTemplate || 'phantomas'];
   this.init();
 }
 
@@ -55,6 +58,8 @@ Job.prototype.config = function(err, config) {
 
   if (err) return next(err);
   job.xml = config;
+  console.log('tmp', config);
+  console.log('options', this.options);
 
   xml2js.parseString(config, function(err, result) {
     if (err) return next(err);

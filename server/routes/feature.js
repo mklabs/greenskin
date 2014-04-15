@@ -122,7 +122,9 @@ module.exports = function(app) {
 
   // Job creation
   app.get('/create/feature', function(req, res, next) {
-    var job = new Job('', next);
+    var job = new Job('', next, {
+      xmlTemplate: 'feature'
+    });
 
     job.on('end', function(data) {
       data.title = 'Create job';
@@ -152,9 +154,6 @@ module.exports = function(app) {
     var runtmpdir = path.join(tmpdir, timestamp);
     var configfile = path.join(runtmpdir, 'config.json');
 
-    console.log('exec with', configfile);
-    console.log(data);
-
     mkdirp(runtmpdir, function(err) {
       if (err) return next(err);
 
@@ -179,7 +178,7 @@ module.exports = function(app) {
           rimraf(runtmpdir, function() {
             if (err) return next(err);
             res.json({ code: code });
-          })
+          });
         });
       });
 

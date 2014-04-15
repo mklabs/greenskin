@@ -264,13 +264,13 @@
       data = JSON.parse(json.val());
     } catch(e) {}
 
-    console.log('dd', data);
-
     var el = this.el;
     var urlAdd = this.urlAdd = el.querySelector('.js-add');
     var tbody = this.tbody = el.querySelector('tbody');
     var createRow = this.createRow = el.querySelector('.js-create-row');
     var template = this.template = el.querySelector('.js-row-template');
+
+    if (!data.features) return;
 
     data.features.forEach(function(feature) {
       var el = this.addRow();
