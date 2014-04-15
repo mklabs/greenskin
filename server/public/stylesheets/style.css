@@ -519,7 +519,7 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
     border-radius: 50%
 }
 
-.doony-circle-aborted, .doony-circle-aborted_anime {
+.doony-circle-aborted, .doony-circle-aborted_anime, .doony-circle-notbuilt {
     background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #ccc 0%, #999 100%);
     background-image: -webkit-radial-gradient(3px 3px, circle cover, #ccc, #999);
     background-image: radial-gradient(3px 3px 45deg, circle cover, #ccc 0%, #999 100%)
