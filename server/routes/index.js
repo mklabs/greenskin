@@ -100,6 +100,8 @@ exports.lastBuild = function lastBuild(req, res, next) {
   var name = req.params.name;
   var job = new Job(name, next);
 
+
+
   job.on('end', function(data) {
     var last = data.job.lastBuild && data.job.lastBuild.number;
     if (!last) return next(new Error('Error getting last build info'));
@@ -109,6 +111,9 @@ exports.lastBuild = function lastBuild(req, res, next) {
     data.title = name;
     data.edit = false;
     data.last = true;
+
+    data.animated = /anime/.test(data.job.color);
+
 
     jenkins.build.get(name, last, function(err, build) {
       if (err) return next(err);

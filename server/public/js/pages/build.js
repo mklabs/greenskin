@@ -12,6 +12,10 @@
       this.initHar();
       this.events();
       this.ansiparse();
+      this.poolLog();
+
+      // Lame ... Quick & Dirty. Mostly dirty.
+      this.poolMe();
     },
 
     events: function() {
@@ -62,6 +66,69 @@
       });
 
       el.html(tokens.join(''));
+    },
+
+    poolLog: function() {
+      if (!this.data.animated) return;
+      console.log('pool log');
+
+      var req = $.ajax({
+        url: location.href
+      });
+
+      var pre = this.$el.find('.js-log');
+      var self = this;
+      req.success(function(res) {
+        res = $(res);
+        var state = res.find('.js-state')
+        var log = res.find('.js-log');
+        if (!log.length) return;
+        var text = log.text();
+        pre.html(text);
+        self.ansiparse();
+
+        if (state.text().trim() !== 'Running') {
+          console.log('Changed', state.text());
+          self.data.animated = false;
+          self.$el.html(res.find('.js-build').html());
+          self.ansiparse();
+          return;
+        }
+
+        setTimeout(function() {
+          self.poolLog();
+        }, 2000);
+      });
+    },
+
+    poolMe: function() {
+      if (!this.data.last) return;
+
+      console.log('pool me');
+      var req = $.ajax({
+        url: location.href
+      });
+
+      var self = this;
+      req.success(function(res) {
+        res = $(res);
+        var number = res.find('.js-number')
+        if (!number.length) return;
+
+        var num = parseInt(number.text(), 10);
+
+        if (num !== self.data.number) {
+          console.log('Changed', num);
+          self.data.number = num;
+          self.data.animated = true;
+          self.$el.html(res.find('.js-build').html());
+          self.poolLog();
+        }
+
+        setTimeout(function() {
+          self.poolMe();
+        }, 5000);
+      });
     }
   });
 

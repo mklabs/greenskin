@@ -130,6 +130,10 @@ a {
   margin-left: 20px;
 }
 
+.build-summary .label {
+  margin-left: 0.5em;
+}
+
 .build-summary .left:first-of-type {
   margin-left: 0;
 }
