@@ -70,7 +70,6 @@
 
     poolLog: function() {
       if (!this.data.animated) return;
-      console.log('pool log');
 
       var req = $.ajax({
         url: location.href
@@ -88,7 +87,6 @@
         self.ansiparse();
 
         if (state.text().trim() !== 'Running') {
-          console.log('Changed', state.text());
           self.data.animated = false;
           self.$el.html(res.find('.js-build').html());
           self.ansiparse();
@@ -104,9 +102,9 @@
     poolMe: function() {
       if (!this.data.last) return;
 
-      console.log('pool me');
+      console.log('poolMe');
       var req = $.ajax({
-        url: location.href
+        url: location.pathname
       });
 
       var self = this;
@@ -116,9 +114,18 @@
         if (!number.length) return;
 
         var num = parseInt(number.text(), 10);
+        console.log('?', number, num, self.data.number);
 
-        if (num !== self.data.number) {
-          console.log('Changed', num);
+        if (self.data.pending && num === self.data.number) {
+          self.data.pending = false;
+          self.data.animated = true;
+          console.log('refresh');
+          location.replace(location.pathname);
+          return;
+        }
+
+        if (!self.data.pending && num !== self.data.number) {
+          console.log('chnum');
           self.data.number = num;
           self.data.animated = true;
           self.$el.html(res.find('.js-build').html());

@@ -96,28 +96,36 @@ exports.har = function har(req, res, next) {
   req.pipe(request(jenkinsHarUrl)).pipe(res);
 };
 
+// http://192.168.33.11:8080/job/R8_perf_funky/buildWithParameters
+exports.run = function run(req, res, next) {
+  var name = req.params.name;
+  var url = config.jenkins + 'job/' + name + '/buildWithParameters';
+  request(url, function(err) {
+    if (err) return next(err);
+    res.redirect('/view/' + name + '/last?pending');
+  });
+};
+
 exports.lastBuild = function lastBuild(req, res, next) {
   var name = req.params.name;
+  var pending = typeof req.query.pending !== 'undefined';
   var job = new Job(name, next);
-
-
 
   job.on('end', function(data) {
     var last = data.job.lastBuild && data.job.lastBuild.number;
     if (!last) return next(new Error('Error getting last build info'));
-    
+
     data.config = config;
     data.json = JSON.stringify(data.job, null, 2);
     data.title = name;
     data.edit = false;
     data.last = true;
+    data.pending = pending;
 
     data.animated = /anime/.test(data.job.color);
 
-
     jenkins.build.get(name, last, function(err, build) {
       if (err) return next(err);
-      console.log(build);
       data.build = build;
 
       build.finished = moment(build.timestamp).fromNow();
@@ -128,6 +136,17 @@ exports.lastBuild = function lastBuild(req, res, next) {
         if (err) return next(err);
 
         data.job.log = body;
+
+        if (pending) {
+          build.finished = '';
+          build._duration = '';
+          data.job.log = '... Waiting ...\n\nYou triggered a run, this page should reload as soon as build #' + data.job.nextBuildNumber + ' starts.\n\n';
+          build.result = 'Waiting';
+          data.job.lastBuild.number = data.job.nextBuildNumber;
+          data.job.color = 'aborted';
+        }
+
+
         res.render('build', data);
       });
     });
@@ -140,9 +159,11 @@ exports.buildView = buildView;
 // TODO: Rework me...
 function buildView(req, res, next) {
   var name = req.params.name;
-  var number = req.params.number;
-  var job = new Job(name, next);
+  var number = parseInt(req.params.number, 10);
 
+  if (isNaN(number)) return next('Build "' + req.params.number + '" not a valid number');
+
+  var job = new Job(name, next);
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
@@ -205,7 +226,6 @@ function buildView(req, res, next) {
 }
 
 function requestJobLog(name, number, done) {
-   // http://192.168.33.11:8080/job/R8_perf_zzz/11/consoleText
   request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', done);
 }
 

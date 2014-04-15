@@ -57,7 +57,6 @@ exports.create = function create(req, res, next){
       if (err) return next(err);
       debug('Jenkins job creation OK');
       res.redirect('/');
-
     });
   });
 };
@@ -95,7 +94,7 @@ exports.edit = function edit(req, res, next){
   jenkins.job.config(params.name, xml, function(err) {
     if (err) return next(err);
     debug('Jenkins job edition OK');
-    res.redirect('/');
+    res.redirect('/view/' + name + '/last');
   });
 };
 
