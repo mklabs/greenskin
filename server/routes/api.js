@@ -7,10 +7,45 @@ var jenkins = require('../lib/jenkins');
 var config = require('../package.json').config;
 var jobReg = new RegExp('^' + config.job_prefix);
 
+var Job = require('../lib/job');
+
 // Phantomjs scripts
 var mochaRunner = fs.readFileSync(path.join(__dirname, '../test/mocha-test.js'), 'utf8');
 var mochaSteps = [{ name: 'stepfile.js', body: '' }];
 mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../test/mocha-stepfile.js'), 'utf8');
+
+
+// POST /view/:name/asserts/:metric
+exports.metric = function metric(req, res, next){
+  var value = parseInt(req.body.value, 10);
+  var name = req.params.name;
+  var key = req.params.metric;
+
+  if (isNaN(value)) return next(req.body.value + ' not a valid number');
+
+  var job = new Job(name, next);
+  job.on('end', function(data) {
+    var json = data.job.json;
+    try {
+      json = JSON.parse(json);
+    } catch(e) {
+      return next(e);
+    }
+
+    var asserts = json.asserts;
+    asserts[key] = value;
+
+    var xml = data.job.xml;
+    xml = replaceJSONConfig(xml, JSON.stringify(json));
+
+    debug('Jenkins updating %s job with', name, asserts);
+    jenkins.job.config(name, xml, function(err) {
+      if (err) return next(err);
+      debug('Jenkins job edition OK');
+      res.json({ ok: true, redirect: '/view/' + name + '/asserts' });
+    });
+  });
+};
 
 exports.create = function create(req, res, next){
   var params = req.body;

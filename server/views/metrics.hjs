@@ -46,12 +46,47 @@
 
   </div>
 
-  <div class="js-graphs">
-  {{#graphs}}
-    <div class="graph js-highchart build-url build-box col-sm-{{ colsize }}" data-name="{{ name }}" data-config="{{ json }}" data-assert="{{ assert }}">
+  <div class="js-graphs" data-assets="{{ assertsJSON }}">
+
+
+    {{#graphs}}
+      <div class="graph js-highchart build-url build-box col-sm-{{ colsize }}" data-name="{{ name }}" data-config="{{ json }}" data-assert="{{ assert }}">
+
+      </div>
+    {{/graphs}}
+
+    <script type="wsh" class="js-template">
+    <div class="col-sm-12 js-row" style="padding: 0; margin-top: 35px;">
+      <form class="col-sm-6 graph build-url build-box" style="min-height: 400px; padding-top: 2em">
+        <p class="form-group">
+          <label>Metric</label>
+          <select class="js-select-metrics" style="width: 100%;">
+            {{#phantomas.metrics}}
+            <option value="{{ name }}" data-unit="{{ unit }}">{{ name }} - {{ desc }}</option>
+            {{/phantomas.metrics}}
+          </select>
+        </p>
+
+        <p class="form-group">
+          <label>Value</label>
+          <input type="text" value="" class="form-control js-value">
+        </p>
+
+        <div class="btn-group js-buttons right" style="margin: 35px 0;">
+          <a href="#" class="js-save btn btn-default">Save</a>
+        </div>
+      </form>
+
+      <div class="graph js-highchart build-url build-box col-sm-6">
+
+      </div>
 
     </div>
-  {{/graphs}}
+    </script>
+
+    <div class="col-sm-12 js-buttons" style="margin: 35px 0; text-align: right;">
+      <a href="#" class="js-add btn btn-default right">Add</a>
+    </div>
   </div>
 
 </div>

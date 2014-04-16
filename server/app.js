@@ -61,6 +61,11 @@ app.get('/edit/:name', routes.edit);
 app.get('/view/:name/asserts', routes.metrics);
 app.get('/view/:name/metrics', routes.metrics);
 
+app.get('/view/:name/asserts/:metric', routes.metric);
+app.get('/view/:name/metrics/:metric', routes.metric);
+app.post('/view/:name/asserts/:metric', routes.api.metric);
+app.post('/view/:name/metrics/:metric', routes.api.metric);
+
 app.get('/view/:name/run', routes.run);
 app.get('/view/:name/build', routes.run);
 

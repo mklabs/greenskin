@@ -127,7 +127,7 @@ exports.metrics = function metrics(req, res, next) {
 
       var monitoredMetrics = Object.keys(data.job.config.asserts || {});
 
-      data.colsize = 6;
+      data.colsize = 4;
       if (assertMode) {
         data.graphs = graphs.filter(function(graph) {
           return !!~monitoredMetrics.indexOf(graph.name);
@@ -136,12 +136,34 @@ exports.metrics = function metrics(req, res, next) {
           return graph;
         });
 
-        data.colsize = 6;
+        data.colsize = 4;
         data.assertsJSON = JSON.stringify(data.job.config.asserts, null, 2);
       }
 
       res.render('metrics', data);
     });
+  });
+};
+
+
+exports.metric = function metric(req, res, next) {
+  var name = req.params.name;
+  var metric = req.params.metric;
+
+  var url = config.jenkins + 'job/' + name + '/ws/metrics.json';
+  request(url, function(err, response, metrics) {
+    if (err) return next(err);
+    if (response.statusCode !== 200) metrics = '{}';
+
+    try {
+      metrics = JSON.parse(metrics);
+    } catch(e) {
+      next(e);
+      return;
+    }
+    
+    var data = metrics[metric] || {};
+    res.json(data);
   });
 };
 
