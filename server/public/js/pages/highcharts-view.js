@@ -7,6 +7,7 @@
 
       if (!this.$el.length) return;
 
+      this.highchart = this.$el.find('.js-highchart');
       this.data = $.extend({}, this.$el.data(), config || {});
       this.config = this.data.config || {};
 
@@ -25,7 +26,7 @@
     render: function() {
       this.chart = new Highcharts.Chart({
         chart: {
-          renderTo: this.el,
+          renderTo: this.highchart[0],
           events: {
             redraw: this.drawAssertLine.bind(this)
           }
@@ -82,14 +83,19 @@
     if (!this.$el.length) return;
 
     this.template = this.$el.find('.js-template');
-    this.buttons = this.$el.find('.js-buttons');
+    this.buttons = this.$el.find('.js-buttonpane');
 
     this.data = $.extend({}, this.$el.data(), config || {});
-    this.$el.on('click', '.js-add', this.add.bind(this));
 
     this.$el.on('change', '.js-select-metrics', this.renderGraph.bind(this));
     this.$el.on('keyup', '.js-value', _.debounce(this.renderGraph.bind(this), 250));
     this.$el.on('click', '.js-save', _.debounce(this.save.bind(this), 250));
+
+    this.$el.on('click', '.js-add', this.add.bind(this));
+    this.$el.on('click', '.js-edit', this.edit.bind(this));
+    this.$el.on('click', '.js-remove', this.remove.bind(this));
+
+    this.$el.on('submit', '.js-edit-form', this.save.bind(this));
   };
 
   Graphs.add = function(e) {
@@ -105,10 +111,55 @@
       $(e.target).remove();
   };
 
+  Graphs.edit = function(e) {
+      e.preventDefault();
+
+      var group = $(e.target).closest('.js-graph');
+      if (group.find('.js-edit-form').length) {
+        return group.find('.js-edit-form').toggle();
+      }
+
+      var tpl = $(this.template.html()).find('form').html();
+      var name = group.data('name');
+
+      tpl = $('<form />').html(tpl)
+        .addClass('form js-edit-form edit-form');
+
+      group.addClass('js-row');
+
+      var select = tpl.find('.js-select-metrics')
+      select.val(name).attr('disabled', 'disabled').addClass('form-control').hide();
+      tpl.find('.js-value-metrics').text(name);
+
+      tpl.find('.js-value').val(group.data('assert'));
+
+      group.prepend(tpl);
+  };
+
+  Graphs.remove = function(e) {
+    var tpl = $(this.template.html()).find('form').html();
+    var group = $(e.target).closest('.js-graph');
+    var name = group.data('name');
+
+    var req = $.ajax({
+      // DELETE ?
+      method: 'POST',
+      url: location.pathname + '/' + name + '/del'
+    });
+
+    req.success(function(data) {
+      var redirect = data.redirect;
+      if (!redirect) return;
+      location.replace(redirect);
+    });
+  };
+
   Graphs.renderGraph = function(e) {
     var target = $(e.target);
     var group = target.closest('.js-row');
+    var graph = $(e.target).closest('.js-graph');
     var metric = group.find('.js-select-metrics').select2('val');
+    if (typeof metric !== 'string') metric = graph.data('name');
     var assert = group.find('.js-value').val();
     var graph = group.find('.js-highchart');
 
@@ -117,10 +168,10 @@
     });
 
     req.success(function(data) {
-      graph.data('name', metric);
-      graph.data('config', data);
-      graph.data('assert', assert);
-      HView.create(graph[0]);
+      group.data('name', metric);
+      group.data('config', data);
+      group.data('assert', assert);
+      HView.create(group[0]);
     });
   };
 
@@ -129,7 +180,10 @@
 
     var target = $(e.target);
     var group = target.closest('.js-row');
+    var graph = target.closest('.js-graph');
+
     var metric = group.find('.js-select-metrics').select2('val');
+    if (typeof metric !== 'string') metric = graph.data('name');
     var assert = group.find('.js-value').val();
 
     var req = $.ajax({
@@ -151,7 +205,7 @@
   $(function() {
     var charts = $('.js-graphs');
       
-    $('.js-highchart').each(function() {
+    $('.js-graph').each(function() {
       HView.create(this);
     });
 

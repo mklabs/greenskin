@@ -66,6 +66,9 @@ app.get('/view/:name/metrics/:metric', routes.metric);
 app.post('/view/:name/asserts/:metric', routes.api.metric);
 app.post('/view/:name/metrics/:metric', routes.api.metric);
 
+app.post('/view/:name/asserts/:metric/del', routes.api.metricDelete);
+app.post('/view/:name/metrics/:metric/del', routes.api.metricDelete);
+
 app.get('/view/:name/run', routes.run);
 app.get('/view/:name/build', routes.run);
 

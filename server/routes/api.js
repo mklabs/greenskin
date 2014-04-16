@@ -47,6 +47,35 @@ exports.metric = function metric(req, res, next){
   });
 };
 
+// POST /view/:name/asserts/:metric/del
+exports.metricDelete = function metricDelete(req, res, next){
+  var name = req.params.name;
+  var key = req.params.metric;
+
+  var job = new Job(name, next);
+  job.on('end', function(data) {
+    var json = data.job.json;
+    try {
+      json = JSON.parse(json);
+    } catch(e) {
+      return next(e);
+    }
+
+    var asserts = json.asserts;
+    delete asserts[key];
+
+    var xml = data.job.xml;
+    xml = replaceJSONConfig(xml, JSON.stringify(json));
+
+    debug('Jenkins updating %s job with', name, asserts);
+    jenkins.job.config(name, xml, function(err) {
+      if (err) return next(err);
+      debug('Jenkins job edition OK');
+      res.json({ ok: true, redirect: '/view/' + name + '/asserts' });
+    });
+  });
+};
+
 exports.create = function create(req, res, next){
   var params = req.body;
   debug('API create', params);

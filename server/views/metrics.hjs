@@ -50,8 +50,16 @@
 
 
     {{#graphs}}
-      <div class="graph js-highchart build-url build-box col-sm-{{ colsize }}" data-name="{{ name }}" data-config="{{ json }}" data-assert="{{ assert }}">
-
+      <div class="graph js-graph build-url build-box col-sm-{{ colsize }}" data-name="{{ name }}" data-config="{{ json }}" data-assert="{{ assert }}">
+        <div class="btn-group graph-btn-group js-buttons right">
+          <a href="#" class="js-edit btn btn-default">
+            <span class="glyphicon glyphicon-edit"></span>
+          </a>
+          <a href="#" class="js-remove btn btn-danger">
+            <span class="glyphicon glyphicon-remove"><span>
+          </a>
+        </div>
+        <div class="js-highchart"></div>
       </div>
     {{/graphs}}
 
@@ -69,7 +77,7 @@
 
         <p class="form-group">
           <label>Value</label>
-          <input type="text" value="" class="form-control js-value">
+          <input type="text" value="" class="form-control form-value js-value">
         </p>
 
         <div class="btn-group js-buttons right" style="margin: 35px 0;">
@@ -84,7 +92,7 @@
     </div>
     </script>
 
-    <div class="col-sm-12 js-buttons" style="margin: 35px 0; text-align: right;">
+    <div class="col-sm-12 js-buttonpane" style="margin: 35px 0; text-align: right;">
       <a href="#" class="js-add btn btn-default right">Add</a>
     </div>
   </div>
