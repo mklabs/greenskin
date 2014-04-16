@@ -6,7 +6,10 @@
 <ul class="nav nav-tabs job-tabs">
   <li><a href="/view/{{ job.name }}/last">Current</a></li>
   <li><a href="/view/{{ job.name }}/" data-toggle="tab">Build History</a></li>
-  {{#job.phantomas}}<li><a href="/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
+  
+  {{#job.phantomas}}<li {{^assertMode}}class="active"{{/assertMode}}><a href="/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+
   <li class="active"><a href="/edit/{{ job.name }}">Edit</a></li>
 </ul>
 

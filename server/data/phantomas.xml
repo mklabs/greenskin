@@ -24,7 +24,7 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://travel.kelkoo.co.uk http://voyages.kelkoo.fr</defaultValue>
+          <defaultValue><![CDATA[http://travel.kelkoo.co.uk http://voyages.kelkoo.fr]]></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>

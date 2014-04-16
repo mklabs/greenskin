@@ -51,8 +51,6 @@ exports.create = function create(req, res, next){
     xml = replaceJSONConfig(xml, params.json_config);
 
     debug('Jenkins creating %s job with %s template', name, params.template);
-    console.log(mochaRunner);
-    console.log(xml);
     jenkins.job.create(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job creation OK');
@@ -115,8 +113,8 @@ function replaceUrlsXML(xml, urls) {
   });
 
   lines[ln] = lines[ln]
-    .replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue>' + urls.join(' ') + '</defaultValue>')
-    .replace(/^\s*<defaultValue\/>/, '<defaultValue>' + urls.join(' ') + '</defaultValue>');
+    .replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue><![CDATA[' + urls.join(' ') + ']]></defaultValue>')
+    .replace(/^\s*<defaultValue\/>/, '<defaultValue><![CDATA[' + urls.join(' ') + ']]></defaultValue>');
 
   xml = lines.join('\n');
 

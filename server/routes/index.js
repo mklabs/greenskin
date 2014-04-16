@@ -94,6 +94,10 @@ exports.metrics = function metrics(req, res, next) {
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
+    
+    var assertMode = data.assertMode = /\/asserts$/.test(req.url);
+    var metricsMode = data.metricsMode = /\/metrics$/.test(req.url);
+
 
     var url = config.jenkins + 'job/' + name + '/ws/metrics.json';
     request(url, function(err, response, metrics) {
@@ -120,6 +124,21 @@ exports.metrics = function metrics(req, res, next) {
 
       data.graphs = graphs;
       data.url = url;
+
+      var monitoredMetrics = Object.keys(data.job.config.asserts || {});
+
+      data.colsize = 6;
+      if (assertMode) {
+        data.graphs = graphs.filter(function(graph) {
+          return !!~monitoredMetrics.indexOf(graph.name);
+        }).map(function(graph) {
+          graph.assert = data.job.config.asserts[graph.name];
+          return graph;
+        });
+
+        data.colsize = 6;
+        data.assertsJSON = JSON.stringify(data.job.config.asserts, null, 2);
+      }
 
       res.render('metrics', data);
     });
