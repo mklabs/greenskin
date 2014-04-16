@@ -87,6 +87,45 @@ exports.view = function view(req, res, next) {
   });
 };
 
+exports.metrics = function metrics(req, res, next) {
+  var name = req.params.name;
+  var job = new Job(name, next);
+
+  job.on('end', function(data) {
+    data.title = name;
+    data.edit = false;
+
+    var url = config.jenkins + 'job/' + name + '/ws/metrics.json';
+    request(url, function(err, response, metrics) {
+      if (err) return next(err);
+      if (response.statusCode !== 200) metrics = '{}';
+      data.metrics = {};
+
+      try {
+        data.metrics = JSON.parse(metrics);
+      } catch(e) {}
+
+      data.metricsJSON = metrics;
+      var keys = data.metricsKeys = Object.keys(data.metrics);
+
+      var graphs = data.graphs = [];
+
+      keys.forEach(function(key) {
+        graphs.push({
+          name: key,
+          data: data.metrics[key],
+          json: JSON.stringify(data.metrics[key])
+        });
+      });
+
+      data.graphs = graphs;
+      data.url = url;
+
+      res.render('metrics', data);
+    });
+  });
+};
+
 exports.har = function har(req, res, next) {
   var name = req.params.name;
   var number = req.params.number;
@@ -113,7 +152,10 @@ exports.lastBuild = function lastBuild(req, res, next) {
 
   job.on('end', function(data) {
     var last = data.job.lastBuild && data.job.lastBuild.number;
-    if (!last) return next(new Error('Error getting last build info'));
+    if (!last) {
+      debug(new Error('Error getting last build info'));
+      return res.redirect('/');      
+    }
 
     data.config = config;
     data.json = JSON.stringify(data.job, null, 2);

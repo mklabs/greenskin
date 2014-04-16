@@ -58,6 +58,8 @@ app.get('/create', routes.create);
 app.get('/view/:name', routes.view);
 app.get('/edit/:name', routes.edit);
 
+app.get('/view/:name/metrics', routes.metrics);
+
 app.get('/view/:name/run', routes.run);
 app.get('/view/:name/build', routes.run);
 

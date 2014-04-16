@@ -44,6 +44,8 @@
   <script src="//codemirror.net/mode/gherkin/gherkin.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.0.3/addon/hint/show-hint.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highcharts/3.0.10/highcharts.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/screenfull.js/1.0.4/screenfull.min.js"></script>
 
   <script src="/vendor/jquery-cron.js"></script>
   <script src="/vendor/jsonlint.js"></script>
@@ -60,6 +62,7 @@
   <script src="/js/pages/feature.js"></script>
   <script src="/js/pages/step.js"></script>
   <script src="/js/pages/home.js"></script>
+  <script src="/js/pages/highcharts-view.js"></script>
 
   {{{ moreJs }}
 </body>

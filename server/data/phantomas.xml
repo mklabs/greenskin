@@ -54,10 +54,10 @@
   <builders>
     <hudson.tasks.Shell>
       <command>echo &quot;{}&quot; &gt; package.json
-[ -e node_modules ] || npm install phantomas debug async optimist tap-eater mkdirp</command>
+[ -e node_modules ] || npm install phantomas debug async optimist tap-eater mkdirp rimraf</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!/usr/bin/env node
+      <command><![CDATA[#!/usr/bin/env node
 
 var path = require('path');
 var fs = require('fs');
@@ -67,6 +67,7 @@ var phantomas = require(path.join(base, 'phantomas'));
 var async = require(path.join(base, 'async'));
 var debug = require(path.join(base, 'debug'))('phantomas:cli');
 var mkdirp = require(path.join(base, 'mkdirp'));
+var rimraf = require(path.join(base, 'rimraf'));
 
 var options = {};
 var runs;
@@ -182,7 +183,7 @@ var urlSeries = urls.map(function(url) {
     opts['film-strip-dir'] = filmstripdir;
 
     var child = phantomas(url, opts, function(err, data, results) {
-      if (err) return callback(err, data, results);
+      if (err instanceof Error) return callback(err);
 
       var files = fs.readdirSync(filmstripdir);
       debug('Writing filmstrip list of files in %s: ', path.join(filmstripdir, 'files.json'), files);
@@ -196,6 +197,10 @@ var urlSeries = urls.map(function(url) {
   };
 });
 
+// Prepare metrics "db", replacing graphite for now
+var metrics = fs.existsSync(path.resolve('./metrics.json')) ? require(path.resolve('./metrics.json')) : {};
+
+
 // TODO: Handle multiple runs
 async.series(
   urlSeries,
@@ -204,9 +209,12 @@ async.series(
 
     debug('err: %j', err);
     debug('results: %j', results);
-
+      
     // this function is called when phantomas is done with all runs
     function doneFn() {
+      console.log('Testing metrics', metrics);
+      fs.writeFileSync('./metrics.json', JSON.stringify(metrics, null, 2));
+
       // pass error code from PhantomJS process
       debug('Exiting with code #%d', err);
       process.exit(err);
@@ -217,6 +225,12 @@ async.series(
 
     var reporter = require(path.join(base, 'phantomas/reporters/statsd'));
     var tap = require(path.join(base, 'phantomas/reporters/tap'));
+    var json= require(path.join(base, 'phantomas/reporters/json'));
+
+    debug('Initing latest results dir for tap files');
+    var latestdir = path.join('results/latest');
+    rimraf.sync(latestdir);
+    mkdirp.sync(latestdir);
 
     debug('Calling reporters...');
 
@@ -245,17 +259,46 @@ async.series(
       debug('Writing TAP results to', tapfile);
       fs.writeFileSync(tapfile, resTap);
 
-      debug('Writing TAP results to', 'latest.tap');
-      fs.writeFileSync('latest.tap', resTap);
+      debug('Writing TAP results to', path.join(latestdir, url + '.tap'));
+      fs.writeFileSync(path.join(latestdir, url + '.tap'), resTap);
+
+      debug('Writing JSON results to', path.join(latestdir, url + '.json'));
+      var resJson = json(result, options).render();
+      var data = JSON.parse(resJson);
+
+      fs.writeFileSync(path.join(latestdir, url + '.json'), resJson);
+
+      Object.keys(data.metrics).forEach(function(key) {
+        var metric = metrics[key] || {};
+        var series = metric.series = metric.series || [];
+        var xaxis = metric.xaxis = metric.xaxis || [];
+
+        if (!~xaxis.indexOf(process.env.BUILD_NUMBER)) {
+          xaxis.push(process.env.BUILD_NUMBER);
+        }
+
+        var value = data.metrics[key];
+        var serie = series.filter(function(s) {
+          return s.name === url;
+        })[0];
+
+        if (!serie) {
+          serie = { name: url, data: [] };
+          series.push(serie);
+        }
+
+        serie.data.push(value);
+  
+        metric.xaxis = xaxis;
+        metric.series = series;
+        metrics[key] = metric;
+      });
 
       reporter(result, options).render(callback);
     }, doneFn);
   }
 );
-
-
-
-</command>
+]]></command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

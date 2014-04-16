@@ -174,7 +174,7 @@ a {
   margin-bottom: 0.5em;
 }
 
-.build-box-header {
+.build-box-header, .highcharts-title {
   padding: 1em;
   background-color: #f7f7f9;
   /* border-bottom: 1px solid #e1e1e8; */
@@ -519,7 +519,7 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
     border-radius: 50%
 }
 
-.doony-circle-aborted, .doony-circle-aborted_anime, .doony-circle-notbuilt {
+.doony-circle-aborted, .doony-circle-aborted_anime, .doony-circle-notbuilt, .doony-circle-notbuilt_anime {
     background-image: -moz-radial-gradient(3px 3px 45deg, circle cover, #ccc 0%, #999 100%);
     background-image: -webkit-radial-gradient(3px 3px, circle cover, #ccc, #999);
     background-image: radial-gradient(3px 3px 45deg, circle cover, #ccc 0%, #999 100%)
