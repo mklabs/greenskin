@@ -34,7 +34,7 @@
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
           <description>Log debug option</description>
-          <defaultValue>*</defaultValue>
+          <defaultValue>phantomas phantomas:progress</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -303,7 +303,7 @@ async.series(
   </builders>
   <publishers>
     <org.tap4j.plugin.TapPublisher plugin="tap@1.18">
-      <testResults>latest.tap</testResults>
+      <testResults>results/latest/*.tap</testResults>
       <failIfNoResults>false</failIfNoResults>
       <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
       <outputTapToConsole>false</outputTapToConsole>
