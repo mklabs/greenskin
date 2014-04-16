@@ -185,6 +185,10 @@ a {
   color: inherit;
 }
 
+.build-box.graph {
+  border-bottom: 1px solid rgb(225, 225, 232);
+}
+
 .build-url-har {
   /* border-top: 1px solid #e1e1e8; */
   /* display: none; */

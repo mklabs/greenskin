@@ -22,12 +22,13 @@
     },
 
     render: function() {
-      var w = this.$el.width();
-      var self = this;
-      var assert = this.data.assert;
-
-      this.chart = null;
-      this.$el.highcharts({
+      this.chart = new Highcharts.Chart({
+        chart: {
+          renderTo: this.el,
+          events: {
+            redraw: this.drawAssertLine.bind(this)
+          }
+        },
         title: {
           text: this.data.name || ''
         },
@@ -35,23 +36,33 @@
           categories: this.config.xaxis
         },
         series: this.config.series
-      }, function(chart) {
-        self.chart = chart;
+      });
+
+      this.drawAssertLine(this.chart);
+    },
+
+    drawAssertLine: function(c) {
+        var chart = c instanceof Highcharts.Chart ? c : this.chart;
+        
+        var assert = this.data.assert;
         if (!assert) return;
+        if (!chart) return;
 
         var y = chart.yAxis[0];
-        var p = y && y.toPixels(assert);
+        var pixel = y && y.toPixels(assert);
         var off = chart.axisOffset[3]
 
         // Draw horizontal line at assert level
-        chart.renderer.path(['M', off, p, 'H', chart.chartWidth])
+
+        if (this.line) this.line.destroy();
+
+        var line = this.line = chart.renderer.path(['M', off, pixel, 'H', chart.chartWidth])
           .attr({
             'stroke-width': 1,
             stroke: 'red',
-            zIndex:1000
+            zIndex: 1000
           })
           .add();
-      });
     }
   };
 
