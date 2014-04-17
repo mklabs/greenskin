@@ -123,7 +123,17 @@ exports.metrics = function metrics(req, res, next) {
       });
 
       data.graphs = graphs;
-      data.url = url;
+
+      // Asserts is like graphs, but only with the configured asserts in
+      // phantomas config, returning only the graphs related to monitored
+      // metric.
+      var asserts = Object.keys(data.job.config.asserts || {});
+      console.log('filter vs', asserts);
+      data.asserts = data.graphs.filter(function(graph) {
+        return !!~asserts.indexOf(graph.name);
+      });
+
+      data.url = url.replace(config.jenkins, config.jenkinsUrl.protocol + '//' + config.jenkinsHost + '/');
 
       var monitoredMetrics = Object.keys(data.job.config.asserts || {});
 
@@ -172,7 +182,7 @@ exports.har = function har(req, res, next) {
   var number = req.params.number;
   var url = req.params.url;
 
-  var jenkinsHarUrl = (config.jenkins).replace(/:\/\/\w.+:\w+@/, '://') + 'job/' + name + '/ws/results/' + number + '/' + url + '/har.json';
+  var jenkinsHarUrl = (config.jenkins).replace(/:\/\/\w.+:\w+@/, '://') + '/job/' + name + '/ws/results/' + number + '/' + url + '/har.json';
   req.pipe(request(jenkinsHarUrl)).pipe(res);
 };
 
@@ -195,7 +205,7 @@ exports.lastBuild = function lastBuild(req, res, next) {
     var last = data.job.lastBuild && data.job.lastBuild.number;
     if (!last) {
       debug(new Error('Error getting last build info'));
-      return res.redirect('/');      
+      return res.redirect('/');
     }
 
     data.config = config;
@@ -305,7 +315,7 @@ function buildView(req, res, next) {
 
       })(urls.shift());
     });
-  }); 
+  });
 }
 
 function requestJobLog(name, number, done) {

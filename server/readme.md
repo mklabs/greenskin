@@ -1,17 +1,46 @@
 
 # Server
 
-Server component on top of Jenkins & Graphite.
+## Components
 
-Serve as high level dashboard to manage (edit, create) monitoring bucket
-and target.
+Systems
 
-- Monitoring bucket: A monitoring bucket is logic group of related
-  monitoring target, sharing the same location (slave used to run the
-job), job frequency, and proxy information.
+- Express
+- Jenkins
+- Graphite
+- PhantomJS
+- Phantomas
 
-- Monitoring target: A set of URL, proxy.
+Frontend
 
-### List
+- bootstrap v3
+- CodeMirror
+- socket.io
+- momentjs
+- highcharts
+- screenfull.js
+- jquery-cron
+- jsonlint
+- select2
+- har-viewer
+- ansiparse (with a bit of CSS from travis.org)
+- cucumber/gherkin
 
-Home page, list of monitoring bucket.
+## Description
+
+An express based server to help monitor frontend application and gather
+performance-focused metrics.  Monitoring can consist of simple metrics
+measurement, or more complex functional scenario written in Gherkin
+syntax (the langage behind Cucumber)
+
+It usually consists in a list of URLs, analyzed at a fixed interval,
+where metrics are sent and aggregated by Graphite (and written to
+Jenkins Workspace)
+
+### Jobs
+
+Setting up a new "monitoring bucket" means setting up the proper Jenkins
+job, at the proper interval, with the correct configuration and run
+scripts.
+
+....

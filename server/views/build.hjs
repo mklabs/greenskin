@@ -69,7 +69,7 @@
           Workspace
         </a>
 
-        <a href="{{ config.jenkins }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/" class="label label-default">
+        <a href="{{ config.jenkinsHost }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/" class="label label-default">
           TAP Results
         </a>
 
@@ -92,7 +92,7 @@
         {{/build.actions}}
       </p>
     </div>
-    
+
     <div class="btn-group right">
       <a href="/view/{{ job.name }}/build" class="btn btn-default" role="button">Run</a>
     </div>
