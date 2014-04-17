@@ -6,12 +6,44 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  # Legacy stuff!
+  #
+  # Graphite: VM spawning graphite / statsd (not used)
+  # Jenkins: VM spawning jenkins solo, no reverse proxy. Direct access to :8080
+  # Jenkins-slave: VM spawning jenkins-slave, basic provisioning with packages (node, phantom, etc.)
+  #
+  # New
+  #
+  # Jenkins-master: VM with both Jenkins master & node frontend
 
-  config.vm.provider :virtualbox do |vb, override|
-    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-    vb.customize ["modifyvm", :id, "--memory", 512]
-    vb.customize ["modifyvm", :id, "--cpus", 1]
+
+  # Uncomment for smaller machine, and if launching several VM (graphite & jenkins for instance)
+  # config.vm.provider :virtualbox do |vb, override|
+  #  vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  #  vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  #  vb.customize ["modifyvm", :id, "--memory", 512]
+  #  vb.customize ["modifyvm", :id, "--cpus", 1]
+  # end
+
+  config.vm.define "jenkins-master" do |jenkins|
+    jenkins.vm.box = "centos63.minimal"
+    jenkins.vm.hostname = "jenkins.dev"
+    jenkins.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box"
+
+    # to be able to run the playbook locally from the VM
+    jenkins.vm.synced_folder "vms/jenkins-master/provisioning/", "/ansible"
+    jenkins.vm.synced_folder "server", "/opt/kookel/r8_perf"
+
+    jenkins.vm.network "forwarded_port", guest: 8080, host: 8082
+    jenkins.vm.network :private_network, ip: "192.168.33.12"
+
+    # jenkins.vm.provision :ansible do |ansible|
+    #  ansible.playbook = "vms/jenkins-master/provisioning/jenkins.yml"
+    #  ansible.verbose = true;
+    # end
+
+    # We use a shell script to run the ansible playbook instead, in local mode
+    jenkins.vm.provision "shell", path: "vms/jenkins-master/install.sh"
   end
 
   config.vm.define "graphite" do |graphite|
@@ -28,22 +60,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     graphite.vm.network "forwarded_port", guest: 8125, host: 8125, protocol: 'udp'
 
     graphite.vm.provision "shell", path: "vms/graphite/shell_graphite_install.sh"
-  end
-
-  config.vm.define "jenkins" do |jenkins|
-    jenkins.vm.box = "centos63.minimal"
-    jenkins.vm.hostname = "jenkins.dev"
-    jenkins.vm.box_url = "https://dl.dropbox.com/u/7225008/Vagrant/CentOS-6.3-x86_64-minimal.box"
-
-    jenkins.vm.network "forwarded_port", guest: 8080, host: 8082
-    jenkins.vm.network :private_network, ip: "192.168.33.11"
-
-    # jenkins.vm.provision :ansible do |ansible|
-    #   ansible.playbook = "provisioning/jenkins.yml"
-    #   ansible.verbose = true;
-    # end
-
-    jenkins.vm.provision "shell", path: "vms/jenkins/install_jenkins.sh"
   end
 
   config.vm.define "jenkins-slave" do |slave|
