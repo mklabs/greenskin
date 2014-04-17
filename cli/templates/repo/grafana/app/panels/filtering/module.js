@@ -1,4 +1,0 @@
-/*! grafana - v1.0.4 - 2014-01-24
- * Copyright (c) 2014 Torkel Ödegaard; Licensed Apache License */
-
-define("panels/filtering/module",["angular","app","underscore"],function(a,b,c){var d=a.module("kibana.panels.filtering",[]);b.useModule(d),d.controller("filtering",["$scope","filterSrv","graphiteSrv","$rootScope","dashboard",function(a,b,d,e,f){a.panelMeta={status:"Stable",description:"graphite target filters"};var g={};c.defaults(a.panel,g),a.init=function(){a.filterSrv=b},a.remove=function(a){b.remove(a)},a.applyFilter=function(a){d.metricFindQuery(a.query).then(function(d){a.editing=void 0,a.options=c.map(d,function(a){return{text:a.text,value:a.text}}),a.includeAll&&a.options.unshift({text:"All",value:"*"}),b.filterOptionSelected(a,a.options[0])})},a.add=function(){b.add({type:"filter",name:"filter name",editing:!0,query:"metric.path.query.*"})},a.refresh=function(){f.refresh()},a.render=function(){e.$broadcast("render")}}])});
