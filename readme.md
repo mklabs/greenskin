@@ -2,18 +2,25 @@
 
 Source : mythologie Nordique, Dieu des messagers, il peut aussi courir beaucoup plus vite que tous les autres dieux Asgardiens, rivalisant avec le mutant Vif-Argent et Hermès le dieu grec. 
 
-Problématique: Conception / Développement d'une solution de monitoring
-de perfs coté clients.
+An express based webapp, sitting on top of Jenkins, to provide a simple monitoring fpr frontend performance.
 
-- Récupération des métriques
-- Exploitation, affichage et gestion des métriques au niveau d'une
-  application web ou dashboard.
+## Description
+
+Most of the metrics are gathered by Phantomas, instrumented via Jenkins, from optional remote slaves.
+
+The webapp sits in front of Jenkins to provide a simple UI to create predefined and ready to use Jobs and configuration to gather metrics at a set interval.
+
+Monitoring can consist of simple metrics measurement, or more complex functional scenario. It usually consists in a list of URLs, analyzed at a fixed interval, with a set of measures (or asserts) on metrics that Phantomas provides.
+
+The result is then displayed in a custom frontend dashboard on top of Jenkins, to display and manage graphs and alerting based on those metrics.
+
+Jenkins, on a failing assert, generates an email notification.
 
 ## Components
 
 Systems
 
-- Expressje 
+- Expressjs
 - Jenkins
 - Graphite
 - PhantomJS
@@ -34,16 +41,58 @@ Frontend
 - ansiparse (with a bit of CSS from travis.org)
 - cucumber/gherkin
 
-## Description
 
-The goal is to setup comprehensive frontend monitoring to gather metrics at the cliend-side level of web applications.
+## Install
 
-Monitoring can consist of simple metrics measurement, or more complex functional scenario. It usually consists in a list of URLs, analyzed at a fixed interval, where metrics are send and aggregated by Graphite (or not).
+The app can work with any Jenkins instance, by using a job prefix to help
+isolating job related to the frontend monitoring. Though, we recommend using
+the standard configuration below, with a dedicated Jenkins instance.
 
-The result is then displayed in a custom frontend dashboard on top of Jenkins, to display and manage graphs and alerting based on those metrics.
+It will setup a server with Apache, as a reverse proxy, in front of both the node app and Jenkins.
+
+```
+/             => node app
+/jenkins      => jenkins
+```
+
+You can change the Jenkins hostname in `server/package.json` file.
+
+### Jenkins / Node frontend
+
+On the machine hosting Jenkins & the node frontend:
 
 
-### Local Dev (with vagrant)
+    git clone $repo # where $repo is the Git clone URL of this repo
+    cd $repo # where $repo is the project name (cloned directory)
+
+    cd vms/jenkins-master
+    sh install.sh
+
+Or simply use vms/jenkins-master/install.sh file as a runbook
+
+Check that these plugins are installed at http://$hostname/jenkins/pluginManager/ (where $hostname is the machine FQDN)
+
+- TAP Plugin (required for test reports)
+- Simple Theme Plugin (optional, for theming jenkins)
+- jQuery Plugin (optional, for theming jenkins)
+
+**Optional**
+
+Go to http://$hostname/jenkins/configure and add these files to custom CSS / JS
+
+    /jenkins-theme/main.css
+    /jenkins-theme/main.js
+ 
+**TODO**
+
+Consider folllowing https://wiki.jenkins-ci.org/display/JENKINS/Securing+Jenkins
+
+### Jenkins Slave
+
+ > TODO: Test and document setup
+
+
+## Local Dev (with vagrant)
 
 We use Vagrant locally to setup the various part of the system. For now,
 you'll need to cd into each repository and `vagrant up` to get started, we'll
@@ -55,22 +104,6 @@ Apache proxypass config
 /             => node app
 /jenkins      => jenkins
 ```
-
-#### Graphite
-
-    # Setup the Graphite server
-    vagrant up graphite
-
-    # Check dashboard: http://192.168.33.33
-    # Check metrics: http://192.168.33.33/metrics/index.json
-
-    # Check carbon is started:
-    vagrant ssh
-    sudo service carbon-cache status
-
-    # Test carbon
-    sudo yum install nc -y
-    echo "local.random.diceroll 4 `date +%s`" | nc localhost 2003
 
 #### Jenkins / Node app
 
@@ -107,43 +140,3 @@ Then create and connect the node to Jenkins master: http://192.168.33.12/jenkins
 6. Host: 192.168.33.30
 7. Credentials: vagrant/vagrant
 8. Click save
-
-
-### Install without Vagrant
-
-#### Jenkins / Node frontend
-
-On the machine hosting Jenkins & the node frontend:
-
-
-    git clone $repo # where $repo is the Git clone URL of this repo
-    cd $repo # where $repo is the project name (cloned directory)
-
-    cd vms/jenkins-master
-    sh install.sh
-
-Or simply use vms/jenkins-master/install.sh file as a runbook
-
-Check that these plugins are installed at http://$hostname/jenkins/pluginManager/ (where $hostname is the machine FQDN)
-
-- TAP Plugin (required for test reports)
-- Simple Theme Plugin (optional, for theming jenkins)
-- jQuery Plugin (optional, for theming jenkins)
-
-**Optional**
-
-Go to http://$hostname/jenkins/configure and add these files to custom CSS / JS
-
-    /jenkins-theme/main.css
-    /jenkins-theme/main.js
- 
- **TODO**
-
- Consider folllowing https://wiki.jenkins-ci.org/display/JENKINS/Securing+Jenkins
-
- #### Jenkins Slave
-
- > TODO: Test and document setup
-
-
-
