@@ -26,7 +26,7 @@
     "moment": "^2.6.0"
   },
   "config": {
-    "jenkins": "http://192.168.33.12/jenkins/",
-    "job_prefix": "R8_perf_"
+    "jenkins": "http://localhost/jenkins/",
+    "job_prefix": ""
   }
 }
