@@ -16,7 +16,7 @@ var io = require('socket.io');
 
 var config = require('./package.json').config;
 config.jenkinsUrl = require('url').parse(config.jenkins);
-config.jenkinsHost = config.jenkinsUrl.host;
+config.jenkinsHost = config.jenkinsUrl.host + config.jenkinsUrl.pathname;
 
 var app = express();
 

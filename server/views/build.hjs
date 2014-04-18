@@ -69,7 +69,7 @@
           Workspace
         </a>
 
-        <a href="{{ config.jenkinsHost }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/" class="label label-default">
+        <a href="//{{ config.jenkinsHost }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/" class="label label-default">
           TAP Results
         </a>
 

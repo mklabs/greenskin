@@ -16,7 +16,7 @@
     this.submit();
     this.initTableFromJSON();
 
-    var socket = this.socket = io.connect('/');
+    var socket = this.socket = io.connect(location.hostname + ':3000');
   };
 
   CreateFeaturePage.submit = function submit() {

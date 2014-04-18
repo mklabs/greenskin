@@ -133,7 +133,7 @@ exports.metrics = function metrics(req, res, next) {
         return !!~asserts.indexOf(graph.name);
       });
 
-      data.url = url.replace(config.jenkins, config.jenkinsUrl.protocol + '//' + config.jenkinsHost + '/');
+      data.url = url.replace(config.jenkins, config.jenkinsUrl.protocol + '//' + config.jenkinsHost);
 
       var monitoredMetrics = Object.keys(data.job.config.asserts || {});
 
