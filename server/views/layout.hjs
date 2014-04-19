@@ -61,6 +61,7 @@
   <script src="/vendor/jquery-ui.min.js"></script>
   <script src="/vendor/har-viewer.js"></script>
   <script src="/vendor/ansiparse.js"></script>
+  <script src="/vendor/bootstrap-modal.js"></script>
 
   <script src="/js/pages/create.js"></script>
   <script src="/js/pages/create-feature.js"></script>

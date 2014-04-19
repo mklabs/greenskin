@@ -17,13 +17,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Jenkins-master: VM with both Jenkins master & node frontend
 
 
-  # Uncomment for smaller machine, and if launching several VM (graphite & jenkins for instance)
-  # config.vm.provider :virtualbox do |vb, override|
-  #  vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-  #  vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-  #  vb.customize ["modifyvm", :id, "--memory", 512]
-  #  vb.customize ["modifyvm", :id, "--cpus", 1]
-  # end
+  config.vm.provider :virtualbox do |vb, override|
+   vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+   vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+   # Uncomment for smaller machine, and if launching several VM (graphite & jenkins for instance)
+   # vb.customize ["modifyvm", :id, "--memory", 512]
+   # vb.customize ["modifyvm", :id, "--cpus", 1]
+  end
 
   config.vm.define "jenkins-master" do |jenkins|
     jenkins.vm.box = "centos63.minimal"

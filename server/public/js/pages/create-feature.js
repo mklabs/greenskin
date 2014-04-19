@@ -15,6 +15,7 @@
 
     this.submit();
     this.initTableFromJSON();
+    this.initDialogFromJSON();
 
     var socket = this.socket = io.connect(location.hostname + ':3000');
   };
@@ -71,7 +72,6 @@
   CreateFeaturePage.run = function run(log, editor) {
     log = log || this.log;
 
-    log.html('Running ' + this.runUrl + ' ...\n');
 
     var error = this.validateTable(log.closest('tr'));
 
@@ -85,7 +85,13 @@
 
     var socket = this.socket;
     var logHandler = this.addLog.bind(this, log);
+    var imgHandler = this.addImage.bind(this, log);
+
     socket.on('log.' + timestamp, logHandler);
+    socket.on('step.' + timestamp, imgHandler);
+
+    log.html('Job workspace: <a class="grey" href="/tmp/' + timestamp + '">/tmp/' + timestamp + '</a>\n');
+    log.closest('.row').find('.js-imgs').empty();
 
     var req = $.ajax({
       method: 'POST',
@@ -96,7 +102,9 @@
       }
     });
 
-    req.success(function() {
+    req.success(function(data) {
+      var ws = data.workspace;
+      log.append('<span class="grey"><a class="grey" href="' + ws + '">' + ws + '</a></span>');
       console.log('OK', arguments);
     });
 
@@ -106,6 +114,7 @@
 
     req.complete(function() {
       socket.removeListener('log.' + timestamp, logHandler);
+      socket.removeListener('step.' + timestamp, imgHandler);
     });
   };
 
@@ -128,6 +137,7 @@
   CreateFeaturePage.serializeTable = function serializeTable(rows) {
     var data = {};
     var features = data.features = [];
+    var steps = data.steps = [];
 
     rows.each(function() {
       var row = $(this);
@@ -141,6 +151,29 @@
       });
     });
 
+    data.steps = this.serializeDialog();
+
+    return data;
+  };
+
+  CreateFeaturePage.serializeDialog = function serializeDialog() {
+    var editors = this.editors;
+
+    var data = [];
+    var codemirrors = $('.js-dialog .js-codemirror');
+
+    codemirrors.each(function() {
+      var codemirror = $(this);
+      var editor = codemirror.data('codemirror');
+      var name = codemirror.data('name');
+      data.push({
+        name: name,
+        body: editor.getValue()
+      });
+
+    });
+
+    console.log('Getting ed', data);
     return data;
   };
 
@@ -194,9 +227,14 @@
 
     // Click links toggle edit mode
     el.addEventListener('click', function(e) {
-      e.preventDefault();
       var target = e.target;
       if (!target) return;
+
+      if (target.classList.contains('js-gothrough')) {
+        return;
+      }
+      
+      e.preventDefault();
 
       var row = target.parentElement;
       var input = row.querySelector('.js-input');
@@ -255,6 +293,17 @@
     log.append(tokens.join(''));
   };
 
+  CreateFeaturePage.addImage = function addImage(log, data) {
+    console.log('addImage', data);
+    var file = data.file;
+    var row = log.closest('.row');
+    var imgbox = row.find('.js-imgs');
+    var img = $('<img src="' + file + '" />').attr('width', 200).attr('height', 120);
+    var a = $('<a class="thumbnail left"/>').attr('href', file).append(img);
+    imgbox.append(a);
+  };
+
+
   CreateFeaturePage.initTableFromJSON = function initTableFromJSON() {
     var json = this.$el.find('[name=json_config]');
     if (!json.length) return;
@@ -282,6 +331,44 @@
       editor.refresh();
       editor.setValue(feature.body);
     }, this);
+  };
+
+
+  CreateFeaturePage.initDialogFromJSON = function initTableFromJSON() {
+    var json = this.$el.find('[name=json_config]');
+    if (!json.length) return;
+
+    var data = {};
+    try {
+      data = JSON.parse(json.val());
+    } catch(e) {}
+
+    var dialog = $('.js-dialog');
+    var code = dialog.find('.js-code');
+    var dialogBody = dialog.find('.modal-body');
+    var steps = data.steps;
+    var editors = [];
+    
+    steps.forEach(function(step) {
+      // $('<h5 />').text(step.name).appendTo(dialogBody);
+
+      var div = $('<div class="js-codemirror codemirror" />').data('name', step.name);
+      div.appendTo(dialogBody);
+      var editor = CodeMirror(div[0], {
+        value: step.body,
+        mode:  "javascript"
+      });
+
+      div.data('codemirror', editor);
+      editors.push(editor);
+    });
+
+    dialog.on('shown.bs.modal', function() {
+      editors.forEach(function(ed) {
+        ed.refresh();
+      });
+
+    });
   };
 
   $(function() {

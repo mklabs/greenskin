@@ -125,7 +125,6 @@ exports.metrics = function metrics(req, res, next) {
       // phantomas config, returning only the graphs related to monitored
       // metric.
       var asserts = Object.keys(data.job.config.asserts || {});
-      console.log('filter vs', asserts);
       data.asserts = data.graphs.filter(function(graph) {
         return !!~asserts.indexOf(graph.name);
       });

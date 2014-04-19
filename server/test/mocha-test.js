@@ -6,18 +6,48 @@ var path = require('path');
 
 
 var base = env.WORKSPACE ? path.join(env.WORKSPACE, 'node_modules') : path.resolve('../node_modules');
+var Gherkin = require(path.join(base, 'gherkin')).Lexer('en');
+
+// Stubs for nopt
+require.stub('url', function() {});
+require.stub('stream', function() { return { Stream: function() {} }; });
+
+var nopt = require(path.join(base, 'nopt'))({
+  stepdir: String,
+  config: String,
+  tmpdir: String,
+  timeout: Number
+});
+
+var tmpdir = nopt.tmpdir || './tmp';
+var tmpfiles = [];
+
+var files = nopt.argv.remain;
+var config = {};
+
+if (nopt.config) {
+  config = require(fs.isAbsolute(nopt.config) ? nopt.config : path.join(fs.workingDirectory, nopt.config));
+} else if (env.JSON_CONFIG) {
+  try {
+    config = JSON.parse(env.JSON_CONFIG);
+  } catch(e) {}
+}
 
 // Require & init mocha
 var Mocha = require(path.join(base, 'mocha'));
 var mocha = new Mocha();
 
 mocha.reporter('spec');
-mocha.timeout(25000);
+
+var timeout = config.timeout ? parseInt(config.timeout, 10) : 25000;
+mocha.timeout(isNaN(timeout) ? 25000 : timeout);
+
 var Suite = Mocha.Suite;
 var Test = Mocha.Test;
 var utils = Mocha.utils;
 
 // Parser
+
 function Parser(suite, file, steps) {
     this.steps = steps || [];
     this.file = file;
@@ -25,6 +55,7 @@ function Parser(suite, file, steps) {
     this.body = [''];
     this.suites = [suite];
     this.lastKeyword = 'Given';
+    this.screencount = 0;
 }
 
 var events = [
@@ -53,24 +84,21 @@ events.forEach(function(ev) {
     };
 });
 
-/**
- * Describe a "suite" with the given `title`
- * and callback `fn` containing nested suites
- * and/or tests.
- */
-
 Parser.prototype.feature =
 Parser.prototype.scenario =
 function feature(keyword, token, line) {
-  var suite = Suite.create(this.suites[0], token);
+  if (this.started) this.suites.shift();
+  var suite = Suite.create(this.suites[0], token.trim());
   this.suites.unshift(suite);
+
+  this.started = true;
   return suite;
 };
 
 Parser.prototype.step = function step(keyword, token, line) {
     var suites = this.suites;
     var suite = suites[0];
-    
+    var self = this;
     keyword = keyword.trim();
     
     var _keyword = keyword === 'And' ? this.lastKeyword : keyword;
@@ -89,7 +117,15 @@ Parser.prototype.step = function step(keyword, token, line) {
         if (matches) {
             matches = matches.slice(1).slice(-2);
             fn = function(done) {
-               step.handler.apply(this, matches.concat([done]));
+              var ctx = this;
+              var next = function() {
+                self.screencount++;
+
+                ctx.page.render(tmpdir + '/step-screens/step-' + self.screencount + '.png');
+                done.apply(this, arguments);
+              };
+
+              step.handler.apply(this, matches.concat([next]));
             };
         }
     }
@@ -109,32 +145,7 @@ Parser.prototype.add = function add(line) {
   this.body.push(line);
 };
 
-
-var Gherkin = require(path.join(base, 'gherkin')).Lexer('en');
-
-// Stubs for nopt
-require.stub('url', function() {});
-require.stub('stream', function() { return { Stream: function() {} }; });
-
-var nopt = require(path.join(base, 'nopt'))({
-  stepdir: String,
-  config: String,
-  tmpdir: String
-});
-
-var tmpdir = nopt.tmpdir || './tmp';
-var tmpfiles = [];
-
-var files = nopt.argv.remain;
-var config = {};
-
-if (nopt.config) {
-  config = require(fs.isAbsolute(nopt.config) ? nopt.config : path.join(fs.workingDirectory, nopt.config));
-} else if (env.JSON_CONFIG) {
-  try {
-    config = JSON.parse(env.JSON_CONFIG);
-  } catch(e) {}
-}
+// Steps matching
 
 var steps = [];
 var stepfiles = [];
@@ -232,7 +243,3 @@ files = files.map(function(file) {
 var runner = mocha.run(function(code) {
   process.exit(code);
 });
-
-
-// done
-

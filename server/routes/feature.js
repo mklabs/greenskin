@@ -5,6 +5,7 @@ var path = require('path');
 var spawn = require('child_process').spawn;
 
 var kue = require('kue');
+var express = require('express');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 
@@ -35,11 +36,13 @@ function createQueue(ws) {
 
 function runFeature(ws, job, next) {
   var runtmpdir = job.runtmpdir;
+  var screendir = path.join(runtmpdir, 'step-screens');
   var configfile = path.join(runtmpdir, 'config.json');
   var timestamp = job.timestamp;
   var data = job.data;
+  var screencount = 0;
 
-  mkdirp(runtmpdir, function(err) {
+  mkdirp(screendir, function(err) {
     if (err) return next(err);
 
     fs.writeFile(configfile, JSON.stringify(data, null, 2), function(err) {
@@ -51,12 +54,19 @@ function runFeature(ws, job, next) {
         cwd: runtmpdir
       });
 
-      phantom.stdout.pipe(process.stdout);
+      // phantom.stdout.pipe(process.stdout);
       phantom.stderr.pipe(process.stderr);
 
       phantom.stdout.on('data', function(chunk) {
         chunk = chunk + '';
+        var endstep = /✓/.test(chunk.trim());
+        var failstep = /\[31m\s*\d+\)/.test(chunk.trim());
+
         if (job.data.job) job.data.job.log(chunk);
+        if (endstep || failstep) {
+          screencount++;
+          ws.sockets.emit('step.' + timestamp, { file: '/tmp/' + timestamp + '/step-screens/step-' + screencount + '.png' });
+        }
         if (ws) ws.sockets.emit('log.' + timestamp, { line: chunk });
       });
 
@@ -67,10 +77,20 @@ function runFeature(ws, job, next) {
 
         // TODO: Maybe delay this by 5-10 minutes or so. To let user see
         // generated stuff if any (like screenshots)
-        rimraf(runtmpdir, function(err) {
+        debug('Will rimraf %s in %d seconds', runtmpdir, 30);
+        fs.readdir(screendir, function(err, files) {
           if (err) return next(err);
-          next(e);
+          next(null, data);
         });
+
+        setTimeout(function() {
+          debug('Rimrafing %s', runtmpdir);
+          rimraf(runtmpdir, function(err) {
+            if (err) console.error(err);
+            debug('Rimrafed %s OK', runtmpdir);
+          });
+        }, 1000 * 30);
+
       });
     });
   });
@@ -87,6 +107,10 @@ module.exports = function(app) {
   app.use('/static/feature/stepfile.js', function(req, res, next) {
     fs.createReadStream(path.join(__dirname, '../test/mocha-stepfile.js')).pipe(res);
   });
+
+  // For browsing temporary workspaces
+  app.use('/tmp', express.static(tmpdir));
+  app.use('/tmp', express.directory(tmpdir));
 
   // Job creation
   app.get('/create/feature', function(req, res, next) {
@@ -115,6 +139,12 @@ module.exports = function(app) {
       return next(e);
     }
 
+    // normalize feature name, adding .feature extension if missing
+    data.features = data.features.map(function(f) {
+      f.name = path.extname(f.name) !== '.feature' ? f.name + '.feature' : f.name;
+      return f;
+    });
+
     if (!data.steps) {
       data.steps = mochaSteps;
     }
@@ -130,13 +160,24 @@ module.exports = function(app) {
 
     debug('Creating job %s %d', jobdata.title, jobdata.timestamp);
 
-    if (!app.kue) return runFeature(ws, jobdata, next);
+    if (!app.kue) return runFeature(ws, jobdata, function(err, data) {
+      if (err) return next(err);
+      res.json(data);
+    });
 
     var jobs = kue.createQueue();
     var job = jobs.create('phantom feature', jobdata).save();
     job.on('complete', function(e) {
       debug('Job complete', runtmpdir);
-      next(e);
+      if (e) return next(e);
+        fs.readdir(path.join(runtmpdir, 'step-screens'), function(err, files) {
+          if (err) return next(err);
+          res.json({
+            timestamp: timestamp,
+            workspace: '/tmp/' + timestamp,
+            screens: files
+          });
+        });
     }).on('failed', function() {
       debug('Job failed', runtmpdir);
     }).on('progress', function(progress){

@@ -19,6 +19,8 @@ var app = express();
 var server = http.createServer(app);
 var ws = app.ws = io.listen(server);
 
+ws.set('log level', 1);
+
 // App configuration
 app.set('port', process.env.PORT || 3000);
 
@@ -34,13 +36,12 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.directory(__dirname));
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
 // Feature edit subapp
-app.use('/feature', require('./lib/feature-edit'));
+// app.use('/feature', require('./lib/feature-edit'));
 
 // Routes
 app.get('/', routes.index);
@@ -94,7 +95,6 @@ kue.redis.createClient = function() {
 
 app.use('/kue', express.basicAuth('kue', 'kue'));
 app.use('/kue', kue.app);
-
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
