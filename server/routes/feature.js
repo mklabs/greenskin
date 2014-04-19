@@ -7,6 +7,7 @@ var spawn = require('child_process').spawn;
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 var express = require('express');
+var kue = require('kue');
 var config = require('../package.json').config;
 var Job = require('../lib/job');
 
@@ -16,12 +17,72 @@ var mochaRunner = path.join(__dirname, '../test/mocha-test.js');
 var mochaSteps = [{ name: 'stepfile.js', body: '' }];
 mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../test/mocha-stepfile.js'), 'utf8');
 
+
+function createQueue(ws) {
+  var jobs = kue.createQueue();
+
+  // Job processing
+  jobs.process('phantom feature', function(job, next) {
+    var runtmpdir = job.data.runtmpdir;
+    var configfile = path.join(runtmpdir, 'config.json');
+    var timestamp = job.data.timestamp;
+    var data = job.data.data;
+
+    job.data.job = job;
+    runFeature(ws, job.data, next);   
+  });
+}
+
+function runFeature(ws, data, next) {
+  var runtmpdir = data.runtmpdir;
+  var configfile = path.join(runtmpdir, 'config.json');
+  var timestamp = data.timestamp;
+  var data = data.data;
+
+  mkdirp(runtmpdir, function(err) {
+    if (err) return next(err);
+
+    fs.writeFile(configfile, JSON.stringify(data, null, 2), function(err) {
+      if (err) return next(err);
+
+      var args = [mochaRunner, '--config', configfile, '--tmpdir', path.dirname(configfile)];
+
+      var phantom = spawn(phantomjs, args, {
+        cwd: runtmpdir
+      });
+
+      phantom.stdout.pipe(process.stdout);
+      phantom.stderr.pipe(process.stderr);
+
+      phantom.stdout.on('data', function(data) {
+        data = data + '';
+        if (data.job) job.log(data);
+        if (ws) ws.sockets.emit('log.' + timestamp, { line: data });
+      });
+
+      phantom.on('exit', function(code) {
+        if (code !== 0) return next(new Error('Error spawning phantomjs'));
+
+        // TODO: Maybe delay this by 5-10 minutes or so. To let user see
+        // generated stuff if any (like screenshots)
+        rimraf(runtmpdir, function() {
+          if (err) return next(err);
+          next();
+        });
+      });
+    });
+  });
+}
+
 module.exports = function(app) {
   var featuredir = path.join(__dirname, '../test/features');
   var stepdir = path.join(__dirname, '../test/steps');
   var tmpdir = path.join(__dirname, '../tmp');
 
   var ws = app.ws;
+
+  if (app.kue) createQueue(ws);
+
   app.get(/^\/feature\/(.+)\/?$/, function(req, res, next) {
     var filename = req.url.replace(/^\/feature\//, '');
     if (!filename) return next(new Error('Error getting feature file. No filename param.'));
@@ -152,39 +213,27 @@ module.exports = function(app) {
     }
 
     var runtmpdir = path.join(tmpdir, timestamp);
-    var configfile = path.join(runtmpdir, 'config.json');
 
-    mkdirp(runtmpdir, function(err) {
-      if (err) return next(err);
+    var jobdata = {
+      title: 'PhantomJS feature running',
+      runtmpdir: runtmpdir,
+      timestamp: timestamp,
+      data: data
+    };
 
-      fs.writeFile(configfile, JSON.stringify(data, null, 2), function(err) {
-        if (err) return next(err);
+    if (!app.kue) return runFeature(ws, jobdata, next);
 
-        var args = [mochaRunner, '--config', configfile, '--tmpdir', path.dirname(configfile)];
+    var jobs = kue.createQueue();
+    var job = jobs.create('phantom feature', jobdata).save();
 
-
-        console.log(args);
-        var phantom = spawn(phantomjs, args);
-        phantom.stdout.pipe(process.stdout);
-        phantom.stderr.pipe(process.stderr);
-
-        phantom.stdout.on('data', function(data) {
-          data = data + '';
-          ws.sockets.emit('log.' + timestamp, { line: data });
-        });
-
-        phantom.on('exit', function(code) {
-          if (code !== 0) return next(new Error('Error spawning phantomjs'));
-          rimraf(runtmpdir, function() {
-            if (err) return next(err);
-            res.json({ code: code });
-          });
-        });
-      });
-
+    job.on('complete', function(e) {
+      debug('Job complete', runtmpdir);
+      next(e);
+    }).on('failed', function() {
+      debug('Job failed', runtmpdir);
+    }).on('progress', function(progress){
+      debug('\r  job #' + job.id + ' ' + progress + '% complete');
     });
-
-
   });
 
 };

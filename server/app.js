@@ -7,10 +7,13 @@ var express = require('express');
 var routes = require('./routes');
 var feature = require('./routes/feature');
 
+var debug = require('debug')('server:app');
+
 var fs = require('fs');
 var http = require('http');
 var path = require('path');
 var request = require('request');
+var kue = require('kue');
 
 var io = require('socket.io');
 
@@ -19,6 +22,22 @@ config.jenkinsUrl = require('url').parse(config.jenkins);
 config.jenkinsHost = config.jenkinsUrl.host + config.jenkinsUrl.pathname;
 
 var app = express();
+
+// Check redis connection, we can live without
+var redis = require('redis');
+kue.redis.createClient = function() {
+  var client = redis.createClient();
+  client.on('error', function(err) {
+    app.kue = false;
+    debug('Redis connection error', err);
+    debug('Will fallback to direct invocation. Consider checking it\'s running, or installed (Default port)');
+  });
+
+  return client;
+};
+
+app.use('/kue', express.basicAuth('kue', 'kue'));
+app.use('/kue', kue.app);
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -41,7 +60,6 @@ hjs.__express = function(name, options, fn) {
 };
 
 app.set('view engine', 'hjs');
-app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());

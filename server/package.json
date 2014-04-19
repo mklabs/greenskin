@@ -23,7 +23,9 @@
     "phantomjs": "^1.9.7-3",
     "rimraf": "^2.2.6",
     "mkdirp": "^0.3.5",
-    "moment": "^2.6.0"
+    "moment": "^2.6.0",
+    "kue": "~0.7.5",
+    "redis": "~0.10.1"
   },
   "config": {
     "jenkins": "http://192.168.33.12/jenkins/",
