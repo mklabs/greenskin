@@ -96,8 +96,8 @@ jQuery(function($) {
         $("#main-panel").prepend(div);
     };
 
-    var doonyTitleLink = $("#top-panel a").first().attr('href', '/');
-    var h1 = doonyTitleLink.wrap('<h1 />').closest('h1');
+    var doonyTitleLink = $("#top-panel a").first().attr('href', '/').addClass('navbar-link');
+    var h1 = doonyTitleLink.wrap('<div class="navbar-header navbar-brand" />').closest('.navbar-header');
     var domain = 'jenkins';
     doonyTitleLink.html("<span class='glyphicon glyphicon-home small'></span>");
     var subtitle = " <span class='small'>/</span> <a href='/jenkins' class='page-title'>" + domain + "</a>";

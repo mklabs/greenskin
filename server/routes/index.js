@@ -25,11 +25,8 @@ exports.api = require('./api');
  */
 
 exports.index = function(req, res, next) {
-  debug('Index', req.url);
   jenkins.all(function(err, jobs) {
     if (err) return next(err);
-    debug('Render all', jobs);
-
     jobs.forEach(function(job) {
       job.animated = /anime/.test(job.color);
     });
@@ -338,7 +335,6 @@ exports.destroy = function destroy(req, res, next) {
   var name = req.params.name;
   jenkins.job.delete(name, function(err) {
     if (err) return next(err);
-    debug('Jenkins job deletion OK');
     res.redirect('/');
   });
 };

@@ -212,7 +212,6 @@ async.series(
       
     // this function is called when phantomas is done with all runs
     function doneFn() {
-      console.log('Testing metrics', metrics);
       fs.writeFileSync('./metrics.json', JSON.stringify(metrics, null, 2));
 
       // pass error code from PhantomJS process

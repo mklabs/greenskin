@@ -12,7 +12,7 @@ var Mocha = require(path.join(base, 'mocha'));
 var mocha = new Mocha();
 
 mocha.reporter('spec');
-mocha.timeout(15000);
+mocha.timeout(25000);
 var Suite = Mocha.Suite;
 var Test = Mocha.Test;
 var utils = Mocha.utils;

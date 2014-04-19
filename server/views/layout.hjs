@@ -19,17 +19,22 @@
 </head>
 <body>
   <nav class="navbar navbar-default navbar-static-top" role="navigation">
-	<div class="container-fluid">
-	  <h1>
-      <a href="/" class="small">
-        <span class="glyphicon glyphicon-home"></span>
-      </a>
-      <span class="small">/</span>
-      <span class="page-title">
-        {{ title }}
-      </span>
-    </h1>
-	</div>
+  	<div class="container-fluid">
+  	  <div class="navbar-header navbar-brand">
+        <a href="/" class="navbar-link">
+          <span class="glyphicon glyphicon-home"></span>
+        </a>
+        <span class="small">/</span>
+        <span class="page-title">
+          {{ title }}
+        </span>
+      </div>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/jenkins">Jenkins</a></li>
+        {{#kue}}<li><a href="/kue">Kue</a></li>{{/kue}}
+      </ul>
+  	</div>
   </nav>
 
   <div class="container-fluid">

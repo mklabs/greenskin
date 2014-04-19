@@ -107,18 +107,20 @@ Apache proxypass config
 
 #### Jenkins / Node app
 
-  vagrant up jenkins-master
+    vagrant up jenkins-master
 
-  # Check Jenkins: http://localhost:8082 or http://192.168.33.12:8082
-  # Check nodeapp: http://192.168.33.12 or http://192.168.33.12:3000
-  #
-  # sudo service httpd {start|stop|status}
-  # sudo service jenkins {start|stop|status}
-  # sudo service r8_perf {start|stop|status}
-  #
-  # Logs:
-  #
-  # tail -f /opt/kookel/r8_perf
+Check Jenkins: http://localhost:8082 or http://192.168.33.12:8082
+Check nodeapp: http://192.168.33.12 or http://192.168.33.12:3000
+
+Services
+
+    sudo service httpd {start|stop|status}
+    sudo service jenkins {start|stop|status}
+    sudo service r8_perf {start|stop|status}
+  
+Logs:
+
+    tail -f /opt/kookel/r8_perf
 
 Check that these plugins are installed at http://192.168.33.12/jenkins/pluginManager/
 

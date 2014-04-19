@@ -154,17 +154,21 @@
 
         var selected = select.find('[value="' + metric + '"]');
         var unit = row.find('.js-unit').text(selected.data('unit') || '');
+        var unitValue = selected.data('unit');
 
-        var val = parseInt(value.val(), 10);
-        if (isNaN(val) || !/^\d+$/.test(value.val())) {
-          val = '';
-          row.addClass('has-error');
-          return;
-        } else {
-          row.removeClass('has-error');
+        var val = unitValue === 'string' ? value.val() : parseInt(value.val(), 10);
+
+        if (unitValue !== 'string') {
+          if (isNaN(val) || !/^\d+$/.test(value.val())) {
+            val = '';
+            row.addClass('has-error');
+            return;
+          } else {
+            row.removeClass('has-error');
+          }
         }
 
-        var metricValue = metric + ':' + val;
+        var metricValue = metric + ':' + unitValue + ':' + val;
         input.val(metricValue);
 
         row[0].className = row[0].className.replace(/metric-[^\s]+/, 'metric-' + metric);
@@ -182,7 +186,9 @@
         }).map(function(metric) {
           return metric.value.split(':');
         }).reduce(function (a, b) {
-          a[b[0]] = parseInt(b[1], 10);
+          var unit = b[1];
+          var value = unit !== 'string' ? parseInt(b[2], 10) : b[2];
+          a[b[0]] = value;
           return a;
         }, {});
 

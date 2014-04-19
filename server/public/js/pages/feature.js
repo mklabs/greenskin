@@ -17,7 +17,7 @@
     this.codemirror();
     this.events();
 
-    var socket = this.socket = io.connect('/');
+    var socket = this.socket = io.connect(location.host + ':3000');
     this.socket.on('log', function(data) {
         var ansiparsed = ansiparse(data.line);
         var tokens = ansiparsed.map(function(token) {
