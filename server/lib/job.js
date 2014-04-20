@@ -122,6 +122,8 @@ Job.prototype.config = function(err, config) {
       job.feature = true;
     }
 
+    job.red = job.color === 'red' || job.color === 'yellow';
+
     debug('Render all');
 
     self.emit('end', {

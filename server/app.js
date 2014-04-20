@@ -108,6 +108,9 @@ server.listen(app.get('port'), function(){
 // Experiment with Gherkin editing
 require('./routes/feature')(app);
 
+// Experiment with Queue API
+require('./lib/pool-queue')(app);
+
 for (var i = 0; i < clusterWorkerSize; i++) {
   debug('Forked cluster', i + 1);
   cluster.fork();

@@ -5,6 +5,8 @@ var xml2js = require('xml2js');
 var request = require('request');
 var moment = require('moment');
 
+var async = require('async');
+
 var Job = require('../lib/job');
 
 var phantomas = require('phantomas');
@@ -24,14 +26,79 @@ exports.api = require('./api');
  * GET home page.
  */
 
+ var cache = {};
+ cache.jobs = {};
+ cache.builds = {};
+
 exports.index = function(req, res, next) {
   jenkins.all(function(err, jobs) {
     if (err) return next(err);
     jobs.forEach(function(job) {
       job.animated = /anime/.test(job.color);
+
     });
 
-    res.render('index', { jobs: jobs, config: config });
+    var response = [];
+    async.forEach(jobs, function(j, done) {
+      var name = j.name;
+
+      if (cache.jobs[name]) {
+        response.push(cache.jobs[name]);
+        return done(null, cache.jobs[name]);
+      }
+
+      var instance = new Job(name, done);
+
+      instance.on('end', function(data) {
+        var job = data.job;
+        var lastStable = job.lastSuccessfulBuild && job.lastSuccessfulBuild.number;
+        var lastFailedBuild = job.lastFailedBuild && job.lastFailedBuild.number;
+        var lastBuild = job.lastBuild && job.lastBuild.number;
+
+        function getBuild(number, prop) {
+          return function(done) {
+            if (!number) return done();
+
+            jenkins.build.get(name, number, function(err, data) {
+              if (err) return done(err);
+              data.moment = moment(data.timestamp).fromNow();
+              data._duration = moment.duration(data.duration).humanize();
+              job[prop] = data;
+              done(null, data)
+            });
+
+          }
+        }
+
+        async.parallel([
+          getBuild(lastStable, 'lastSuccessfulBuild'),
+          getBuild(lastFailedBuild, 'lastFailedBuild'),
+          getBuild(lastBuild, 'lastBuild')
+        ], function(err, results) {
+          if (err) return done(err);
+
+          job.animated = /anime/.test(job.color);
+          cache.jobs[name] = job;
+
+          // Basic TTL of 5s
+          setTimeout(function() {
+            delete cache.jobs[name];
+          }, 1000 * 5);
+
+          response.push(job);
+          done();
+        });
+
+      });
+    }, function(err) {
+      if (err) return next(err);
+
+      response.sort(function(a, b) {
+        return a.name > b.name;
+      });
+
+      res.render('index', { showqueue: true, jobs: response, config: config });
+    });
   });
 };
 
@@ -102,7 +169,32 @@ exports.view = function view(req, res, next) {
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
-    res.render('view', data);
+
+    async.map(data.job.builds, function(build, done) {
+      var number = build.number;
+      var key = name + ':' + number;
+      if (cache.builds[key]) return done(null, cache.builds[key]);
+      jenkins.build.get(name, number, function(err, data) {
+        if (err) return done(err);
+        data.color = data.result === 'SUCCESS' ? 'blue' :
+          data.result === 'FAILURE' ? 'red' :
+          data.result === 'WARNING' ? 'yellow' :
+          '';
+
+        data.name = name;
+        data.moment = moment(data.timestamp).format('llll');
+        data.fromNow = moment(data.timestamp).fromNow();
+        data.duration = moment.duration(data.duration).humanize();
+        data.animated = /anime/i.test(data.result);
+
+        cache.builds[key] = data;
+        done(null, data);
+      });
+    }, function(err, builds) {
+      if (err) return next(err);
+      data.builds = builds;
+      res.render('view', data);
+    });
   });
 };
 

@@ -683,3 +683,127 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
 .log-container:-webkit-full-screen .log {
   height: 100%
 }
+
+.app {
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding-top: 55px;
+  min-height: 100%
+}
+
+.app-left {
+  position: relative;
+  min-height: 100%;
+  -ms-flex: 0 0 20%;
+  -webkit-flex: 0 0 20%;
+  -moz-flex: 0 0 20%;
+  flex: 0 0 20em;
+
+  padding: 0 0 110px 0;
+  background-color: #fbfbfa;
+  border-right: 1px solid #c4cbcc;
+}
+
+.app-left .text-field {
+  background: #fff url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAOCAMAAAD32Kf8AAAAMFBMVEX///+9vb38/Pz+/v7Ly8v5+fm/v7/29vbw8PDGxsbm5ubh4eHv7+/a2trU1NTe3t4YsettAAAAaElEQVQY03XP4QqAMAgE4N3NzW22ev+3bRGUBt0f4eMETek3alLF9IM7ruyRD4htJjg8ZoEVFoMErVCmrKheKRhrjNjlhAwOwfRaOu4bWsQ+172zMWLTlUL/Qu+NmczhBW5+8+UH3/oJeh8CXnlPJdcAAAAASUVORK5CYII=') no-repeat right 8px
+}
+
+.app-left .search-box {
+  height: 87px;
+  padding: 30px 20px 0 20px;
+  background-color: #fff;
+}
+
+.app-left .nav-tabs {
+  background-color: #fff;
+}
+
+.app-left .nav-tabs .active a {
+  background-color: #fbfbfa;
+
+}
+
+.app-left .list-group-item:nth-child(even) {
+  background-color: #f2f2eb;
+}
+
+.app-main {
+  webkit-flex: 1;
+  -moz-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: relative;
+  min-width: 539px;
+  padding: 20px 40px 80px 30px;
+}
+
+.app-top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  min-width: 930px;
+  height: 55px;
+  z-index: 1000;
+}
+
+.app-left .summary {
+    margin: 5px 0 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #999;
+    font-size: 13px
+}
+
+.app-left .duration-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAMAAACecocUAAAAYFBMVEXh4eH///+MjIyRkZGTk5Pl5eXZ2dmPj4/e3t76+vrPz8/x8fHd3d35+fn09PT8/PzFxcW9vb2bm5uNjY2ZmZnv7+/g4OC3t7fMzMzW1tbR0dHCwsK5ubmjo6P+/v7///+WyotyAAAAIHRSTlP/////////////////////////////////////////AFxcG+0AAABgSURBVAjXTc1JAoIwFETB7h8gJEwqgwPqu/8t3VoXKAFIAhAcOW8pOhCKc3ap0SHy1bZeNZBiWOa6jd8kKfn5iYd9kxS7Sz95ShLpbtu+BKKN916GM0YEbRPNmnvQ3/sDt+kGp7LQ7NoAAAAASUVORK5CYII=');
+    background-size: cover
+}
+
+.app-left .finished-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAMAAACecocUAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxNUFGNjQ4NzI0NzAxMUUzQUI2RTgyNkQyQUY5MkIxMSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxNUFGNjQ4ODI0NzAxMUUzQUI2RTgyNkQyQUY5MkIxMSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjE1QUY2NDg1MjQ3MDExRTNBQjZFODI2RDJBRjkyQjExIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjE1QUY2NDg2MjQ3MDExRTNBQjZFODI2RDJBRjkyQjExIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+pR72ewAAAH5QTFRFmpeYioeIqaeog4CBhYKDlpOU9/f3wb/AhIGC0tHS4ODgwcDA39/fi4iJvLu7ycjI7u7uraurpqOkrqysoJ6fu7q64eDg8fHxrausyMfH1NPTtrS05eTkzMvMhoOEmZeYnJqbr62t8PDww8HC/Pz8h4SFu7m6+Pj4/f39////nN35IgAAACp0Uk5T//////////////////////////////////////////////////////8AMqjwXAAAAGJJREFUeNo0y8kWgjAQRNGKnZiIODMJKCAy1P//IJwQ3qLPXVSDafHuX+fbYyQsjjA067WQbyRSi8SDQB/2NBR99x9VcHZpvcsPT7rJvTtJ5Dlx21x1NTOYf/+j4LDnFgEGAD+JCSbnQgSIAAAAAElFTkSuQmCC');
+    background-size: cover
+}
+
+.app-left .title a {
+  color: inherit;
+}
+
+html, body {
+  height: 100%;
+}
+
+@media (max-width: 767px) {
+
+  .app-left {
+      -ms-flex: 0 0 20%;
+      -webkit-flex: 0 0 20%;
+      -moz-flex: 0 0 20%;
+      flex: 0 0 20%;
+  }
+
+  .app-main {
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-left {
+      -ms-flex: 0;
+      -webkit-flex: 0;
+      -moz-flex: 0;
+      flex: 0;
+      display: none;
+  }
+}
