@@ -16,6 +16,17 @@ The result is then displayed in a custom frontend dashboard on top of Jenkins, t
 
 Jenkins, on a failing assert, generates an email notification.
 
+## How it looks
+
+![](imgs/home.png)
+![](imgs/create-job-phantomas.png)
+![](imgs/full-screen-metrics.png)
+![](imgs/assert-edition.png)
+![](imgs/create-feature.png)
+![](imgs/edit-steps.png)
+![](imgs/build-history.png)
+![](imgs/custom-jenkins-theme.png)
+
 ## Components
 
 Systems

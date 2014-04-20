@@ -693,6 +693,10 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
   min-height: 100%
 }
 
+.app .page-header {
+  margin-bottom: 9px;
+}
+
 .app-left {
   position: relative;
   min-height: 100%;
@@ -735,8 +739,7 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
   -ms-flex: 1;
   flex: 1;
   position: relative;
-  min-width: 539px;
-  padding: 20px 40px 80px 30px;
+  padding-top: 20px;
 }
 
 .app-top {
@@ -841,21 +844,7 @@ html, body {
   height: 100%;
 }
 
-@media (max-width: 767px) {
-
-  .app-left {
-      -ms-flex: 0 0 20%;
-      -webkit-flex: 0 0 20%;
-      -moz-flex: 0 0 20%;
-      flex: 0 0 20%;
-  }
-
-  .app-main {
-    padding: 0;
-  }
-}
-
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .app-left {
       -ms-flex: 0;
       -webkit-flex: 0;
