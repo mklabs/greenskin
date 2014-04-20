@@ -2,7 +2,7 @@
 
 An express based webapp, sitting on top of Jenkins, aiming to provide a simple and fun way to monitor Frontend Performance and / or run functional testing.
 
-![](imgs/create-job-phantomas.png)
+![](imgs/intro.png)
 
 Based on PhantomJS / Phantomas for metrics collection, Mocha / Gherkin to run the functional tests and Jenkins as a robust Job scheduler with distributed capabilities (Master / Slave)
 
