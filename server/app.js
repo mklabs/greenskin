@@ -1,4 +1,5 @@
 
+var fs      = require('fs');
 var debug   = require('debug')('server:app');
 var http    = require('http');
 var path    = require('path');
@@ -49,6 +50,9 @@ app.get('/create', routes.create);
 app.get('/view/:name', routes.view);
 app.get('/edit/:name', routes.edit);
 app.get('/edit/:name/steps.js', routes.serveStepfile);
+app.get('/create/steps.js', function(req, res, next) {
+  fs.createReadStream(path.join(__dirname, 'test/mocha-stepfile.js')).pipe(res);
+});
 
 app.get('/view/:name/asserts', routes.metrics);
 app.get('/view/:name/metrics', routes.metrics);

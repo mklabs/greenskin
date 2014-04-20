@@ -23,7 +23,10 @@
   data-run-url="{{ runUrl }}">
 
   <input type="hidden" name="template" value="feature">
-  <input type="hidden" name="json_config" value="{{ job.json }}">
+  <input type="hidden" name="json_config" value="">
+
+  <pre class="js-jsonconfig is-hidden">{{{ job.json }}}</pre>
+
   <div class="is-hidden">
     <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
   </div>
@@ -89,25 +92,33 @@
 
             <div class="row" style="margin-top: 1em;">
               <div class="js-feature-edit feature-edit col-sm-6">
-                <textarea name="gherkin" class="form-control">Feature: example.com
+                <textarea name="gherkin" class="form-control">Feature: example
 
-  Some description
+  You can define basic browsing scenarios
+  with the steps already available.
+  
+  Try Ctrl-Space to autocomplete based on registered steps.
 
-  Scenario: Browsing example.com
-    Given I browse URL "http://example.com"
-    
-  Scenario: Browsing example.com/a
-    Given I browse URL "http://example.com/a"
+  Try Ctrl-R to run the feature.
+  
+  You can also write new steps. A good way to get started is 
+  simply to write a new step below, run the feature, and then
+  click on the pending test.
+
+  Scenario: Browsing http://phantomjs.org/
+    Given I browse URL "http://phantomjs.org/"
+  
     
   Scenario: Browsing example.com/n
-    Given I browse URL "http://example.com/n"</textarea>
+    Given I browse URL "https://github.com/cucumber/cucumber/wiki/Gherkin"</textarea>
               </div>
 
               <div class="col-sm-6">
-                <div class="log-container">
+                <div class="log-container js-full">
                   <pre class="js-log log ansi">
     You can Ctrl-R to <a href="#" class="js-run btn btn-link">run & preview</a> the feature
     You can Ctrl-Space to get autocompletion on available <a href="#" class="js-run btn btn-link" data-toggle="modal" data-target=".js-dialog">steps</a>
+    Try double clicking to enter fullscreen mode
 </pre>
                 </div>
               </div>
@@ -192,4 +203,11 @@
 </div>
 
 <script src="/js/gherkin-interface.js"></script>
+
+{{#edit}}
 <script src="/edit/{{ job.name}}/steps.js"></script>
+{{/edit}}
+
+{{^edit}}
+<script src="/create/steps.js"></script>
+{{/edit}}

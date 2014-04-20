@@ -97,7 +97,9 @@ Job.prototype.config = function(err, config) {
         var data = {};
         try {
           data = JSON.parse(param.defaultValue[0]);
-        } catch(e) {}
+        } catch(e) {
+          console.error(e);
+        }
 
         return data;
       })[0];

@@ -20,7 +20,12 @@
     var form = this.$el;
     $('.js-submit').on('click', function() {
       form.submit();
-    })
+    });
+
+    $(document).on('dblclick', '.js-full', function(e) {
+      var el = $(e.target).closest('.js-full');
+      screenfull.toggle(el[0]);
+    });
 
     var socket = this.socket = io.connect(location.hostname + ':3000');
   };
@@ -70,7 +75,7 @@
       }
     });
 
-    textareas.next('.CodeMirror').addClass('form-control');
+    textareas.next('.CodeMirror').addClass('form-control js-full');
     textareas.data('codemirror', cm);
   };
 
@@ -178,7 +183,6 @@
 
     });
 
-    console.log('Getting ed', data);
     return data;
   };
 
@@ -235,7 +239,7 @@
       var target = e.target;
       if (!target) return;
 
-      if (target.classList.contains('js-gothrough')) {
+      if (target.classList.contains('js-gothrough') || $(target).closest('.js-gothrough').length) {
         return;
       }
       
@@ -319,12 +323,12 @@
 
 
   CreateFeaturePage.initTableFromJSON = function initTableFromJSON() {
-    var json = this.$el.find('[name=json_config]');
+    var json = this.$el.find('.js-jsonconfig');
     if (!json.length) return;
 
     var data = {};
     try {
-      data = JSON.parse(json.val());
+      data = JSON.parse(json.text());
     } catch(e) {}
 
     var el = this.el;
@@ -349,23 +353,21 @@
 
 
   CreateFeaturePage.initDialogFromJSON = function initTableFromJSON() {
-    var json = this.$el.find('[name=json_config]');
+    var json = this.$el.find('.js-jsonconfig');
     if (!json.length) return;
 
     var data = {};
     try {
-      data = JSON.parse(json.val());
+      data = JSON.parse(json.text());
     } catch(e) {}
 
     var dialog = $('.js-dialog');
     var code = dialog.find('.js-code');
     var dialogBody = dialog.find('.modal-body');
-    var steps = data.steps;
+    var steps = data.steps || [];
     var editors = [];
 
     steps.forEach(function(step) {
-      // $('<h5 />').text(step.name).appendTo(dialogBody);
-
       var div = $('<div class="js-codemirror codemirror" />').data('name', step.name);
       div.appendTo(dialogBody);
       var editor = CodeMirror(div[0], {
@@ -376,6 +378,8 @@
       div.data('codemirror', editor);
       editors.push(editor);
     });
+
+    dialog.find('.CodeMirror').addClass('js-full');
 
     dialog.on('shown.bs.modal', function() {
       editors.forEach(function(ed) {

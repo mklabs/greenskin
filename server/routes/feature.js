@@ -54,8 +54,31 @@ function runFeature(ws, job, next) {
         cwd: runtmpdir
       });
 
-      // phantom.stdout.pipe(process.stdout);
-      phantom.stderr.pipe(process.stderr);
+      phantom.stdout.pipe(process.stdout);
+      // phantom.stderr.pipe(process.stderr);
+
+      phantom.stderr.on('data', function(chunk) {
+        chunk = chunk + '';
+
+        var data = {};
+        try { data = JSON.parse(chunk); }
+        catch(e) {}
+
+        if (job.data.job) job.data.job.log(chunk);
+
+        if (!data.event) console.log(chunk);
+
+        var msg = '', filmstrip;
+        if (ws && data.event) {
+          msg = data.data.join(' ');
+          filmstrip = (msg.match(/Film strip: rendered to ([^\s]+) in/) || [])[1];
+          if (filmstrip) {
+            ws.sockets.emit('step.' + timestamp, { file: '/tmp/' + timestamp + '/' + filmstrip });
+          }
+
+          ws.sockets.emit('log.' + timestamp, { line: (data.event === 'log' ? '' : data.event + ' - ') + data.data.join(' ') + '\n'});
+        }
+      });
 
       phantom.stdout.on('data', function(chunk) {
         chunk = chunk + '';
@@ -117,6 +140,7 @@ module.exports = function(app) {
       data.title = 'Create job';
       data.action = '/api/create';
       data.runUrl = '/create/run-feature/';
+      data.job.json = JSON.stringify(data.job.config);
       res.render('create-feature', data);
     });
   });
