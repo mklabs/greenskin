@@ -18,13 +18,30 @@ Jenkins, on a failing assert, generates an email notification.
 
 ## How it looks
 
+
+**home**
+
 ![](imgs/home.png)
+
+**Phantomas Job creation**
 ![](imgs/create-job-phantomas.png)
+
+**Graphs from Phantomas Metrics**
 ![](imgs/full-screen-metrics.png)
+
+**Assert edition view**
 ![](imgs/assert-edition.png)
+
+**Functonal feature job creation**
 ![](imgs/create-feature.png)
+
+**Step edition**
 ![](imgs/edit-steps.png)
+
+**Build history**
 ![](imgs/build-history.png)
+
+**Custom jenkins theme**
 ![](imgs/custom-jenkins-theme.png)
 
 ## Components
