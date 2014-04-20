@@ -105,7 +105,10 @@
 
               <div class="col-sm-6">
                 <div class="log-container">
-                  <pre class="js-log log ansi">You can Ctrl-R to run & preview the feature</pre>
+                  <pre class="js-log log ansi">
+    You can Ctrl-R to <a href="#" class="js-run btn btn-link">run & preview</a> the feature
+    You can Ctrl-Space to get autocompletion on available <a href="#" class="js-run btn btn-link" data-toggle="modal" data-target=".js-dialog">steps</a>
+</pre>
                 </div>
               </div>
 
@@ -182,11 +185,11 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-primary js-submit" data-dismiss="modal">Save changes</button>
       </div>
     </div>
   </div>
 </div>
 
 <script src="/js/gherkin-interface.js"></script>
-<script src="/static/feature/stepfile.js"></script>
+<script src="/edit/{{ job.name}}/steps.js"></script>

@@ -103,11 +103,6 @@ module.exports = function(app) {
 
   if (app.kue) createQueue(ws);
 
-  // For step completion
-  app.use('/static/feature/stepfile.js', function(req, res, next) {
-    fs.createReadStream(path.join(__dirname, '../test/mocha-stepfile.js')).pipe(res);
-  });
-
   // For browsing temporary workspaces
   app.use('/tmp', express.static(tmpdir));
   app.use('/tmp', express.directory(tmpdir));

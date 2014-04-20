@@ -156,7 +156,7 @@ exports.edit = function edit(req, res, next){
   jenkins.job.config(params.name, xml, function(err) {
     if (err) return next(err);
     debug('Jenkins job edition OK');
-    res.redirect('/view/' + name + '/last');
+    res.redirect('/edit/' + name);
   });
 };
 
@@ -209,7 +209,8 @@ function replaceJSONConfig(xml, json) {
     ln = i + 2;
   });
 
-  lines[ln] = lines[ln].replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue>' + json + '</defaultValue>');
+  lines[ln] = lines[ln]
+    .replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue><![CDATA[' + json + ']]></defaultValue>');
   xml = lines.join('\n');
 
   return xml;

@@ -26,6 +26,7 @@
           <name>JSON_CONFIG</name>
           <description>JSON config.</description>
           <defaultValue>{}</defaultValue>
+          <defaultValue><![CDATA[{}]]></defaultValue>
         </hudson.model.StringParameterDefinition>
 
         <hudson.model.StringParameterDefinition>

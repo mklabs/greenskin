@@ -17,6 +17,11 @@
     this.initTableFromJSON();
     this.initDialogFromJSON();
 
+    var form = this.$el;
+    $('.js-submit').on('click', function() {
+      form.submit();
+    })
+
     var socket = this.socket = io.connect(location.hostname + ':3000');
   };
 
@@ -253,6 +258,15 @@
         $(target).closest('tr').remove();
       }
 
+      if (target.classList.contains('js-run')) {
+        self.run($(target).closest('.js-log'));
+      }
+
+
+      if (target.classList.contains('js-pending')) {
+        self.pending(target);
+      }
+
     }, true);
   };
 
@@ -299,7 +313,7 @@
     var row = log.closest('.row');
     var imgbox = row.find('.js-imgs');
     var img = $('<img src="' + file + '" />').attr('width', 200).attr('height', 120);
-    var a = $('<a class="thumbnail left"/>').attr('href', file).append(img);
+    var a = $('<a class="thumbnail left js-gothrough" target="_blank"/>').attr('href', file).append(img);
     imgbox.append(a);
   };
 
@@ -348,7 +362,7 @@
     var dialogBody = dialog.find('.modal-body');
     var steps = data.steps;
     var editors = [];
-    
+
     steps.forEach(function(step) {
       // $('<h5 />').text(step.name).appendTo(dialogBody);
 
@@ -370,6 +384,82 @@
 
     });
   };
+
+  CreateFeaturePage.pending = function pending(el) {
+    var line = $(el);
+    var text = line.text();
+
+    text = text.trim().replace(/^-\s*/, '');
+
+    var keywordReg = /^(Given|And|Then|When)/;
+    var keyword = (text.match(keywordReg) || [])[1];
+
+    var el = line.get(0);
+    var found = false;
+    if (keyword === 'And') {
+      (function lookupKeyword(item) {
+        if (found) return;
+        if (!item) return;
+        var prev = item.previousSibling;
+        var txt = prev.innerText.trim().replace(/^-\s*/, '');
+        var kwd = (txt.match(/^(Given|Then|When)/) || [])[1];
+        if (kwd) {
+          found = true;
+          keyword = kwd;
+        } else {
+          lookupKeyword(prev);
+        }
+      })(el);
+    }
+
+    var reg = text
+      .replace('(Pending)', '')
+      .replace('(Click to implement)', '');
+
+    reg = reg.replace(/"[^"]+"/g, '"([^"]+)"');
+
+    var args = (reg.match(/\"\(\[\^\"\]\+\)\"/g) || []);
+
+    args = args.map(function(arg, i) {
+      return 'arg' + i;
+    });
+
+    args.push('done');
+
+    reg = reg.replace(keywordReg, '').trim();
+    var snippet = keyword + '(/' + reg + '/, function(' + args.join(', ') + ') {\n';
+    snippet += '  done();\n';
+    snippet += '});';
+
+    console.log(snippet);
+
+    var dialog = $('.js-dialog');
+
+    var editor = dialog.find('.js-codemirror').eq(0).data('codemirror'); 
+    var code = editor.getValue();
+    var newcode = snippet + '\n\n' + code;
+    editor.setValue(newcode);
+
+    dialog.modal('show');
+
+    return;
+    var url = self.stepdir + filename;
+    var post = $.ajax({
+      type: 'POST',
+      url: url,
+      data: {
+        code: snippet
+      }
+    });
+
+    post.success(function() {
+         location.href = url;
+    });
+
+    console.log(reg);
+    console.log(snippet);
+  };
+
 
   $(function() {
     $('.js-job-feature-form').each(function() {

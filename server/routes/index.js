@@ -73,6 +73,28 @@ exports.edit = function edit(req, res, next) {
   });
 };
 
+exports.serveStepfile = function serveStepfile(req, res, next) {
+  var name = req.params.name;
+  var job = new Job(name, next);
+
+  job.on('end', function(data) {
+    var json = data.job.json;
+    var data = {};
+    try {
+      data = JSON.parse(json);
+    } catch(e) {
+      return next(e);
+    }
+
+    var js = data.steps.map(function(step) {
+      return step.body;
+    }).join('\n\n');
+
+    res.send(js);
+  });
+
+};
+
 exports.view = function view(req, res, next) {
   var name = req.params.name;
   var job = new Job(name, next);

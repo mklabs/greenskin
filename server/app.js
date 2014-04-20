@@ -48,6 +48,7 @@ app.get('/', routes.index);
 app.get('/create', routes.create);
 app.get('/view/:name', routes.view);
 app.get('/edit/:name', routes.edit);
+app.get('/edit/:name/steps.js', routes.serveStepfile);
 
 app.get('/view/:name/asserts', routes.metrics);
 app.get('/view/:name/metrics', routes.metrics);

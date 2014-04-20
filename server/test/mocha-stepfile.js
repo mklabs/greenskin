@@ -1,3 +1,5 @@
+
+
 Given(/^I browse URL "([^"]+)"$/, function(url, done) {
     var page = this.page = require('webpage').create();
     page.open(url, function(status) {
@@ -11,10 +13,13 @@ Then(/I want to render the page at "([^"]+)"/, function(filename, done) {
     done();
 });
 
-Then(/I click osn "([^"]+)"/, function(selector, done) {
+Then(/I click on "([^"]+)"/, function(selector, done) {
     var el = this.page.evaluate(function(selector) {
-    	var el = document.querySelectorAll(selector);
-        return el.length;
+        var qsa = window.$ || document.querySelectorAll.bind(document);
+      var el = qsa(selector);
+        if (!el.length) return;
+        el.click();
+        return true;
     }, selector);
 
     if (!el) return done(new Error('Cannot get element ' + selector));
@@ -83,4 +88,42 @@ Then(/I submit the form "([^"]+)"/, function(selector, done) {
   }, selector);
 
   if (!ok) return done(new Error('Cannot get form ' + selector));
+});
+
+Then(/I wait for "([^"]+)" to be visible/, function(selector, done) {
+    
+  var jq = this.page.evaluate(function(selector) {
+    return typeof window.$ === 'function';
+  }, selector);
+
+  if (!jq) return done(new Error('This step relies on a jQuery like $ variable and was not accessible on ' + this.page.url));
+  
+  var ok = false;
+   
+  var to = setTimeout(function() {
+    done(new Error('Timeout error'));
+  }, 10000);
+  
+  var page = this.page;
+  (function next() {
+    if (ok) {
+      clearTimeout(to);
+      return done();
+    }
+    
+    setTimeout(function() {
+      ok = page.evaluate(function(selector) {
+        return $(selector).is(':visible');
+      }, selector);
+      
+      next();
+    }, 200);
+  })();
+});
+
+
+Then(/I wait for (\d+)s/, function(delay, done) {
+  delay = parseInt(delay, 10);
+  if (isNaN(delay)) return done(new Error(delay + ' is not a number'));
+  setTimeout(done, delay * 1000);
 });
