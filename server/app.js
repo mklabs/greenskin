@@ -78,6 +78,8 @@ app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);
 app.post('/api/edit', routes.api.edit);
 
+app.post('/search', routes.search);
+
 if (!cluster.isMaster) return;
 
 var clusterWorkerSize = require('os').cpus().length;

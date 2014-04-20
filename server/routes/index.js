@@ -356,11 +356,9 @@ exports.lastBuild = function lastBuild(req, res, next) {
   });
 };
 
-exports.buildView = buildView;
-
 // Build view request handler, for both normal view and last job view
 // TODO: Rework me...
-function buildView(req, res, next) {
+exports.buildView = function buildView(req, res, next) {
   var name = req.params.name;
   var number = parseInt(req.params.number, 10);
 
@@ -427,6 +425,43 @@ function buildView(req, res, next) {
     });
   });
 }
+
+exports.search = function search(req, res, next) {
+  var val = '';
+  if (req.body) val = req.body.query;
+  if (!val && req.query) val = req.query.query;
+  if (!val) return next(new Error('Missing val'));
+
+  var jobs = Object.keys(cache.jobs).filter(function(key) {
+    return !!~key.indexOf(val);
+  }).map(function(key) {
+    var job = cache.jobs[key];
+    var result = job.lastBuild.result.toLowerCase();
+    return {
+      name: job.name,
+      lastBuildStatus: result,
+      lastBuildLabel: job.lastBuild.fullDisplayName,
+      number: job.lastBuild.number,
+      lastBuildTime: moment(job.lastBuild.timestamp).format('llll'),
+      jobUrl: job.lastBuild.url,
+      webUrl: '/view/' + job.name + '/' + job.lastBuild.number,
+      duration: moment.duration(job.lastBuild.duration).humanize(),
+      finished: moment(job.lastBuild.timestamp).fromNow(),
+      color: /failure/.test(result) ? 'red' :
+        /success/.test(result) ? 'green' :
+        /abort/.test(result) ? 'gray' :
+        /warn/.test(result)  ? 'yellow' :
+        '',
+      timestamp: job.lastBuild.timestamp
+    };
+  });
+
+  res.json({
+    val: val,
+    jobs: jobs
+  });
+
+};
 
 function requestJobLog(name, number, done) {
   request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', done);
