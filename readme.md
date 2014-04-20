@@ -1,6 +1,5 @@
 # Hermód
 
-Source : mythologie Nordique, Dieu des messagers, il peut aussi courir beaucoup plus vite que tous les autres dieux Asgardiens, rivalisant avec le mutant Vif-Argent et Hermès le dieu grec. 
 An express based webapp, sitting on top of Jenkins, aiming to provide a simple and fun way to monitor Frontend Performance and / or run easy functional testing.
 
 Based on PhantomJS / Phantomas for metrics collection, Mocha / Gherkin for functional tests, Jenkins as a robust Job scheduler with distributed capabilitied (Master / Slave)
