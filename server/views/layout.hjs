@@ -30,10 +30,12 @@
         </span>
       </div>
 
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="/jenkins">Jenkins</a></li>
-        {{#kue}}<li><a href="/kue">Kue</a></li>{{/kue}}
-      </ul>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/jenkins">Jenkins</a></li>
+          {{#kue}}<li><a href="/kue">Kue</a></li>{{/kue}}
+        </ul>
+      </div>
   	</div>
   </nav>
 

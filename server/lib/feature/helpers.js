@@ -1,23 +1,23 @@
-var debug = require('debug')('server:feature');
+var debug = require('debug')('server:feature-helper');
 
 var fs = require('fs');
 var path = require('path');
 var spawn = require('child_process').spawn;
 
 var kue = require('kue');
-var express = require('express');
 var mkdirp = require('mkdirp');
 var rimraf = require('rimraf');
 
-var config = require('../package.json').config;
-var Job = require('../lib/job');
-
 // Phantomjs script
 var phantomjs = require('phantomjs').path;
-var mochaRunner = path.join(__dirname, '../test/mocha-test.js');
+var mochaRunner = path.join(__dirname, '../../test/mocha-test.js');
 var mochaSteps = [{ name: 'stepfile.js', body: '' }];
-mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../test/mocha-stepfile.js'), 'utf8');
+mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../../test/mocha-stepfile.js'), 'utf8');
 
+// Exports
+var helpers = module.exports;
+helpers.createQueue = createQueue;
+helpers.runFeature = runFeature;
 
 // Helpers
 
@@ -121,95 +121,3 @@ function runFeature(ws, job, next) {
     });
   });
 }
-
-// Routes
-
-module.exports = function(app) {
-  var tmpdir = path.join(__dirname, '../tmp');
-
-  var ws = app.ws;
-
-  debug('Init feature subapp', app.kue);
-  if (app.kue) createQueue(ws);
-
-  // For browsing temporary workspaces
-  app.use('/f/tmp', express.static(tmpdir));
-  app.use('/f/tmp', express.directory(tmpdir));
-
-  // Job creation
-  app.get('/f/create', function(req, res, next) {
-    var job = new Job('', next, {
-      xmlTemplate: 'feature'
-    });
-
-    job.on('end', function(data) {
-      data.title = 'Create job';
-      data.action = '/api/create';
-      data.runUrl = '/f/create/run-feature/';
-      data.job.json = JSON.stringify(data.job.config);
-      res.render('create-feature', data);
-    });
-  });
-
-  app.post('/f/create/run-feature', function(req, res, next) {
-    var params = req.body;
-    var config = params.config;
-    var timestamp = params.timestamp;
-
-    var data = {};
-
-    try {
-      data = JSON.parse(config);
-    } catch(e) {
-      return next(e);
-    }
-
-    // normalize feature name, adding .feature extension if missing
-    data.features = data.features.map(function(f) {
-      f.name = path.extname(f.name) !== '.feature' ? f.name + '.feature' : f.name;
-      return f;
-    });
-
-    if (!data.steps) {
-      data.steps = mochaSteps;
-    }
-
-    var runtmpdir = path.join(tmpdir, timestamp);
-
-    var jobdata = {
-      title: 'PhantomJS feature running',
-      runtmpdir: runtmpdir,
-      timestamp: timestamp,
-      data: data
-    };
-
-    debug('Creating job %s %d', jobdata.title, jobdata.timestamp);
-
-    if (!app.kue) return runFeature(ws, jobdata, function(err, data) {
-      if (err) return next(err);
-      res.json(data);
-    });
-
-    var jobs = kue.createQueue();
-    var job = jobs.create('phantom feature', jobdata).save();
-
-    debug('Kue process %s %d', jobdata.title, jobdata.timestamp);
-    job.on('complete', function(e) {
-      debug('Job complete', runtmpdir);
-      if (e) return next(e);
-        fs.readdir(path.join(runtmpdir, 'step-screens'), function(err, files) {
-          if (err) return next(err);
-          res.json({
-            timestamp: timestamp,
-            workspace: '/f/tmp/' + timestamp,
-            screens: files
-          });
-        });
-    }).on('failed', function() {
-      debug('Job failed', runtmpdir);
-    }).on('progress', function(progress){
-      debug('\r  job #' + job.id + ' ' + progress + '% complete');
-    });
-  });
-
-};

@@ -9,7 +9,6 @@ var kue     = require('kue');
 var redis   = require('redis');
 var io      = require('socket.io');
 var routes  = require('./routes');
-var feature = require('./routes/feature');
 
 // Config
 var config = require('./package.json').config;
@@ -31,16 +30,31 @@ require('./lib/hjs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hjs');
 
-// Check redis connection, we can live without. Use to indicate if the app have been able to connect to redis, otherwise will fallback to direct invocation.
+// Check redis connection, we can live without.
+//
+// Used to indicate if the app have been able to connect to redis, otherwise will fallback to direct invocation.
 app.kue = true;
+kue.redis.createClient = function() {
+  var client = redis.createClient();
+  client.on('error', function(err) {
+    app.kue = false;
+    debug('Redis connection error', err.stack);
+    debug('Will fallback to direct invocation. Consider checking it\'s running, or installed (Default port)');
+  });
+
+  return client;
+};
+
+app.use('/kue', express.basicAuth('kue', 'kue'));
+app.use('/kue', kue.app);
 
 // Middlewares
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
 
 if ('development' === app.get('env')) {
   app.use(express.errorHandler());
@@ -51,13 +65,7 @@ if ('development' === app.get('env')) {
 // Subapps may edit this to hook into the system, such as adding new buttons to homepage, by doing so in the `mount` event.
 
 // List of create jobs buttons
-app.locals.buttons = [{
-  name: 'Create Job (simple metrics)',
-  url: '/p/create'
-}, {
-  name: 'Create Job (Functional)',
-  url: '/f/create'
-}];
+app.locals.buttons = [];
 
 // Routing
 
@@ -78,57 +86,19 @@ app.post('/api/edit', routes.api.edit);
 app.post('/search', routes.search);
 
 // Phantomas jobs
-// app.use('/p', phantomas());
-app.get('/p/create', routes.create);
-app.get('/p/edit/:name', routes.edit);
-app.get('/p/view/:name', routes.view);
-app.get('/p/har/:name/:number/:url.json', routes.har);
-app.get('/p/view/:name/asserts', routes.metrics);
-app.get('/p/view/:name/metrics', routes.metrics);
-app.get('/p/view/:name/asserts/:metric', routes.metric);
-app.get('/p/view/:name/metrics/:metric', routes.metric);
-app.post('/p/view/:name/asserts/:metric', routes.api.metric);
-app.post('/p/view/:name/metrics/:metric', routes.api.metric);
-app.post('/p/view/:name/asserts/:metric/del', routes.api.metricDelete);
-app.post('/p/view/:name/metrics/:metric/del', routes.api.metricDelete);
-// Must come after asserts, or will route will clash
-app.get('/p/view/:name/:number', routes.buildView);
+var phantomas = require('./lib/phantomas');
+app.use('/p', phantomas);
 
 // Feature jobs
-app.get('/f/edit/:name', routes.edit);
-app.get('/f/view/:name', routes.view);
-app.get('/f/view/:name/:number', routes.buildView);
-app.get('/f/edit/:name/steps.js', routes.serveStepfile);
-app.get('/f/create/steps.js', function(req, res, next) {
-  fs.createReadStream(path.join(__dirname, 'test/mocha-stepfile.js')).pipe(res);
-});
-
-// Experiment with Gherkin editing
-require('./routes/feature')(app);
+app.use('/f', require('./lib/feature'));
 
 // Experiment with Queue API
 // require('./lib/pool-queue')(app);
-
 
 if (!cluster.isMaster) return;
 
 var clusterWorkerSize = require('os').cpus().length;
 debug('Cluster worker size', clusterWorkerSize);
-
-kue.redis.createClient = function() {
-  var client = redis.createClient();
-  client.on('error', function(err) {
-    app.kue = false;
-    debug('Redis connection error', err.stack);
-    debug('Will fallback to direct invocation. Consider checking it\'s running, or installed (Default port)');
-  });
-
-  return client;
-};
-
-
-app.use('/kue', express.basicAuth('kue', 'kue'));
-app.use('/kue', kue.app);
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
