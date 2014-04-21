@@ -3,14 +3,18 @@
   {{ job.description }}
 </p>
 
+<!-- Nav tabs -->
 <ul class="nav nav-tabs job-tabs">
-  <li><a href="/view/{{ job.name }}/last">Current</a></li>
-  <li><a href="/view/{{ job.name }}/" data-toggle="tab">Build History</a></li>
-  
-  {{#job.phantomas}}<li {{^assertMode}}class="active"{{/assertMode}}><a href="/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
-  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+  <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
+  <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
 
-  <li class="active"><a href="/edit/{{ job.name }}">Edit</a></li>
+  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+
+  <li class="active">
+    <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
+  </li>
+
 </ul>
 
 {{/edit}}
@@ -56,14 +60,14 @@
 
 
   <div class="js-features row col-sm-12">
-    <h3> 
+    <h3>
       Features
       <span class="small">
-        You can add here <a class="js-gothrough" href="https://github.com/cucumber/cucumber/wiki/Gherkin">Cucumber like scenarios (Gherkin)</a> and 
+        You can add here <a class="js-gothrough" href="https://github.com/cucumber/cucumber/wiki/Gherkin">Cucumber like scenarios (Gherkin)</a> and
         <a href="#" data-toggle="modal" data-target=".js-dialog">
         view or edit step definitions.
         </a>
-      
+
       </span>
 
       <a class="btn btn-default right js-add" href="#" role="button">Create</a>
@@ -96,19 +100,19 @@
 
   You can define basic browsing scenarios
   with the steps already available.
-  
+
   Try Ctrl-Space to autocomplete based on registered steps.
 
   Try Ctrl-R to run the feature.
-  
-  You can also write new steps. A good way to get started is 
+
+  You can also write new steps. A good way to get started is
   simply to write a new step below, run the feature, and then
   click on the pending test.
 
   Scenario: Browsing http://phantomjs.org/
     Given I browse URL "http://phantomjs.org/"
-  
-    
+
+
   Scenario: Browsing example.com/n
     Given I browse URL "https://github.com/cucumber/cucumber/wiki/Gherkin"</textarea>
               </div>
@@ -155,7 +159,7 @@
 
   <div class="js-steps row col-sm-12 is-hidden">
 
-    <h3> 
+    <h3>
       Steps
       <span class="small">
         You can add / edit here PhantomJS steps
@@ -205,9 +209,9 @@
 <script src="/js/gherkin-interface.js"></script>
 
 {{#edit}}
-<script src="/edit/{{ job.name}}/steps.js"></script>
+<script src="/f/edit/{{ job.name}}/steps.js"></script>
 {{/edit}}
 
 {{^edit}}
-<script src="/create/steps.js"></script>
+<script src="/f/create/steps.js"></script>
 {{/edit}}

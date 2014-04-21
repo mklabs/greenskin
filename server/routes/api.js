@@ -21,10 +21,13 @@ exports.metric = function metric(req, res, next){
   var name = req.params.name;
   var key = req.params.metric;
 
+  debug('Edit ...', value, name);
   if (isNaN(value)) return next(req.body.value + ' not a valid number');
 
   var job = new Job(name, next);
+  debug('Create job', name);
   job.on('end', function(data) {
+    debug('Ended');
     var json = data.job.json;
     try {
       json = JSON.parse(json);
@@ -42,7 +45,7 @@ exports.metric = function metric(req, res, next){
     jenkins.job.config(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job edition OK');
-      res.json({ ok: true, redirect: '/view/' + name + '/asserts' });
+      res.json({ ok: true, redirect: '/p/view/' + name + '/asserts' });
     });
   });
 };
@@ -71,7 +74,7 @@ exports.metricDelete = function metricDelete(req, res, next){
     jenkins.job.config(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job edition OK');
-      res.json({ ok: true, redirect: '/view/' + name + '/asserts' });
+      res.json({ ok: true, redirect: '/p/view/' + name + '/asserts' });
     });
   });
 };
@@ -103,7 +106,7 @@ exports.create = function create(req, res, next){
 
     if (params.template === 'feature') {
       xml = xml.replace('SCRIPT_BODY', function() {
-        return mochaRunner;        
+        return mochaRunner;
       });
 
       if (!jsonconfig.steps) {
@@ -131,6 +134,9 @@ exports.edit = function edit(req, res, next){
   var urls = params.urls || [];
   debug('API edit', urls);
 
+  // TODO: Abstract away by initing a new Job
+  var namespace = 'p';
+
   var xml = replaceUrlsXML(params.xml, urls);
   xml = replaceTimerXML(xml, params.cron);
 
@@ -146,6 +152,7 @@ exports.edit = function edit(req, res, next){
     if (!jsonconfig.steps) {
       jsonconfig.steps = mochaSteps;
       params.json_config = JSON.stringify(jsonconfig);
+      namespace = 'f';
     }
   }
 
@@ -156,7 +163,7 @@ exports.edit = function edit(req, res, next){
   jenkins.job.config(params.name, xml, function(err) {
     if (err) return next(err);
     debug('Jenkins job edition OK');
-    res.redirect('/edit/' + name);
+    res.redirect(namespace + '/edit/' + name);
   });
 };
 

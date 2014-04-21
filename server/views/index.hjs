@@ -3,8 +3,9 @@
     <h3>
       {{title}}
       <div class="btn-group right">
-        <a class="btn btn-default right" href="/create" role="button">Create Job (simple metrics)</a>
-        <a class="btn btn-default right" href="/create/feature" role="button">Create Job (Functional)</a>
+        {{#buttons}}
+        <a class="btn btn-default right" href="{{ url }}" role="button">{{ name }}</a>
+        {{/buttons}}
       </div>
     </h3>
   </div>
@@ -33,33 +34,37 @@
           <a href="/view/{{ name }}/last">{{ name }}</a>
           <a href="{{ url }}">(jenkins)</a>
         </td>
-        <td><a href="/edit/{{ name }}" class="label label-default">{{ type }}</a></td>
+        <td>
+          <a href="/{{ namespace }}/edit/{{ name }}" class="label label-default">
+          {{ type }}
+          </a>
+        </td>
         <td>
           {{#lastSuccessfulBuild}}
-          <a href="/view/{{ name }}/{{ lastSuccessfulBuild.number }}">
+          <a href="/{{ namespace }}/view/{{ name }}/{{ lastSuccessfulBuild.number }}">
           {{ lastSuccessfulBuild.moment }}
           </a>
           {{/lastSuccessfulBuild}}
         </td>
         <td>
           {{#lastFailedBuild}}
-          <a href="/view/{{ name }}/{{ lastFailedBuild.number }}">
+          <a href="/{{ namespace }}/view/{{ name }}/{{ lastFailedBuild.number }}">
           {{ lastFailedBuild.moment }}
           </a>
           {{/lastFailedBuild}}
         </td>
         <td>
           {{#lastBuild}}
-          <a href="/view/{{ name }}/{{ lastBuild.number }}">
+          <a href="/{{ namespace }}/view/{{ name }}/{{ lastBuild.number }}">
           {{ lastBuild._duration }}
           </a>
           {{/lastBuild}}
         </td>
         <td>
           <div class="btn-group right">
-            <a href="/view/{{ name }}/build" class="btn btn-default" role="button">Run</a>
-            <a class="btn btn-default" href="/edit/{{ name }}" role="button">Edit</a>
-            <a class="btn btn-danger" href="/delete/{{ name }}" role="button" onclick="return confirm('Sure ?')">Delete</a>
+            <a class="btn btn-default" href="/view/{{ name }}/build" role="button">Run</a>
+            <a class="btn btn-default" href="/{{ namespace }}/edit/{{ name }}" role="button">Edit</a>
+            <a class="btn btn-danger"  href="/delete/{{ name }}" role="button" onclick="return confirm('Sure ?')">Delete</a>
           </div>
         </td>
       </tr>

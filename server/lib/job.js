@@ -109,8 +109,10 @@ Job.prototype.config = function(err, config) {
     job.json = JSON.stringify(jsonconfig, null, 2);
 
     job.type = 'phantomas';
+    job.namespace = 'p';
     if (job.config && job.config.features) {
       job.type = 'feature';
+      job.namespace = 'f';
     }
 
     var phantomas = {};

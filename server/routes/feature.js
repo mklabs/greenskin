@@ -19,10 +19,13 @@ var mochaSteps = [{ name: 'stepfile.js', body: '' }];
 mochaSteps[0].body = fs.readFileSync(path.join(__dirname, '../test/mocha-stepfile.js'), 'utf8');
 
 
+// Helpers
+
 function createQueue(ws) {
   var jobs = kue.createQueue();
 
   // Job processing
+  debug('Creating kue processing for phantom feature');
   jobs.process('phantom feature', 5, function(job, next) {
     var runtmpdir = job.data.runtmpdir;
     var configfile = path.join(runtmpdir, 'config.json');
@@ -30,7 +33,7 @@ function createQueue(ws) {
     var data = job.data.data;
 
     job.data.job = job;
-    runFeature(ws, job.data, next);   
+    runFeature(ws, job.data, next);
   });
 }
 
@@ -73,7 +76,7 @@ function runFeature(ws, job, next) {
           msg = data.data.join(' ');
           filmstrip = (msg.match(/Film strip: rendered to ([^\s]+) in/) || [])[1];
           if (filmstrip) {
-            ws.sockets.emit('step.' + timestamp, { file: '/tmp/' + timestamp + '/' + filmstrip });
+            ws.sockets.emit('step.' + timestamp, { file: '/f/tmp/' + timestamp + '/' + filmstrip });
           }
 
           ws.sockets.emit('log.' + timestamp, { line: (data.event === 'log' ? '' : data.event + ' - ') + data.data.join(' ') + '\n'});
@@ -88,7 +91,7 @@ function runFeature(ws, job, next) {
         if (job.data.job) job.data.job.log(chunk);
         if (endstep || failstep) {
           screencount++;
-          ws.sockets.emit('step.' + timestamp, { file: '/tmp/' + timestamp + '/step-screens/step-' + screencount + '.png' });
+          ws.sockets.emit('step.' + timestamp, { file: '/f/tmp/' + timestamp + '/step-screens/step-' + screencount + '.png' });
         }
         if (ws) ws.sockets.emit('log.' + timestamp, { line: chunk });
       });
@@ -119,19 +122,22 @@ function runFeature(ws, job, next) {
   });
 }
 
+// Routes
+
 module.exports = function(app) {
   var tmpdir = path.join(__dirname, '../tmp');
 
   var ws = app.ws;
 
+  debug('Init feature subapp', app.kue);
   if (app.kue) createQueue(ws);
 
   // For browsing temporary workspaces
-  app.use('/tmp', express.static(tmpdir));
-  app.use('/tmp', express.directory(tmpdir));
+  app.use('/f/tmp', express.static(tmpdir));
+  app.use('/f/tmp', express.directory(tmpdir));
 
   // Job creation
-  app.get('/create/feature', function(req, res, next) {
+  app.get('/f/create', function(req, res, next) {
     var job = new Job('', next, {
       xmlTemplate: 'feature'
     });
@@ -139,13 +145,13 @@ module.exports = function(app) {
     job.on('end', function(data) {
       data.title = 'Create job';
       data.action = '/api/create';
-      data.runUrl = '/create/run-feature/';
+      data.runUrl = '/f/create/run-feature/';
       data.job.json = JSON.stringify(data.job.config);
       res.render('create-feature', data);
     });
   });
 
-  app.post('/create/run-feature', function(req, res, next) {
+  app.post('/f/create/run-feature', function(req, res, next) {
     var params = req.body;
     var config = params.config;
     var timestamp = params.timestamp;
@@ -186,6 +192,8 @@ module.exports = function(app) {
 
     var jobs = kue.createQueue();
     var job = jobs.create('phantom feature', jobdata).save();
+
+    debug('Kue process %s %d', jobdata.title, jobdata.timestamp);
     job.on('complete', function(e) {
       debug('Job complete', runtmpdir);
       if (e) return next(e);
@@ -193,7 +201,7 @@ module.exports = function(app) {
           if (err) return next(err);
           res.json({
             timestamp: timestamp,
-            workspace: '/tmp/' + timestamp,
+            workspace: '/f/tmp/' + timestamp,
             screens: files
           });
         });

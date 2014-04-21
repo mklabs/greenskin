@@ -16,20 +16,16 @@ module.exports = function(app) {
 
   var actives = [];
   (function next() {
-    debug('Pooling queue');
-
     setTimeout(function() {
       requestQueue(function(err, data) {
         if (err) debug('Queue err', err);
-        debug('Queue', data);
-
         var items = data.items || [];
         var ids = items.map(function(q) {
           return q.id;
         });
 
         var removed = actives.filter(function (queue) {
-          return !~ids.indexOf(queue.id); 
+          return !~ids.indexOf(queue.id);
         });
 
         removed.forEach(function(q) {

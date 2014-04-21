@@ -133,7 +133,7 @@ exports.edit = function edit(req, res, next) {
     var template = 'create';
     if (data.job.feature) {
       template = 'create-feature';
-      data.runUrl = '/create/run-feature/';
+      data.runUrl = '/f/create/run-feature/';
     }
 
     res.render(template, data);
@@ -205,7 +205,7 @@ exports.metrics = function metrics(req, res, next) {
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
-    
+
     var assertMode = data.assertMode = /\/asserts$/.test(req.url);
     var metricsMode = data.metricsMode = /\/metrics$/.test(req.url);
 
@@ -266,7 +266,7 @@ exports.metrics = function metrics(req, res, next) {
 };
 
 
-exports.metric = function metric(req, res, next) {
+exports.metric = function _metric(req, res, next) {
   var name = req.params.name;
   var metric = req.params.metric;
 
@@ -281,7 +281,7 @@ exports.metric = function metric(req, res, next) {
       next(e);
       return;
     }
-    
+
     var data = metrics[metric] || {};
     res.json(data);
   });
@@ -394,7 +394,7 @@ exports.buildView = function buildView(req, res, next) {
           url: url,
           id: id,
           jenkinsHar: jenkinsBase + id + '/har.json',
-          localHar: '/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
+          localHar: '/p/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
           jenkinsFilmstripDir: jenkinsBase + id + '/filmstrip/',
           fileindex: fileindex
         };
@@ -444,7 +444,7 @@ exports.search = function search(req, res, next) {
       number: job.lastBuild.number,
       lastBuildTime: moment(job.lastBuild.timestamp).format('llll'),
       jobUrl: job.lastBuild.url,
-      webUrl: '/view/' + job.name + '/' + job.lastBuild.number,
+      webUrl: '/' + job.namespace  + '/view/' + job.name + '/' + job.lastBuild.number,
       duration: moment.duration(job.lastBuild.duration).humanize(),
       finished: moment(job.lastBuild.timestamp).fromNow(),
       color: /failure/.test(result) ? 'red' :

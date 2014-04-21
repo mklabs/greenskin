@@ -14,12 +14,15 @@
 <ul class="nav nav-tabs job-tabs">
   <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
   <li class="active"><a href="#current" data-toggle="tab">Build History</a></li>
-  
-  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
-  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
 
-  <li><a href="/edit/{{ job.name }}">Edit</a></li>
+  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+
+  <li>
+    <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
+  </li>
 </ul>
+
 
 <!-- Tab panes -->
 <div class="tab-content">
@@ -38,12 +41,12 @@
         {{#builds}}
         <tr>
           <td>
-            <a href="/view/{{ name }}/{{number}}">
+            <a href="/{{ job.namespace }}/view/{{ name }}/{{number}}">
               <div class="doony-circle doony-circle-{{ color }}{{#animated}} bounceIn animated infinite{{/animated}}" style="display: inline-block; margin-top: 4px; margin-left: 4px; width: 24px; height: 24px;"></div>
             </a>
           </td>
           <td>
-            <a href="/view/{{ name }}/{{number}}">
+            <a href="/{{ job.namespace }}/view/{{ name }}/{{number}}">
               #{{ number }}
             </a>
           </td>
@@ -53,7 +56,7 @@
             <span class="small">({{ fromNow }})</small>
           </td>
           <td>
-            <a href="/view/{{ name }}/{{ number }}">
+            <a href="/{{ job.namespace }}/view/{{ name }}/{{number}}">
             {{ duration }}
             </a>
           </td>

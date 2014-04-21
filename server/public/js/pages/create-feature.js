@@ -100,7 +100,7 @@
     socket.on('log.' + timestamp, logHandler);
     socket.on('step.' + timestamp, imgHandler);
 
-    log.html('Job workspace: <a class="grey" href="/tmp/' + timestamp + '">/tmp/' + timestamp + '</a>\n');
+    log.html('Job workspace: <a class="grey" href="/f/tmp/' + timestamp + '">/f/tmp/' + timestamp + '</a>\n');
     log.closest('.row').find('.js-imgs').empty();
 
     var req = $.ajax({
@@ -242,7 +242,7 @@
       if (target.classList.contains('js-gothrough') || $(target).closest('.js-gothrough').length) {
         return;
       }
-      
+
       e.preventDefault();
 
       var row = target.parentElement;
@@ -312,7 +312,6 @@
   };
 
   CreateFeaturePage.addImage = function addImage(log, data) {
-    console.log('addImage', data);
     var file = data.file;
     var row = log.closest('.row');
     var imgbox = row.find('.js-imgs');
@@ -398,7 +397,7 @@
     var keywordReg = /^(Given|And|Then|When)/;
     var keyword = (text.match(keywordReg) || [])[1];
 
-    var el = line.get(0);
+    var element = line.get(0);
     var found = false;
     if (keyword === 'And') {
       (function lookupKeyword(item) {
@@ -413,7 +412,7 @@
         } else {
           lookupKeyword(prev);
         }
-      })(el);
+      })(element);
     }
 
     var reg = text
@@ -435,33 +434,14 @@
     snippet += '  done();\n';
     snippet += '});';
 
-    console.log(snippet);
 
     var dialog = $('.js-dialog');
-
-    var editor = dialog.find('.js-codemirror').eq(0).data('codemirror'); 
+    var editor = dialog.find('.js-codemirror').eq(0).data('codemirror');
     var code = editor.getValue();
     var newcode = snippet + '\n\n' + code;
     editor.setValue(newcode);
 
     dialog.modal('show');
-
-    return;
-    var url = self.stepdir + filename;
-    var post = $.ajax({
-      type: 'POST',
-      url: url,
-      data: {
-        code: snippet
-      }
-    });
-
-    post.success(function() {
-         location.href = url;
-    });
-
-    console.log(reg);
-    console.log(snippet);
   };
 
 
