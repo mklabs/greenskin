@@ -1,102 +1,111 @@
+var debug   = require('debug')('server:app');
 
-/**
- * Module dependencies.
- */
+var cluster = require('cluster');
+var workers = require('os').cpus().length;
+if (cluster.isMaster) {
+  debug('Cluster worker size', workers);
+  for (var i = 0; i < workers; i++) {
+    debug('Forked cluster', i + 1);
+    cluster.fork();
+  }
 
+  return;
+}
+
+var fs      = require('fs');
+var http    = require('http');
+var path    = require('path');
 var express = require('express');
-var routes = require('./routes');
-var feature = require('./routes/feature');
+var kue     = require('kue');
+var redis   = require('redis');
+var io      = require('socket.io');
+var routes  = require('./routes');
 
-var fs = require('fs');
-var http = require('http');
-var path = require('path');
-var request = require('request');
-
-var io = require('socket.io');
-
+// Config
 var config = require('./package.json').config;
 config.jenkinsUrl = require('url').parse(config.jenkins);
 config.jenkinsHost = config.jenkinsUrl.host + config.jenkinsUrl.pathname;
 
+// App
 var app = express();
+var server = http.createServer(app);
+var ws = app.ws = io.listen(server);
+ws.set('log level', 1);
 
-// all environments
+// Views hack to get subapp works nicely with multiple directories.
+//
+// Monkey patching express for multiple directories lookup, and hjs for basic layout system.
+require('./lib/views')(app);
+
+// App configuration
 app.set('port', process.env.PORT || 3000);
-app.set('views', path.join(__dirname, 'views'));
 
-// Lame layout system hack
-var hjs = require('hjs');
-var __express = hjs.__express;
-hjs.__express = function(name, options, fn) {
-	var layout = options._layout || 'layout';
-	__express(name, options, function(err, body) {
-		if (err) return fn(err);
-		fs.readFile(path.join(__dirname, 'views', layout + '.hjs'), 'utf8', function(err, layout) {
-			if (err) return fn(err);
-			var tpl = hjs.compile(layout);
-			options.yield = body;
-			return fn(null, tpl.render(options));
-		});
-	});
+// Check redis connection, we can live without.
+//
+// Used to indicate if the app have been able to connect to redis, otherwise will fallback to direct invocation.
+app.kue = true;
+kue.redis.createClient = function() {
+  var client = redis.createClient();
+  client.on('error', function(err) {
+    app.kue = false;
+    debug('Redis connection error', err.stack);
+    debug('Will fallback to direct invocation. Consider checking it\'s running, or installed (Default port)');
+  });
+
+  return client;
 };
 
-app.set('view engine', 'hjs');
-app.use(express.favicon());
+app.use('/kue', express.basicAuth('kue', 'kue'));
+app.use('/kue', kue.app);
+
+// Middlewares
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.directory(__dirname));
 
-// development only
-if ('development' == app.get('env')) {
+if ('development' === app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// App locals
+//
+// Subapps may edit this to hook into the system, such as adding new buttons to homepage, by doing so in the `mount` event.
+
+// List of create jobs buttons
+app.locals.buttons = [];
+
+// Routing
+
+// General
 app.get('/', routes.index);
-app.get('/create', routes.create);
-app.get('/view/:name', routes.view);
-app.get('/edit/:name', routes.edit);
 
-app.get('/view/:name/asserts', routes.metrics);
-app.get('/view/:name/metrics', routes.metrics);
-
-app.get('/view/:name/asserts/:metric', routes.metric);
-app.get('/view/:name/metrics/:metric', routes.metric);
-app.post('/view/:name/asserts/:metric', routes.api.metric);
-app.post('/view/:name/metrics/:metric', routes.api.metric);
-
-app.post('/view/:name/asserts/:metric/del', routes.api.metricDelete);
-app.post('/view/:name/metrics/:metric/del', routes.api.metricDelete);
-
+// Maybe generic enough to not be part of a namespace
+// Subapp would only need to point the the parent app, eg. /
 app.get('/view/:name/run', routes.run);
 app.get('/view/:name/build', routes.run);
-
 app.get('/view/:name/last', routes.lastBuild);
 app.get('/view/:name/current', routes.lastBuild);
-
-app.get('/view/:name/:number', routes.buildView);
-app.get('/har/:name/:number/:url.json', routes.har);
-
 app.get('/delete/:name', routes.destroy);
 app.post('/api/create', routes.api.create);
 app.post('/api/edit', routes.api.edit);
+app.post('/search', routes.search);
 
-// Proxy /jenkins prefix to jenkins instance
-if (config.proxy) app.all(/\/(jenkins|static)\/?.*/, function(req, res, next) {
-	var pathname = req.url.replace(/^\/jenkins\/?/, '');
-	var url = config.jenkins + pathname;
-	req.pipe(request(url)).pipe(res);
-});
+// Phantomas jobs
+app.use('/p', require('./lib/phantomas'));
 
-var server = http.createServer(app);
-var ws = app.ws = io.listen(server);
+// Feature jobs
+app.use('/f', require('./lib/feature'));
+
+// Browsertime jobs
+app.use('/bt', require('./lib/browsertime'));
+
+// Experiment with Queue API
+// require('./lib/pool-queue')(app);
 
 server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
-// Experiment with Gherkin editing
-require('./routes/feature')(app);

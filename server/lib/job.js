@@ -28,6 +28,11 @@ function Job(name, next, options) {
   this.name = name;
   this.next = next;
   this.xmlTemplate = templates[this.options.xmlTemplate || 'phantomas'];
+  if (this.options.xml) {
+    debug('Provided XML prop, using as raw template.');
+    this.xmlTemplate = this.options.xml;
+  }
+
   this.init();
 }
 
@@ -97,7 +102,9 @@ Job.prototype.config = function(err, config) {
         var data = {};
         try {
           data = JSON.parse(param.defaultValue[0]);
-        } catch(e) {}
+        } catch(e) {
+          console.error(e);
+        }
 
         return data;
       })[0];
@@ -107,8 +114,10 @@ Job.prototype.config = function(err, config) {
     job.json = JSON.stringify(jsonconfig, null, 2);
 
     job.type = 'phantomas';
+    job.namespace = 'p';
     if (job.config && job.config.features) {
       job.type = 'feature';
+      job.namespace = 'f';
     }
 
     var phantomas = {};
@@ -119,6 +128,17 @@ Job.prototype.config = function(err, config) {
     } else if (job.type === 'feature') {
       job.feature = true;
     }
+
+    // TODO: Find a way to do that matching from subapps
+    debug('Checking job %s for browsertime ADN', job.name, job.config);
+    if (job.config && job.config.type === 'browsertime') {
+      job.type = 'browsertime';
+      job.namespace = 'bt';
+      job.phantomas = true;
+      job.feature = false;
+    }
+
+    job.red = job.color === 'red' || job.color === 'yellow';
 
     debug('Render all');
 

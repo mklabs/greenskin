@@ -29,7 +29,7 @@
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue>{"no-externals":true,"allow-domain":".kk-data.com","asserts":{}}</defaultValue>
+          <defaultValue><![CDATA[{"no-externals":true,"allow-domain":".kk-data.com","asserts":{}}]]></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
@@ -212,7 +212,6 @@ async.series(
       
     // this function is called when phantomas is done with all runs
     function doneFn() {
-      console.log('Testing metrics', metrics);
       fs.writeFileSync('./metrics.json', JSON.stringify(metrics, null, 2));
 
       // pass error code from PhantomJS process

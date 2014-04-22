@@ -6,7 +6,7 @@ Then(/I fill "([^"]+)" in "([^"]+)"/, function(value, name, done) {
       return true;
     }, value, name);
   
-    if (!ok) return done(new Error('Cannot get input ' + name));
+    if (!ok) return done(new Error('Cannot get input s' + name));
   
     done();
 });

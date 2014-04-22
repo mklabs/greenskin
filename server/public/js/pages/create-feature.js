@@ -15,6 +15,17 @@
 
     this.submit();
     this.initTableFromJSON();
+    this.initDialogFromJSON();
+
+    var form = this.$el;
+    $('.js-submit').on('click', function() {
+      form.submit();
+    });
+
+    $(document).on('dblclick', '.js-full', function(e) {
+      var el = $(e.target).closest('.js-full');
+      screenfull.toggle(el[0]);
+    });
 
     var socket = this.socket = io.connect(location.hostname + ':3000');
   };
@@ -64,14 +75,13 @@
       }
     });
 
-    textareas.next('.CodeMirror').addClass('form-control');
+    textareas.next('.CodeMirror').addClass('form-control js-full');
     textareas.data('codemirror', cm);
   };
 
   CreateFeaturePage.run = function run(log, editor) {
     log = log || this.log;
 
-    log.html('Running ' + this.runUrl + ' ...\n');
 
     var error = this.validateTable(log.closest('tr'));
 
@@ -85,7 +95,13 @@
 
     var socket = this.socket;
     var logHandler = this.addLog.bind(this, log);
+    var imgHandler = this.addImage.bind(this, log);
+
     socket.on('log.' + timestamp, logHandler);
+    socket.on('step.' + timestamp, imgHandler);
+
+    log.html('Job workspace: <a class="grey" href="/f/tmp/' + timestamp + '">/f/tmp/' + timestamp + '</a>\n');
+    log.closest('.row').find('.js-imgs').empty();
 
     var req = $.ajax({
       method: 'POST',
@@ -96,7 +112,9 @@
       }
     });
 
-    req.success(function() {
+    req.success(function(data) {
+      var ws = data.workspace;
+      log.append('<span class="grey"><a class="grey" href="' + ws + '">' + ws + '</a></span>');
       console.log('OK', arguments);
     });
 
@@ -106,6 +124,7 @@
 
     req.complete(function() {
       socket.removeListener('log.' + timestamp, logHandler);
+      socket.removeListener('step.' + timestamp, imgHandler);
     });
   };
 
@@ -128,6 +147,7 @@
   CreateFeaturePage.serializeTable = function serializeTable(rows) {
     var data = {};
     var features = data.features = [];
+    var steps = data.steps = [];
 
     rows.each(function() {
       var row = $(this);
@@ -139,6 +159,28 @@
         name: name,
         body: body
       });
+    });
+
+    data.steps = this.serializeDialog();
+
+    return data;
+  };
+
+  CreateFeaturePage.serializeDialog = function serializeDialog() {
+    var editors = this.editors;
+
+    var data = [];
+    var codemirrors = $('.js-dialog .js-codemirror');
+
+    codemirrors.each(function() {
+      var codemirror = $(this);
+      var editor = codemirror.data('codemirror');
+      var name = codemirror.data('name');
+      data.push({
+        name: name,
+        body: editor.getValue()
+      });
+
     });
 
     return data;
@@ -194,9 +236,14 @@
 
     // Click links toggle edit mode
     el.addEventListener('click', function(e) {
-      e.preventDefault();
       var target = e.target;
       if (!target) return;
+
+      if (target.classList.contains('js-gothrough') || $(target).closest('.js-gothrough').length) {
+        return;
+      }
+
+      e.preventDefault();
 
       var row = target.parentElement;
       var input = row.querySelector('.js-input');
@@ -213,6 +260,15 @@
 
       if (target.classList.contains('js-delete')) {
         $(target).closest('tr').remove();
+      }
+
+      if (target.classList.contains('js-run')) {
+        self.run($(target).closest('.js-log'));
+      }
+
+
+      if (target.classList.contains('js-pending')) {
+        self.pending(target);
       }
 
     }, true);
@@ -255,13 +311,23 @@
     log.append(tokens.join(''));
   };
 
+  CreateFeaturePage.addImage = function addImage(log, data) {
+    var file = data.file;
+    var row = log.closest('.row');
+    var imgbox = row.find('.js-imgs');
+    var img = $('<img src="' + file + '" />').attr('width', 200).attr('height', 120);
+    var a = $('<a class="thumbnail left js-gothrough" target="_blank"/>').attr('href', file).append(img);
+    imgbox.append(a);
+  };
+
+
   CreateFeaturePage.initTableFromJSON = function initTableFromJSON() {
-    var json = this.$el.find('[name=json_config]');
+    var json = this.$el.find('.js-jsonconfig');
     if (!json.length) return;
 
     var data = {};
     try {
-      data = JSON.parse(json.val());
+      data = JSON.parse(json.text());
     } catch(e) {}
 
     var el = this.el;
@@ -283,6 +349,101 @@
       editor.setValue(feature.body);
     }, this);
   };
+
+
+  CreateFeaturePage.initDialogFromJSON = function initTableFromJSON() {
+    var json = this.$el.find('.js-jsonconfig');
+    if (!json.length) return;
+
+    var data = {};
+    try {
+      data = JSON.parse(json.text());
+    } catch(e) {}
+
+    var dialog = $('.js-dialog');
+    var code = dialog.find('.js-code');
+    var dialogBody = dialog.find('.modal-body');
+    var steps = data.steps || [];
+    var editors = [];
+
+    steps.forEach(function(step) {
+      var div = $('<div class="js-codemirror codemirror" />').data('name', step.name);
+      div.appendTo(dialogBody);
+      var editor = CodeMirror(div[0], {
+        value: step.body,
+        mode:  "javascript"
+      });
+
+      div.data('codemirror', editor);
+      editors.push(editor);
+    });
+
+    dialog.find('.CodeMirror').addClass('js-full');
+
+    dialog.on('shown.bs.modal', function() {
+      editors.forEach(function(ed) {
+        ed.refresh();
+      });
+
+    });
+  };
+
+  CreateFeaturePage.pending = function pending(el) {
+    var line = $(el);
+    var text = line.text();
+
+    text = text.trim().replace(/^-\s*/, '');
+
+    var keywordReg = /^(Given|And|Then|When)/;
+    var keyword = (text.match(keywordReg) || [])[1];
+
+    var element = line.get(0);
+    var found = false;
+    if (keyword === 'And') {
+      (function lookupKeyword(item) {
+        if (found) return;
+        if (!item) return;
+        var prev = item.previousSibling;
+        var txt = prev.innerText.trim().replace(/^-\s*/, '');
+        var kwd = (txt.match(/^(Given|Then|When)/) || [])[1];
+        if (kwd) {
+          found = true;
+          keyword = kwd;
+        } else {
+          lookupKeyword(prev);
+        }
+      })(element);
+    }
+
+    var reg = text
+      .replace('(Pending)', '')
+      .replace('(Click to implement)', '');
+
+    reg = reg.replace(/"[^"]+"/g, '"([^"]+)"');
+
+    var args = (reg.match(/\"\(\[\^\"\]\+\)\"/g) || []);
+
+    args = args.map(function(arg, i) {
+      return 'arg' + i;
+    });
+
+    args.push('done');
+
+    reg = reg.replace(keywordReg, '').trim();
+    var snippet = keyword + '(/' + reg + '/, function(' + args.join(', ') + ') {\n';
+    snippet += '  done();\n';
+    snippet += '});';
+
+
+    var dialog = $('.js-dialog');
+    var editor = dialog.find('.js-codemirror').eq(0).data('codemirror');
+    var code = editor.getValue();
+    var newcode = snippet + '\n\n' + code;
+    editor.setValue(newcode);
+
+    dialog.modal('show');
+  };
+
 
   $(function() {
     $('.js-job-feature-form').each(function() {

@@ -18,7 +18,7 @@
         e.preventDefault();
         if (screenfull.enabled) {
           screenfull.request(self.el);
-        } 
+        }
       });
 
     },
@@ -45,14 +45,14 @@
 
     drawAssertLine: function(c) {
         var chart = c instanceof Highcharts.Chart ? c : this.chart;
-        
+
         var assert = this.data.assert;
         if (!assert) return;
         if (!chart) return;
 
         var y = chart.yAxis[0];
         var pixel = y && y.toPixels(assert);
-        var off = chart.axisOffset[3]
+        var off = chart.axisOffset[3];
 
         // Draw horizontal line at assert level
         if (this.line) this.line.destroy();
@@ -69,7 +69,7 @@
     create: function(el, options) {
       var me = Object.create(HView);
       me.init(el);
-      
+
       $(el).data('graph', me);
     }
   };
@@ -127,7 +127,7 @@
 
       group.addClass('js-row');
 
-      var select = tpl.find('.js-select-metrics')
+      var select = tpl.find('.js-select-metrics');
       select.val(name).attr('disabled', 'disabled').addClass('form-control').hide();
       tpl.find('.js-value-metrics').text(name);
 
@@ -161,7 +161,6 @@
     var metric = group.find('.js-select-metrics').select2('val');
     if (typeof metric !== 'string') metric = graph.data('name');
     var assert = group.find('.js-value').val();
-    var graph = group.find('.js-highchart');
 
     var req = $.ajax({
       url: location.pathname + '/' + metric
@@ -204,7 +203,7 @@
 
   $(function() {
     var charts = $('.js-graphs');
-      
+
     $('.js-graph').each(function() {
       HView.create(this);
     });
@@ -212,7 +211,7 @@
     $('.js-graphs').each(function() {
         var graph = Object.create(Graphs);
         graph.init(this);
-        
+
         $(this).data('graph', graph);
     });
 

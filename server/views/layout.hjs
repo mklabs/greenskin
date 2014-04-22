@@ -17,23 +17,66 @@
   <link rel="stylesheet" href="/vendor/animate.css">
   {{{ moreCss }}
 </head>
-<body>
-  <nav class="navbar navbar-default navbar-static-top" role="navigation">
-	<div class="container-fluid">
-	  <h1>
-      <a href="/" class="small">
-        <span class="glyphicon glyphicon-home"></span>
-      </a>
-      <span class="small">/</span>
-      <span class="page-title">
-        {{ title }}
-      </span>
-    </h1>
-	</div>
+<body class="app">
+  <nav class="navbar navbar-default navbar-static-top app-top" role="navigation">
+  	<div class="container-fluid">
+  	  <div class="navbar-header navbar-brand">
+        <a href="/" class="navbar-link">
+          <span class="glyphicon glyphicon-home"></span>
+        </a>
+        <span class="small">/</span>
+        <span class="page-title">
+          {{ title }}
+        </span>
+      </div>
+
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/jenkins">Jenkins</a></li>
+          {{#kue}}<li><a href="/kue">Kue</a></li>{{/kue}}
+        </ul>
+      </div>
+  	</div>
   </nav>
 
-  <div class="container-fluid">
-	  {{{ yield }}}
+  <div class="js-queue app-left">
+    <form class="search-box">
+      <input class="text-field form-control js-input" placeholder="Search all jobs" type="text">
+    </form>
+
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#" class="js-toggle js-toggle-queue">Build Queue</a></li>
+      <li class="is-hidden"><a href="#" class="js-toggle js-toggle-search">Search</a></li>
+    </ul>
+
+    <div class="left-tabs-content js-tabs">
+      <div class="js-tab js-queue-list"></div>
+      <div class="js-tab js-search-list"></div>
+    </div>
+
+    <a href="#" class="list-group-item js-row-template is-hidden">
+      <span class="list-group-item-heading title js-title status-txt">
+        List group item heading
+      </span>
+
+      <span class="last-build js-last-build status-txt"></span>
+      <p class="list-group-item-text js-why">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+
+      <p class="summary">
+        <span class="duration_label">Duration:</span>
+        <abbr class="duration js-duration" title=""></abbr>
+      </p>
+
+      <p class="summary">
+        <span class="finished-icon"></span><span class="finished_at_label">Finished:</span>
+        <abbr class="duration js-finished" title=""></abbr>
+      </p>
+    </a>
+
+  </div>
+  <div class="app-main container-fluid">
+    {{{ yield }}}
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -56,7 +99,9 @@
   <script src="/vendor/jquery-ui.min.js"></script>
   <script src="/vendor/har-viewer.js"></script>
   <script src="/vendor/ansiparse.js"></script>
+  <script src="/vendor/bootstrap-modal.js"></script>
 
+  <script src="/js/pages/queue.js"></script>
   <script src="/js/pages/create.js"></script>
   <script src="/js/pages/create-feature.js"></script>
   <script src="/js/pages/build.js"></script>

@@ -17,7 +17,7 @@
     this.codemirror();
     this.events();
 
-    var socket = this.socket = io.connect('/');
+    var socket = this.socket = io.connect(location.host + ':3000');
     this.socket.on('log', function(data) {
         var ansiparsed = ansiparse(data.line);
         var tokens = ansiparsed.map(function(token) {
@@ -41,73 +41,73 @@
     });
 
     this.$el.on('click', '.js-pending', function(e) {
-    e.preventDefault();
-    var filename = prompt('Filename:');
-    if (!filename) return;
+      e.preventDefault();
+      var filename = prompt('Filename:');
+      if (!filename) return;
 
-    if (!/\.js$/.test(filename)) filename = filename + '.js';
+      if (!/\.js$/.test(filename)) filename = filename + '.js';
 
-    var line = $(e.target);
-    var text = line.text();
+      var line = $(e.target);
+      var text = line.text();
 
-    text = text.trim().replace(/^-\s*/, '');
+      text = text.trim().replace(/^-\s*/, '');
 
-    var keywordReg = /^(Given|And|Then|When)/;
-    var keyword = (text.match(keywordReg) || [])[1];
+      var keywordReg = /^(Given|And|Then|When)/;
+      var keyword = (text.match(keywordReg) || [])[1];
 
-    var el = line.get(0);
-    var found = false;
-    if (keyword === 'And') {
-      (function lookupKeyword(item) {
-        if (found) return;
-        if (!item) return;
-        var prev = item.previousSibling;
-        var txt = prev.innerText.trim().replace(/^-\s*/, '');
-        var kwd = (txt.match(/^(Given|Then|When)/) || [])[1];
-        if (kwd) {
-          found = true;
-          keyword = kwd;
-        } else {
-          lookupKeyword(prev);
-        }
-      })(el);
-    }
-
-    var reg = text
-      .replace('(Pending)', '')
-      .replace('(Click to implement)', '');
-
-    reg = reg.replace(/"[^"]+"/g, '"([^"]+)"');
-
-    var args = (reg.match(/\"\(\[\^\"\]\+\)\"/g) || []);
-
-    args = args.map(function(arg, i) {
-      return 'arg' + i;
-    });
-
-    args.push('done');
-
-
-    reg = reg.replace(keywordReg, '').trim();
-    var snippet = keyword + '(/' + reg + '/, function(' + args.join(', ') + ') {\n';
-    snippet += '  done();\n';
-    snippet += '});';
-
-    var url = self.stepdir + filename;
-    var post = $.ajax({
-      type: 'POST',
-      url: url,
-      data: {
-        code: snippet
+      var el = line.get(0);
+      var found = false;
+      if (keyword === 'And') {
+        (function lookupKeyword(item) {
+          if (found) return;
+          if (!item) return;
+          var prev = item.previousSibling;
+          var txt = prev.innerText.trim().replace(/^-\s*/, '');
+          var kwd = (txt.match(/^(Given|Then|When)/) || [])[1];
+          if (kwd) {
+            found = true;
+            keyword = kwd;
+          } else {
+            lookupKeyword(prev);
+          }
+        })(el);
       }
-    });
 
-    post.success(function() {
-         location.href = url;
-    });
+      var reg = text
+        .replace('(Pending)', '')
+        .replace('(Click to implement)', '');
 
-    console.log(reg);
-    console.log(snippet);
+      reg = reg.replace(/"[^"]+"/g, '"([^"]+)"');
+
+      var args = (reg.match(/\"\(\[\^\"\]\+\)\"/g) || []);
+
+      args = args.map(function(arg, i) {
+        return 'arg' + i;
+      });
+
+      args.push('done');
+
+
+      reg = reg.replace(keywordReg, '').trim();
+      var snippet = keyword + '(/' + reg + '/, function(' + args.join(', ') + ') {\n';
+      snippet += '  done();\n';
+      snippet += '});';
+
+      var url = self.stepdir + filename;
+      var post = $.ajax({
+        type: 'POST',
+        url: url,
+        data: {
+          code: snippet
+        }
+      });
+
+      post.success(function() {
+           location.href = url;
+      });
+
+      console.log(reg);
+      console.log(snippet);
     });
 
     this.$el.on('mouseover', '.js-pending', function(e) {

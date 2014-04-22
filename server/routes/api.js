@@ -21,10 +21,13 @@ exports.metric = function metric(req, res, next){
   var name = req.params.name;
   var key = req.params.metric;
 
+  debug('Edit ...', value, name);
   if (isNaN(value)) return next(req.body.value + ' not a valid number');
 
   var job = new Job(name, next);
+  debug('Create job', name);
   job.on('end', function(data) {
+    debug('Ended');
     var json = data.job.json;
     try {
       json = JSON.parse(json);
@@ -42,7 +45,7 @@ exports.metric = function metric(req, res, next){
     jenkins.job.config(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job edition OK');
-      res.json({ ok: true, redirect: '/view/' + name + '/asserts' });
+      res.json({ ok: true, redirect: '/p/view/' + name + '/asserts' });
     });
   });
 };
@@ -71,17 +74,17 @@ exports.metricDelete = function metricDelete(req, res, next){
     jenkins.job.config(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job edition OK');
-      res.json({ ok: true, redirect: '/view/' + name + '/asserts' });
+      res.json({ ok: true, redirect: '/p/view/' + name + '/asserts' });
     });
   });
 };
 
 exports.create = function create(req, res, next){
   var params = req.body;
-  debug('API create', params);
 
   params.urls = params.urls || [];
-  params.json_config = params.json_config || params.jsonconfig || params.config || {};
+  params.json_config = params.json_config || params.jsonconfig || params.config || '{}';
+  debug('API create', params);
 
   // Get back XML file from job template param
   fs.readFile(path.join(__dirname, '../data', params.template + '.xml'), 'utf8', function(err, xml) {
@@ -103,7 +106,7 @@ exports.create = function create(req, res, next){
 
     if (params.template === 'feature') {
       xml = xml.replace('SCRIPT_BODY', function() {
-        return mochaRunner;        
+        return mochaRunner;
       });
 
       if (!jsonconfig.steps) {
@@ -131,6 +134,9 @@ exports.edit = function edit(req, res, next){
   var urls = params.urls || [];
   debug('API edit', urls);
 
+  // TODO: Abstract away by initing a new Job
+  var namespace = 'p';
+
   var xml = replaceUrlsXML(params.xml, urls);
   xml = replaceTimerXML(xml, params.cron);
 
@@ -146,7 +152,12 @@ exports.edit = function edit(req, res, next){
     if (!jsonconfig.steps) {
       jsonconfig.steps = mochaSteps;
       params.json_config = JSON.stringify(jsonconfig);
+      namespace = 'f';
     }
+  }
+
+  if (params.template === 'browsertime') {
+    namespace = 'bt';
   }
 
   xml = replaceJSONConfig(xml, params.json_config);
@@ -156,7 +167,7 @@ exports.edit = function edit(req, res, next){
   jenkins.job.config(params.name, xml, function(err) {
     if (err) return next(err);
     debug('Jenkins job edition OK');
-    res.redirect('/view/' + name + '/last');
+    res.redirect(namespace + '/edit/' + name);
   });
 };
 
@@ -209,7 +220,8 @@ function replaceJSONConfig(xml, json) {
     ln = i + 2;
   });
 
-  lines[ln] = lines[ln].replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue>' + json + '</defaultValue>');
+  lines[ln] = lines[ln]
+    .replace(/<defaultValue>.+<\/defaultValue>/, '<defaultValue><![CDATA[' + json + ']]></defaultValue>');
   xml = lines.join('\n');
 
   return xml;

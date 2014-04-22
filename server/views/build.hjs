@@ -14,15 +14,19 @@
 <!-- Nav tabs -->
 <ul class="nav nav-tabs job-tabs">
   <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
-  <li><a href="/view/{{ job.name }}/">Build History</a></li>
-  
-  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
-  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
-  
-  <li><a href="/edit/{{ job.name }}">Edit</a></li>
+  <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
+
+  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+
+  <li>
+    <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
+  </li>
 
   {{^last}}
-  <li class="active"><a href="#">Build {{ number }}</a></li>
+  <li class="active">
+    <a href="#">Build {{ number }}</a>
+  </li>
   {{/last}}
 </ul>
 
@@ -35,7 +39,7 @@
         <span class="build-label">Build</span>
         <span class="build-value">
           <span class="doony-circle doony-circle-{{ job.color }}{{#animated}} bounceIn animated infinite{{/animated}}" style="display: inline-block; margin: 0; width: 1em; height: 1em;"></span>
-          <a href="/view/{{ job.name }}/{{ job.lastBuild.number }}" class="js-number">{{ job.lastBuild.number }}</a>
+          <a href="/{{ job.namespace }}/view/{{ job.name }}/{{ job.lastBuild.number }}" class="js-number">{{ job.lastBuild.number }}</a>
         </span>
       </p>
 

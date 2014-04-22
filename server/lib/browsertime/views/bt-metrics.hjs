@@ -1,0 +1,49 @@
+<p class="description">
+  {{ job.description }}
+</p>
+
+<p class="description">
+  {{#job.urls}}
+  <a href="{{.}}">
+  {{ . }}
+  </a>
+  {{/job.urls}}
+</p>
+
+
+<ul class="nav nav-tabs job-tabs">
+  <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
+  <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
+  <li class="active"><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>
+
+  <li>
+    <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
+  </li>
+</ul>
+
+<div class="js-metrics clearfix" data-animated="{{ animated }}" data-number="{{ job.lastBuild.number }}" data-last="{{ last }}" data-pending="{{ pending }}">
+  <div class="page-header">
+    <h3>
+     <span class="glyphicon glyphicon-dashboard"></span>
+     <small>These metrics data are pulled in from <a href="{{ url }}">{{ url }}</a> file.</small>
+     <a href="#" class="js-fullscreen btn btn-link right" role="button" title="Go fullscreen">
+       <span class="glyphicon glyphicon-dashboard"></span>
+       Go fullscreen
+     </a>
+    </h3>
+
+  </div>
+
+  <div class="js-graphs">
+      {{#job.urls}}
+      <h3>
+        {{ . }}
+      </h3>
+
+      <p>
+        Generated metrics: <a href="{{ url }}/results/{{ job.lastBuild.number }}/">Link</a> .. url/metrics.json
+      </p>
+      {{/job.urls}}
+  </div>
+
+</div>

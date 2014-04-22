@@ -327,10 +327,6 @@ body.yui-skin-sam #doony-title {
   padding-right: 15px;
 }
 
-#searchform {
-  padding-top: 16px;
-}
-
 #main-table {
   margin-top: 8px;
 }
@@ -341,7 +337,7 @@ body.yui-skin-sam #doony-title {
 }
 
 body.yui-skin-sam, .yui-skin-sam table, .yui-skin-sam form, .yui-skin-sam input, .yui-skin-sam td, .yui-skin-sam th, .yui-skin-sam p, .yui-skin-sam textarea, .yui-skin-sam select {
-font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-font-size: 13px;
-color: #333;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #333;
 }

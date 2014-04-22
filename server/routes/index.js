@@ -5,6 +5,8 @@ var xml2js = require('xml2js');
 var request = require('request');
 var moment = require('moment');
 
+var async = require('async');
+
 var Job = require('../lib/job');
 
 var phantomas = require('phantomas');
@@ -24,17 +26,79 @@ exports.api = require('./api');
  * GET home page.
  */
 
+ var cache = {};
+ cache.jobs = {};
+ cache.builds = {};
+
 exports.index = function(req, res, next) {
-  debug('Index', req.url);
   jenkins.all(function(err, jobs) {
     if (err) return next(err);
-    debug('Render all', jobs);
-
     jobs.forEach(function(job) {
       job.animated = /anime/.test(job.color);
+
     });
 
-    res.render('index', { jobs: jobs, config: config });
+    var response = [];
+    async.forEach(jobs, function(j, done) {
+      var name = j.name;
+
+      if (cache.jobs[name]) {
+        response.push(cache.jobs[name]);
+        return done(null, cache.jobs[name]);
+      }
+
+      var instance = new Job(name, done);
+
+      instance.on('end', function(data) {
+        var job = data.job;
+        var lastStable = job.lastSuccessfulBuild && job.lastSuccessfulBuild.number;
+        var lastFailedBuild = job.lastFailedBuild && job.lastFailedBuild.number;
+        var lastBuild = job.lastBuild && job.lastBuild.number;
+
+        function getBuild(number, prop) {
+          return function(done) {
+            if (!number) return done();
+
+            jenkins.build.get(name, number, function(err, data) {
+              if (err) return done(err);
+              data.moment = moment(data.timestamp).fromNow();
+              data._duration = moment.duration(data.duration).humanize();
+              job[prop] = data;
+              done(null, data)
+            });
+
+          }
+        }
+
+        async.parallel([
+          getBuild(lastStable, 'lastSuccessfulBuild'),
+          getBuild(lastFailedBuild, 'lastFailedBuild'),
+          getBuild(lastBuild, 'lastBuild')
+        ], function(err, results) {
+          if (err) return done(err);
+
+          job.animated = /anime/.test(job.color);
+          cache.jobs[name] = job;
+
+          // Basic TTL of 5s
+          setTimeout(function() {
+            delete cache.jobs[name];
+          }, 1000 * 5);
+
+          response.push(job);
+          done();
+        });
+
+      });
+    }, function(err) {
+      if (err) return next(err);
+
+      response.sort(function(a, b) {
+        return a.name > b.name;
+      });
+
+      res.render('index', { showqueue: true, jobs: response, config: config });
+    });
   });
 };
 
@@ -69,11 +133,33 @@ exports.edit = function edit(req, res, next) {
     var template = 'create';
     if (data.job.feature) {
       template = 'create-feature';
-      data.runUrl = '/create/run-feature/';
+      data.runUrl = '/f/create/run-feature/';
     }
 
     res.render(template, data);
   });
+};
+
+exports.serveStepfile = function serveStepfile(req, res, next) {
+  var name = req.params.name;
+  var job = new Job(name, next);
+
+  job.on('end', function(data) {
+    var json = data.job.json;
+    var data = {};
+    try {
+      data = JSON.parse(json);
+    } catch(e) {
+      return next(e);
+    }
+
+    var js = data.steps.map(function(step) {
+      return step.body;
+    }).join('\n\n');
+
+    res.send(js);
+  });
+
 };
 
 exports.view = function view(req, res, next) {
@@ -83,7 +169,32 @@ exports.view = function view(req, res, next) {
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
-    res.render('view', data);
+
+    async.map(data.job.builds, function(build, done) {
+      var number = build.number;
+      var key = name + ':' + number;
+      if (cache.builds[key]) return done(null, cache.builds[key]);
+      jenkins.build.get(name, number, function(err, data) {
+        if (err) return done(err);
+        data.color = data.result === 'SUCCESS' ? 'blue' :
+          data.result === 'FAILURE' ? 'red' :
+          data.result === 'WARNING' ? 'yellow' :
+          '';
+
+        data.name = name;
+        data.moment = moment(data.timestamp).format('llll');
+        data.fromNow = moment(data.timestamp).fromNow();
+        data.duration = moment.duration(data.duration).humanize();
+        data.animated = /anime/i.test(data.result);
+
+        cache.builds[key] = data;
+        done(null, data);
+      });
+    }, function(err, builds) {
+      if (err) return next(err);
+      data.builds = builds;
+      res.render('view', data);
+    });
   });
 };
 
@@ -94,7 +205,7 @@ exports.metrics = function metrics(req, res, next) {
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
-    
+
     var assertMode = data.assertMode = /\/asserts$/.test(req.url);
     var metricsMode = data.metricsMode = /\/metrics$/.test(req.url);
 
@@ -128,7 +239,6 @@ exports.metrics = function metrics(req, res, next) {
       // phantomas config, returning only the graphs related to monitored
       // metric.
       var asserts = Object.keys(data.job.config.asserts || {});
-      console.log('filter vs', asserts);
       data.asserts = data.graphs.filter(function(graph) {
         return !!~asserts.indexOf(graph.name);
       });
@@ -156,7 +266,7 @@ exports.metrics = function metrics(req, res, next) {
 };
 
 
-exports.metric = function metric(req, res, next) {
+exports.metric = function _metric(req, res, next) {
   var name = req.params.name;
   var metric = req.params.metric;
 
@@ -171,7 +281,7 @@ exports.metric = function metric(req, res, next) {
       next(e);
       return;
     }
-    
+
     var data = metrics[metric] || {};
     res.json(data);
   });
@@ -246,11 +356,9 @@ exports.lastBuild = function lastBuild(req, res, next) {
   });
 };
 
-exports.buildView = buildView;
-
 // Build view request handler, for both normal view and last job view
 // TODO: Rework me...
-function buildView(req, res, next) {
+exports.buildView = function buildView(req, res, next) {
   var name = req.params.name;
   var number = parseInt(req.params.number, 10);
 
@@ -286,7 +394,7 @@ function buildView(req, res, next) {
           url: url,
           id: id,
           jenkinsHar: jenkinsBase + id + '/har.json',
-          localHar: '/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
+          localHar: '/p/har/' + data.job.name + '/' + data.number + '/' + id + '.json',
           jenkinsFilmstripDir: jenkinsBase + id + '/filmstrip/',
           fileindex: fileindex
         };
@@ -318,6 +426,43 @@ function buildView(req, res, next) {
   });
 }
 
+exports.search = function search(req, res, next) {
+  var val = '';
+  if (req.body) val = req.body.query;
+  if (!val && req.query) val = req.query.query;
+  if (!val) return next(new Error('Missing val'));
+
+  var jobs = Object.keys(cache.jobs).filter(function(key) {
+    return !!~key.indexOf(val);
+  }).map(function(key) {
+    var job = cache.jobs[key];
+    var result = job.lastBuild && job.lastBuild.result.toLowerCase();
+    return {
+      name: job.name,
+      lastBuildStatus: result,
+      lastBuildLabel: job.lastBuild && job.lastBuild.fullDisplayName,
+      number: job.lastBuild && job.lastBuild.number,
+      lastBuildTime: job.lastBuild && moment(job.lastBuild.timestamp).format('llll'),
+      jobUrl: job.lastBuild && job.lastBuild.url,
+      webUrl: '/' + job.namespace  + '/view/' + job.name + '/' + (job.lastBuild ? job.lastBuild.number : ''),
+      duration: job.lastBuild && moment.duration(job.lastBuild.duration).humanize(),
+      finished: job.lastBuild && moment(job.lastBuild.timestamp).fromNow(),
+      color: /failure/.test(result) ? 'red' :
+        /success/.test(result) ? 'green' :
+        /abort/.test(result) ? 'gray' :
+        /warn/.test(result)  ? 'yellow' :
+        'gray',
+      timestamp: job.lastBuild && job.lastBuild.timestamp
+    };
+  });
+
+  res.json({
+    val: val,
+    jobs: jobs
+  });
+
+};
+
 function requestJobLog(name, number, done) {
   request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', done);
 }
@@ -338,7 +483,6 @@ exports.destroy = function destroy(req, res, next) {
   var name = req.params.name;
   jenkins.job.delete(name, function(err) {
     if (err) return next(err);
-    debug('Jenkins job deletion OK');
     res.redirect('/');
   });
 };
