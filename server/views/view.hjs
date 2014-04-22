@@ -16,7 +16,11 @@
   <li class="active"><a href="#current" data-toggle="tab">Build History</a></li>
 
   {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
-  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}
+  {{^job.browsertime}}
+  <li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>
+  {{/job.browsertime}}
+  {{/job.phantomas}}
 
   <li>
     <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>

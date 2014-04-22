@@ -17,7 +17,11 @@
   <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
 
   {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
-  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}
+  {{^job.browsertime}}
+  <li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>
+  {{/job.browsertime}}
+  {{/job.phantomas}}
 
   <li>
     <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
@@ -73,9 +77,13 @@
           Workspace
         </a>
 
+        {{#job.phantomas}}
+        {{^job.browsertime}}
         <a href="//{{ config.jenkinsHost }}job/{{ job.name }}/{{ job.lastBuild.number }}/tapResults/" class="label label-default">
           TAP Results
         </a>
+        {{/job.browsertime}}
+        {{/job.phantomas}}
 
         <a href="{{ build.url }}" class="label label-default">
           Build URL

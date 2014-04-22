@@ -9,6 +9,10 @@ var async = require('async');
 
 var Job = require('../lib/job');
 
+var helpers = require('../lib/helpers');
+var cleanUrl = helpers.cleanUrl;
+var requestJobLog = helpers.requestJobLog;
+
 var phantomas = require('phantomas');
 var metadata = phantomas.metadata;
 var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
@@ -64,10 +68,10 @@ exports.index = function(req, res, next) {
               data.moment = moment(data.timestamp).fromNow();
               data._duration = moment.duration(data.duration).humanize();
               job[prop] = data;
-              done(null, data)
+              done(null, data);
             });
 
-          }
+          };
         }
 
         async.parallel([
@@ -144,8 +148,8 @@ exports.serveStepfile = function serveStepfile(req, res, next) {
   var name = req.params.name;
   var job = new Job(name, next);
 
-  job.on('end', function(data) {
-    var json = data.job.json;
+  job.on('end', function(jobdata) {
+    var json = jobdata.job.json;
     var data = {};
     try {
       data = JSON.parse(json);
@@ -349,7 +353,6 @@ exports.lastBuild = function lastBuild(req, res, next) {
           data.job.color = 'aborted';
         }
 
-
         res.render('build', data);
       });
     });
@@ -424,7 +427,7 @@ exports.buildView = function buildView(req, res, next) {
       })(urls.shift());
     });
   });
-}
+};
 
 exports.search = function search(req, res, next) {
   var val = '';
@@ -436,7 +439,7 @@ exports.search = function search(req, res, next) {
     return !!~key.indexOf(val);
   }).map(function(key) {
     var job = cache.jobs[key];
-    var result = job.lastBuild && job.lastBuild.result.toLowerCase();
+    var result = job.lastBuild && job.lastBuild.result && job.lastBuild.result.toLowerCase();
     return {
       name: job.name,
       lastBuildStatus: result,
@@ -462,18 +465,6 @@ exports.search = function search(req, res, next) {
   });
 
 };
-
-function requestJobLog(name, number, done) {
-  request(config.jenkins + '/job/' + name + '/' + number + '/consoleText', done);
-}
-
-// Helper to cleanup URL for filesystem I/O or graphite keys
-function cleanUrl(url) {
-  return url
-    .replace(/^https?:\/\//, '')
-    .replace(/\/$/g, '')
-    .replace(/(\/|\?|-|&|=|\.)/g, '_');
-}
 
 /*
  * GET delete job

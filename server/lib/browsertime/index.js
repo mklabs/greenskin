@@ -5,8 +5,11 @@ var debug   = require('debug')('server:browsertime');
 var request = require('request');
 var Job     = require('../job');
 
-var routes = require('../../routes');
-var config = require('../../package.json').config;
+var async = require('async');
+
+var routes  = require('../../routes');
+var helpers = require('../helpers');
+var config  = require('../../package.json').config;
 
 var xmlTemplate = fs.readFileSync(path.join(__dirname, 'config.xml'), 'utf8');
 
@@ -76,33 +79,90 @@ app.get('/view/:name/metrics', function(req, res, next) {
     data.title = name;
     data.edit = false;
 
-    var url = config.jenkins + 'job/' + name + '/ws/';
+    var wsUrl = config.jenkins + 'job/' + name + '/ws/';
+    var number = data.job.lastSuccessfulBuild && data.job.lastSuccessfulBuild.number;
+    if (isNaN(number)) return next(new Error('Cannot get last sucessfull build number'));
 
     // Displayed URL
-    data.url = url.replace(config.jenkins, config.jenkinsUrl.protocol + '//' + config.jenkinsHost);
+    data.url = wsUrl.replace(config.jenkins, config.jenkinsUrl.protocol + '//' + config.jenkinsHost);
 
-    request(url, function(err, response, metrics) {
+    var urls = data.job.urls || [];
+    buildMetricData(name, number, urls, function(err, metrics) {
       if (err) return next(err);
-      if (response.statusCode !== 200) metrics = '{}';
-      data.metrics = {};
-
-      try {
-        data.metrics = JSON.parse(metrics);
-      } catch(e) {}
-
-      data.metricsJSON = metrics;
+      data.metrics = metrics;
       res.render('bt-metrics', data);
     });
   });
 });
 
-// TODO: To port over here
-app.get('/view/:name/asserts/:metric', routes.metric);
-app.get('/view/:name/metrics/:metric', routes.metric);
-app.post('/view/:name/asserts/:metric', routes.api.metric);
-app.post('/view/:name/metrics/:metric', routes.api.metric);
-app.post('/view/:name/asserts/:metric/del', routes.api.metricDelete);
-app.post('/view/:name/metrics/:metric/del', routes.api.metricDelete);
+app.get('/view/:name/:number', function(req, res, next) {
+  var name = req.params.name;
+  var number = parseInt(req.params.number, 10);
 
-// Must come after asserts, or will route will clash
-app.get('/view/:name/:number', routes.buildView);
+  if (isNaN(number)) return next(new Error('Build "' + req.params.number + '" not a valid number'));
+
+  var job = new Job(name, next);
+  job.on('end', function(data) {
+
+    helpers.requestJobLog(name, number, function(err, response, body) {
+      if (err) return next(err);
+      data.job.log = body;
+      data.number = number;
+
+      var urls = data.job.urls || [];
+      buildMetricData(name, number, urls, function(err, metrics) {
+        if (err) return next(err);
+        data.metrics = metrics;
+        return res.render('bt-build', data);
+      });
+    });
+  });
+});
+
+// TODO: Probably to put in an helper file
+function buildMetricData(name, number, urls, next) {
+  // Get URL specific metrics.json
+  var metrics = [];
+
+  var wsUrl = config.jenkins + 'job/' + name + '/ws/';
+  var displayUrl = wsUrl.replace(config.jenkins, config.jenkinsUrl.protocol + '//' + config.jenkinsHost);
+
+  async.each(urls, function(url, done) {
+    var cleanedUrl = helpers.cleanUrl(url);
+    var jsonUrl = wsUrl + 'results/' + number + '/' + cleanedUrl + '/metrics.json';
+
+    request(jsonUrl, function(err, response, body) {
+      if (err) return done(err);
+
+      var metricData = {
+        url: url,
+        key: cleanedUrl,
+        file: displayUrl + 'results/' + number + '/' + cleanedUrl + '/metrics.json',
+        json: body
+      };
+
+      metricData.metrics = {};
+      try {
+        metricData.metrics = JSON.parse(body);
+        metricData.metrics.timingRuns = metricData.metrics.timingRuns.map(function(timingRun) {
+          timingRun.timings = timingRun.marks.reduce(function(a, b) {
+            a[b.name] = b.startTime;
+            return a;
+          }, {});
+
+          timingRun.timingsJSON = JSON.stringify(timingRun.timings);
+
+          return timingRun;
+        });
+
+        metricData.pageDataJSON = JSON.stringify(metricData.metrics.pageData, null, 2);
+      } catch(e) {}
+
+      metrics.push(metricData);
+      done(null, metricData);
+    });
+  }, function(err) {
+    if (err) return next(err);
+    next(null, metrics);
+  });
+}

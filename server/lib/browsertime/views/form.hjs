@@ -14,6 +14,7 @@
 <ul class="nav nav-tabs job-tabs">
   <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
   <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
+  <li><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>
 
   <li class="active">
     <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>

@@ -133,6 +133,7 @@ Job.prototype.config = function(err, config) {
     if (job.config && job.config.type === 'browsertime') {
       job.type = 'browsertime';
       job.namespace = 'bt';
+      job.browsertime = true;
       job.phantomas = true;
       job.feature = false;
     }
