@@ -130,7 +130,6 @@ Job.prototype.config = function(err, config) {
     }
 
     // TODO: Find a way to do that matching from subapps
-    debug('Checking job %s for browsertime ADN', job.name, job.config);
     if (job.config && job.config.type === 'browsertime') {
       job.type = 'browsertime';
       job.namespace = 'bt';
@@ -139,8 +138,6 @@ Job.prototype.config = function(err, config) {
     }
 
     job.red = job.color === 'red' || job.color === 'yellow';
-
-    debug('Render all');
 
     self.emit('end', {
       job: job,
