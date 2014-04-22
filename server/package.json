@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "prestart": "npm install",
-    "start": "DEBUG=* node app.js"
+    "start": "DEBUG=* node app.js",
+    "docs": "DEBUG=* node scripts/docs.js"
   },
   "dependencies": {
     "express": "3.5.1",
@@ -28,7 +29,10 @@
     "redis": "~0.10.1"
   },
   "config": {
-    "jenkins": "http://localhost/jenkins/",
-    "job_prefix": ""
+    "jenkins": "http://192.168.33.12/jenkins/",
+    "job_prefix": "R8_perf_"
+  },
+  "devDependencies": {
+    "marked": "^0.3.2"
   }
 }
