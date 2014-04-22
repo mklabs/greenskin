@@ -436,23 +436,23 @@ exports.search = function search(req, res, next) {
     return !!~key.indexOf(val);
   }).map(function(key) {
     var job = cache.jobs[key];
-    var result = job.lastBuild.result.toLowerCase();
+    var result = job.lastBuild && job.lastBuild.result.toLowerCase();
     return {
       name: job.name,
       lastBuildStatus: result,
-      lastBuildLabel: job.lastBuild.fullDisplayName,
-      number: job.lastBuild.number,
-      lastBuildTime: moment(job.lastBuild.timestamp).format('llll'),
-      jobUrl: job.lastBuild.url,
-      webUrl: '/' + job.namespace  + '/view/' + job.name + '/' + job.lastBuild.number,
-      duration: moment.duration(job.lastBuild.duration).humanize(),
-      finished: moment(job.lastBuild.timestamp).fromNow(),
+      lastBuildLabel: job.lastBuild && job.lastBuild.fullDisplayName,
+      number: job.lastBuild && job.lastBuild.number,
+      lastBuildTime: job.lastBuild && moment(job.lastBuild.timestamp).format('llll'),
+      jobUrl: job.lastBuild && job.lastBuild.url,
+      webUrl: '/' + job.namespace  + '/view/' + job.name + '/' + (job.lastBuild ? job.lastBuild.number : ''),
+      duration: job.lastBuild && moment.duration(job.lastBuild.duration).humanize(),
+      finished: job.lastBuild && moment(job.lastBuild.timestamp).fromNow(),
       color: /failure/.test(result) ? 'red' :
         /success/.test(result) ? 'green' :
         /abort/.test(result) ? 'gray' :
         /warn/.test(result)  ? 'yellow' :
-        '',
-      timestamp: job.lastBuild.timestamp
+        'gray',
+      timestamp: job.lastBuild && job.lastBuild.timestamp
     };
   });
 

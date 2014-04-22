@@ -81,10 +81,10 @@ exports.metricDelete = function metricDelete(req, res, next){
 
 exports.create = function create(req, res, next){
   var params = req.body;
-  debug('API create', params);
 
   params.urls = params.urls || [];
-  params.json_config = params.json_config || params.jsonconfig || params.config || {};
+  params.json_config = params.json_config || params.jsonconfig || params.config || '{}';
+  debug('API create', params);
 
   // Get back XML file from job template param
   fs.readFile(path.join(__dirname, '../data', params.template + '.xml'), 'utf8', function(err, xml) {
@@ -154,6 +154,10 @@ exports.edit = function edit(req, res, next){
       params.json_config = JSON.stringify(jsonconfig);
       namespace = 'f';
     }
+  }
+
+  if (params.template === 'browsertime') {
+    namespace = 'bt';
   }
 
   xml = replaceJSONConfig(xml, params.json_config);
