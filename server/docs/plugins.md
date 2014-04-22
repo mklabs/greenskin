@@ -7,18 +7,15 @@ The idea is to abstract away from job specific implementaiton and add extension 
 
 ex. phantomas or feature for now.
 
-
-### Misc
+## Misc
 
 - Everything should be namespaced: `/p/*` for phantomas, `/f/*` for
   features
 
-- Job sets up basic info on the job type, namely type and now namespace
-  props.
-  - namespace should be used in templates in the parent app to route to
-    proper sub view / actions.
+- Job sets up basic info on the job type, namely type and namespace props.
+  - namespace should be used in templates in the parent app to route to proper sub view / actions.
 
-### Example
+## Example
 
 A basic example
 
@@ -47,8 +44,7 @@ app.on('mount', function(parent) {
 app.use('ns', require('greenskin-subapp'));
 ```
 
-
-### Known routes:
+## Known routes
 
 ```js
 app.get('/create', routes.create);
@@ -95,7 +91,7 @@ app.get('/create', function(req, res, next) {
 });
 ```
 
-## GET /edit/:name
+### GET /edit/:name
 
 ```js
 app.get('/edit/:name', function edit(req, res, next) {
