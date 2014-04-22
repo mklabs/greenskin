@@ -472,7 +472,7 @@ function cleanUrl(url) {
   return url
     .replace(/^https?:\/\//, '')
     .replace(/\/$/g, '')
-    .replace(/(\/|\?|-|&amp;|=|\.)/g, '_');
+    .replace(/(\/|\?|-|&|=|\.)/g, '_');
 }
 
 /*
