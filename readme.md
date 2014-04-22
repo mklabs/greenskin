@@ -2,6 +2,11 @@
 
 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
+<style>
+/* test */
+.red { color: red; }
+</style>
+
 An express based webapp, sitting on top of Jenkins, aiming to provide a simple and fun way to monitor Frontend Performance and / or run functional testing.
 
 ![](imgs/intro.png)
