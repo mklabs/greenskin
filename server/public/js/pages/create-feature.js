@@ -27,6 +27,12 @@
       screenfull.toggle(el[0]);
     });
 
+
+    this.$el.on('click', '.js-fullscreen', function(e) {
+      var el = $(e.target).closest('.js-fullscreen-target');
+      screenfull.toggle(el[0]);
+    });
+
     var socket = this.socket = io.connect(location.hostname + ':3000');
   };
 
@@ -75,8 +81,16 @@
       }
     });
 
-    textareas.next('.CodeMirror').addClass('form-control js-full');
+    textareas.next('.CodeMirror')
+      .addClass('form-control graph js-fullscreen-target')
+      .append(this.createFullscreenButton());
+
     textareas.data('codemirror', cm);
+  };
+
+  // TODO: Template blah.. Markup mixed in js is blah blah blah
+  CreateFeaturePage.createFullscreenButton = function createFullscreenButton() {
+    return $('<div class="graph-btn-group"><a href="#" class="codemirror-full js-fullscreen btn btn-default"><span class="glyphicon glyphicon-fullscreen"></span></a></div>');
   };
 
   CreateFeaturePage.run = function run(log, editor) {
@@ -377,8 +391,6 @@
       div.data('codemirror', editor);
       editors.push(editor);
     });
-
-    dialog.find('.CodeMirror').addClass('js-full');
 
     dialog.on('shown.bs.modal', function() {
       editors.forEach(function(ed) {

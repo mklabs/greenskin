@@ -8,7 +8,7 @@ var Job     = require('../job');
 
 // Untill routes for phantomas jobs are ported over here, and better
 // isolated from the rest of the app
-var routes  = require('../../routes');
+var routes = require('../../routes');
 
 // Express subapp
 var app = module.exports = express();

@@ -100,17 +100,17 @@ Parser.prototype.step = function step(keyword, token, line) {
     var suite = suites[0];
     var self = this;
     keyword = keyword.trim();
-    
+
     var _keyword = keyword === 'And' ? this.lastKeyword : keyword;
-    
+
     var step = this.steps.filter(function(step) {
         if (_keyword !== step.keyword) return;
         if (!step.reg.test(token)) return;
         return true;
     })[0];
-    
+
     var fn = step ? step.handler : null;
-    
+
     var matches = [];
     if (step) {
         matches = token.match(step.reg);
@@ -129,14 +129,14 @@ Parser.prototype.step = function step(keyword, token, line) {
             };
         }
     }
-    
+
     if (!step) token = token + ' (Pending)';
-    
+
     var test = new Test(_keyword + ' ' + token, fn);
-    
+
     test.file = this.file;
     suite.addTest(test);
-    
+
     this.lastKeyword = _keyword;
     return test;
 };

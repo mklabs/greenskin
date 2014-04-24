@@ -115,7 +115,6 @@
       textareas.each(function() {
         var textarea = $(this);
 
-        console.log('Init', this, mode);
         var cm = CodeMirror.fromTextArea(this, {
           mode: mode,
           tabSize: 2
@@ -211,7 +210,7 @@
 
     initMetricTable: function(table) {
         if (!table) return;
-        
+
         var cm = $('[name=json_config]').data('codemirror');
         var json = cm.getValue();
         var data = {};
