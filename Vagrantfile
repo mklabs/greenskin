@@ -34,7 +34,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     jenkins.vm.synced_folder "vms/jenkins-master/provisioning/", "/ansible"
     jenkins.vm.synced_folder "server", "/opt/kookel/r8_perf"
 
-    jenkins.vm.network "forwarded_port", guest: 8080, host: 8082
+    jenkins.vm.network "forwarded_port", guest: 80, host: 10080
+    jenkins.vm.network "forwarded_port", guest: 3000, host: 13000
+    jenkins.vm.network "forwarded_port", guest: 3000, host: 3000
+    jenkins.vm.network "forwarded_port", guest: 8080, host: 18080
     jenkins.vm.network :private_network, ip: "192.168.33.12"
 
     # jenkins.vm.provision :ansible do |ansible|
@@ -55,9 +58,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     graphite.vm.network :private_network, ip: "192.168.33.33"
 
-    graphite.vm.network "forwarded_port", guest: 80, host: 8080
-    graphite.vm.network "forwarded_port", guest: 2003, host: 2003
-    graphite.vm.network "forwarded_port", guest: 8125, host: 8125, protocol: 'udp'
+    graphite.vm.network "forwarded_port", guest: 80, host: 18081
+    graphite.vm.network "forwarded_port", guest: 2003, host: 12003
+    graphite.vm.network "forwarded_port", guest: 8125, host: 18125, protocol: 'udp'
 
     graphite.vm.provision "shell", path: "vms/graphite/shell_graphite_install.sh"
   end
