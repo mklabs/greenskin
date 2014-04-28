@@ -10,7 +10,7 @@
 
     this.data = $.extend({}, this.$el.data(), config || {});
 
-    var socket = this.socket = io.connect(location.hostname + ':3000');
+    var socket = this.socket = io.connect('//' + location.hostname + ':3000');
     console.log('init queue');
 
     this.template = this.$el.find('.js-row-template');

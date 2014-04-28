@@ -8,6 +8,7 @@
     if (!this.$el.length) return;
 
     this.data = $.extend({}, this.$el.data(), config || {});
+    this.data.ns = this.data.ns || 'f';
     this.runUrl = this.$el.data('runUrl');
 
     this.cron();
@@ -16,6 +17,7 @@
     this.submit();
     this.initTableFromJSON();
     this.initDialogFromJSON();
+    this.initSauceFormFromJSON();
 
     var form = this.$el;
     $('.js-submit').on('click', function() {
@@ -27,13 +29,12 @@
       screenfull.toggle(el[0]);
     });
 
-
     this.$el.on('click', '.js-fullscreen', function(e) {
       var el = $(e.target).closest('.js-fullscreen-target');
       screenfull.toggle(el[0]);
     });
 
-    var socket = this.socket = io.connect(location.hostname + ':3000');
+    var socket = this.socket = io.connect('//' + location.hostname + ':3000');
   };
 
   CreateFeaturePage.submit = function submit() {
@@ -50,6 +51,7 @@
       }
 
       var data = self.serializeTable(rows);
+      data = self.updateSauceInfos(data);
       form.find('[name=json_config]').val(JSON.stringify(data));
     });
   };
@@ -104,6 +106,7 @@
     }
 
     var data = this.serializeTable(log.closest('tr'));
+    data = this.updateSauceInfos(data);
     var runUrl = this.runUrl;
     var timestamp = Date.now();
 
@@ -114,9 +117,10 @@
     socket.on('log.' + timestamp, logHandler);
     socket.on('step.' + timestamp, imgHandler);
 
-    log.html('Job workspace: <a class="grey" href="/f/tmp/' + timestamp + '">/f/tmp/' + timestamp + '</a>\n');
+    log.html('Job workspace: <a class="grey" href="/' + this.data.ns + '/tmp/' + timestamp + '">/' + this.data.ns +'/tmp/' + timestamp + '</a>\n');
     log.closest('.row').find('.js-imgs').empty();
 
+    console.log(data);
     var req = $.ajax({
       method: 'POST',
       url: runUrl,
@@ -456,6 +460,37 @@
     dialog.modal('show');
   };
 
+  // Called on form submittion or feature preview
+  //
+  // Updates data with sauce infos form sauce fieldset
+  CreateFeaturePage.updateSauceInfos = function updateSauceInfos(data) {
+    var form = this.$el.find('.js-form-sauce').serializeArray().reduce(function(a, b) {
+      a[b.name.replace(/^sauce-/, '')] = b.value;
+      return a;
+    }, {});
+
+    if (form.username && form.accesskey) {
+      data.sauce = form;
+    }
+
+    return data;
+  };
+
+  CreateFeaturePage.initSauceFormFromJSON = function initSauceFormFromJSON() {
+    var json = this.$el.find('.js-jsonconfig');
+    if (!json.length) return;
+
+    var data = {};
+    try {
+      data = JSON.parse(json.text());
+    } catch(e) {}
+
+    if (!data.sauce) return;
+
+    this.$el.find('[name="sauce-username"]').val(data.sauce.username);
+    this.$el.find('[name="sauce-accesskey"]').val(data.sauce.accesskey);
+    this.$el.find('[name="sauce-browser"]').val(data.sauce.browser);
+  };
 
   $(function() {
     $('.js-job-feature-form').each(function() {

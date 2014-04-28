@@ -102,7 +102,7 @@
   <script src="/vendor/ansiparse.js"></script>
   <script src="/vendor/bootstrap-modal.js"></script>
 
-  <script src="/js/pages/queue.js"></script>
+  <!-- <script src="/js/pages/queue.js"></script> -->
   <script src="/js/pages/create.js"></script>
   <script src="/js/pages/create-feature.js"></script>
   <script src="/js/pages/build.js"></script>

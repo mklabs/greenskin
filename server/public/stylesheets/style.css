@@ -609,7 +609,7 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
   border-bottom: 1px solid rgb(225, 225, 232);
   max-height: 450px;
   margin-top: 1em;
-  overflow-y: scroll; 
+  overflow-y: scroll;
 
   position: relative;
   padding: 45px 15px 15px;
@@ -698,12 +698,13 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
 }
 
 .app-left {
+  display: none;
   position: relative;
   min-height: 100%;
-  -ms-flex: 0 0 20%;
-  -webkit-flex: 0 0 20%;
-  -moz-flex: 0 0 20%;
-  flex: 0 0 20em;
+  -ms-flex: 0 0 16em;
+  -webkit-flex: 0 0 16em;
+  -moz-flex: 0 0 16em;
+  flex: 0 0 16em;
 
   padding: 0 0 110px 0;
   background-color: #fbfbfa;

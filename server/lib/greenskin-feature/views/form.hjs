@@ -1,0 +1,249 @@
+{{#edit}}
+<p class="description">
+  {{ job.description }}
+</p>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs job-tabs">
+  <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
+  <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
+
+  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
+  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
+
+  <li class="active">
+    <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
+  </li>
+
+</ul>
+{{/edit}}
+
+<form
+  action="{{ action }}"
+  class="form {{#edit}}form-edit{{/edit}} js-job-feature-form"
+  method="post"
+  data-ns="feature"
+  data-cron="{{ cron }}"
+  data-run-url="{{ runUrl }}">
+
+  <input type="hidden" name="template" value="feature">
+  <input type="hidden" name="json_config" value="">
+
+  <pre class="js-jsonconfig is-hidden">{{{ job.json }}}</pre>
+
+  <div class="is-hidden">
+    <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
+  </div>
+
+  <div class="form-group col-sm-12">
+      <input
+        required
+        {{#edit}}disabled{{/edit}}
+        id="ipt_name"
+        name="name"
+        value="{{ job.name }}"
+        type="text"
+        class="form-control"
+        placeholder="Job name">
+
+      {{#edit}}
+      <input type="hidden" name="name" value="{{ job.name }}">
+      {{/edit}}
+  </div>
+
+  <div class="form-group col-sm-12">
+    <div class="js-cron form-control cron-box">
+      <span class="js-cron-text cron-text"><span>
+    </div>
+    <input type="hidden" name="cron" class="js-cron-input">
+  </div>
+
+  <fieldset class="col-sm-12 form-inline js-form-sauce">
+    <legend>Sauce</legend>
+
+    <div class="form-group">
+      <label class="sr-only" for="sauce-username">Username</label>
+      <input type="text" class="form-control" id="sauce-username" name="sauce-username" placeholder="Saucelabs username">
+    </div>
+
+    <div class="form-group">
+      <label class="sr-only" for="sauce-accesskey">Access key</label>
+      <input type="text" class="form-control" id="sauce-accesskey" name="sauce-accesskey" placeholder="Saucelabs accesskey">
+    </div>
+
+    <div class="form-group" style="margin-left: 35px;">
+      <label for="sauce-browser">Desired browser</label>
+      <select class="form-control" name="sauce-browser">
+        <option value="chrome">Chrome</option>
+        <option value="firefox">Firefox</option>
+        <option value="internet explorer">Internet Explorer</option>
+      </select>
+
+    </div>
+
+    <p class="help-block">
+      Optionally, you can use Saucelabs to run your tests. You need to provide your username and accesskey, which will be used by the Jenkins job when running the tests.
+    </p>
+
+    <p class="help-block">
+      If you leave them blank, PhantomJS in Webdriver mode will be used locally.
+    </p>
+
+
+  </fieldset>
+
+
+  <fieldset class="js-features col-sm-12">
+    <legend>Features</legend>
+    <p class="help-block">
+      You can add here <a class="js-gothrough" href="https://github.com/cucumber/cucumber/wiki/Gherkin">Cucumber like scenarios (Gherkin)</a> and
+      <a href="#" data-toggle="modal" data-target=".js-dialog">
+      view or edit step definitions.
+      </a>
+
+      <a class="btn btn-default right js-add" href="#" role="button">Create</a>
+    </p>
+
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="is-hidden js-row-template feature-edit-row js-edit-row">
+          <td>
+            <div class="row">
+              <div class="col-sm-12">
+                <input
+                  value=""
+                  type="text"
+                  class="col-sm-12 form-control js-input"
+                  placeholder="Feature name"
+                  style="margin-top: 0;"
+                >
+              </div>
+            </div>
+
+            <div class="row" style="margin-top: 1em;">
+              <div class="js-feature-edit feature-edit col-sm-6">
+                <textarea name="gherkin" class="form-control">Feature: example
+
+  You can define basic browsing scenarios
+  with the steps already available.
+
+  Try Ctrl-Space to autocomplete based on registered steps.
+
+  Try Ctrl-R to run the feature.
+
+  You can also write new steps. A good way to get started is
+  simply to write a new step below, run the feature, and then
+  click on the pending test.
+
+  Scenario: Browsing http://phantomjs.org/
+    Given I browse URL "http://phantomjs.org/"
+
+
+  Scenario: Browsing example.com/n
+    Given I browse URL "https://github.com/cucumber/cucumber/wiki/Gherkin"</textarea>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="log-container js-full">
+                  <pre class="js-log log ansi">
+    You can Ctrl-R to <a href="#" class="js-run btn btn-link">run & preview</a> the feature
+    You can Ctrl-Space to get autocompletion on available <a href="#" class="js-run btn btn-link" data-toggle="modal" data-target=".js-dialog">steps</a>
+    Try double clicking to enter fullscreen mode
+</pre>
+                </div>
+              </div>
+
+              <div class="col-sm-12">
+                <div class="imgbox js-imgs"></div>
+              </div>
+
+            </div>
+            <div class="col-sm-12" style="margin-top: 1em; padding-right: 0;">
+              <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+            </div>
+          </td>
+        </tr>
+
+        {{#job.features}}
+        <tr>
+          <td>
+            <p class="col-sm-10">{{ name }}</p>
+
+            <div class="col-sm-2">
+              <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
+            </div>
+
+            <div class="col-sm-2">
+              <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {{/job.features}}
+      </tbody>
+    </table>
+  </fieldset>
+
+  <div class="js-steps row col-sm-12 is-hidden">
+
+    <h3>
+      Steps
+      <span class="small">
+        You can add / edit here PhantomJS steps
+      </span>
+
+      <a class="btn btn-default right js-add" href="#" role="button">Create</a>
+    </h3>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div class="form-submit col-sm-12">
+    <button type="submit" class="btn btn-primary right">Save</button>
+  </div>
+
+</form>
+
+<!-- Modal -->
+<div class="modal js-dialog fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">
+        Steps
+        </h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary js-submit" data-dismiss="modal">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/gherkin-interface.js"></script>
+
+{{#edit}}
+<script src="/feature/edit/{{ job.name}}/steps.js"></script>
+{{/edit}}
+
+{{^edit}}
+<script src="/feature/create/steps.js"></script>
+{{/edit}}

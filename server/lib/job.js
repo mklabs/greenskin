@@ -117,7 +117,7 @@ Job.prototype.config = function(err, config) {
     job.namespace = 'p';
     if (job.config && job.config.features) {
       job.type = 'feature';
-      job.namespace = 'f';
+      job.namespace = 'feature';
     }
 
     var phantomas = {};

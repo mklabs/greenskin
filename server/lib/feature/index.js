@@ -1,7 +1,6 @@
 var fs      = require('fs');
 var path    = require('path');
 var express = require('express');
-var kue     = require('kue');
 var debug   = require('debug')('server:feature');
 var helpers = require('./helpers');
 var Job     = require('../job');
@@ -21,12 +20,6 @@ app.on('mount', function(parent) {
   debug('Feature subapp mounted');
   // Attach websocket instance for access later on in routes
   app.ws = parent.ws;
-
-  // Kue state (TODO: Consider moving kue & redis init logic here)
-  app.kue = parent.kue;
-
-  debug('Init feature subapp', app.kue);
-  if (app.kue) helpers.createQueue(app.ws);
 
   // Adding buttons
   var locals = parent.locals;
@@ -100,29 +93,8 @@ app.post('/create/run-feature', function(req, res, next) {
 
   debug('Creating job %s %d', jobdata.title, jobdata.timestamp);
 
-  if (!app.kue) return runFeature(ws, jobdata, function(err, data) {
+  return helpers.runFeature(app.ws, jobdata, function(err, data) {
     if (err) return next(err);
     res.json(data);
-  });
-
-  var jobs = kue.createQueue();
-  var job = jobs.create('phantom feature', jobdata).save();
-
-  debug('Kue process %s %d', jobdata.title, jobdata.timestamp);
-  job.on('complete', function(e) {
-    debug('Job complete', runtmpdir);
-    if (e) return next(e);
-      fs.readdir(path.join(runtmpdir, 'step-screens'), function(err, files) {
-        if (err) return next(err);
-        res.json({
-          timestamp: timestamp,
-          workspace: '/f/tmp/' + timestamp,
-          screens: files
-        });
-      });
-  }).on('failed', function() {
-    debug('Job failed', runtmpdir);
-  }).on('progress', function(progress){
-    debug('\r  job #' + job.id + ' ' + progress + '% complete');
   });
 });

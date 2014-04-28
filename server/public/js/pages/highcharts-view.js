@@ -215,7 +215,7 @@
         $(this).data('graph', graph);
     });
 
-    $('.js-fullscreen').click(function(e) {
+    $('.js-fullscreen-graph').click(function(e) {
       e.preventDefault();
       if (screenfull.enabled) {
         screenfull.request(charts[0]);
