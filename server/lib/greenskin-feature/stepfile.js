@@ -1,13 +1,20 @@
 // Example of using webdriver to implement browsing steps
+Then(/I want to collect navigation timings at "([^"]+)"/, function(filepath, done) {
+  var fs = require('fs');
+  var path = require('path');
+  var mkdirp = require('mkdirp');
 
-var webdriver = nopt.webdriver || 9134;
-var webdriverHost = nopt['webdriver-host'] || 'localhost';
+  this.driver.safeExecute("window.performance ? (window.performance.toJSON ? JSON.stringify(window.performance.toJSON()) : window.performance) : '{}'", function(err, res) {
+	if (err) return done(err);
+    mkdirp.sync(path.dirname(filepath));
+    fs.writeFileSync(filepath, res);
+    done();
+  });
+
+});
+
 
 Given(/I browse URL "([^"]+)"/, function(url, done) {
-  var wd = require('wd');
-
-  if (!this.driver) this.driver = wd.remote(webdriverHost, webdriver);
-
   var driver = this.driver;
   driver.init(function() {
     // driver#get should errback on invalid URL
@@ -38,3 +45,4 @@ Then(/I fill "([^"]+)" in "([^"]+)"/, function(value, name, done) {
     driver.type(element, value, done);
   });
 });
+
