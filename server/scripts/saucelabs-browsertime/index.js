@@ -80,7 +80,7 @@ Browsertime.prototype.collect = function collect(urls, desired, done) {
     // Basic async each
     (function boom(url) {
       if (!url) return end();
-      runner.collectURL(url, desired, function(err, res) {
+      runner.collectURL(url, desired, function(err, json, res) {
         if (err) return done(err);
         data.push({
           url: url,
@@ -117,7 +117,7 @@ Browsertime.prototype.collectURL = function collectURL(url, desired, done) {
       test.duration = JSON.parse(data);
       runner.emit('pass', test);
       runner.emit('test end', test);
-      done(null, data);
+      done(null, data, test.duration);
     });
   });
 };

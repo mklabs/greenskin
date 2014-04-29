@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-process.env.DEBUG = typeof process.env.DEBUG !== 'undefined' ? process.env.DEBUG : 'sauce-browsertime';
+process.env.DEBUG = typeof process.env.DEBUG !== 'undefined' ? process.env.DEBUG : 'sauce-browsertime*';
 
 // This hackery is required for debug to write on STDERR like it used to (changed when ?)
 console.log = console.error;
 var debug  = require('debug')('sauce-browsertime');
+var DB = require('../lib/db');
 
 var username = process.env.SAUCE_USERNAME;
 var accesskey = process.env.SAUCE_ACCESS_KEY;
@@ -20,6 +21,8 @@ var options = {
   orientation: String,
   version: String,
   reporter: String,
+  storage: String,
+  'storage-key': String,
   hostname: String,
   port: Number,
   help: Boolean
@@ -33,7 +36,9 @@ var shorthands = {
   R: '--reporter',
   v: '--version',
   H: '--hostname',
-  h: '--help'
+  h: '--help',
+  db: '--storage',
+  dbk: '--storage-key',
 };
 
 var nopt = require('nopt')(options, shorthands);
@@ -48,6 +53,8 @@ if (nopt.help) return help(options, shorthands, { program: 'sauce-browsertime' }
   .desc('hostname', 'Webdriver-grid hostname (default: ' + webdriverHost + ')')
   .desc('reporter', 'Mocha reporter (default: json)')
   .desc('port', 'Specify webdriver-grid port (default: 80)')
+  .desc('storage', 'Path to JSON file to aggregate results over time (default: disabled)')
+  .desc('storage-key', 'The "key" to use to persist the result (default: current timestamp)')
   .usage(function() {
     console.log('Usage: sauce-browsertime [options] [urls, ...]');
     console.log('');
@@ -89,7 +96,6 @@ if (!username || !accesskey) {
   throw new Error('Missing sauce credentials');
 }
 
-
 // Run
 nopt.hostname = nopt.hostname || webdriverHost;
 nopt.port = nopt.port || webdriverPort;
@@ -97,5 +103,12 @@ nopt.username = username;
 nopt.accesskey = accesskey;
 nopt.desired = desired;
 
-require('..').run(nopt.argv.remain, nopt);
+// Initing storage
+var storage;
+if (nopt.storage) storage = new DB(nopt.storage, nopt);
+
+require('..').run(nopt.argv.remain, nopt, function(err, results) {
+  if (err) throw err;
+  if (storage) storage.save(results);
+});
 
