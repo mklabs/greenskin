@@ -1,17 +1,17 @@
 {
   "name": "saucelabs-browsertime",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Collects Navigation Timing through Webdriver with SauceLabs",
+  "bin": "bin/sauce-browsertime",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "DEBUG=* node bin/sauce-browsertime http://example.com"
   },
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "wd": "^0.2.19",
-    "mkdirp": "^0.4.0",
     "nopt": "^2.2.1",
-    "mocha": "~1.18.2"
+    "mocha": "~1.18.2",
+    "debug": "~0.8.1"
   }
 }

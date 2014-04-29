@@ -1,81 +1,11 @@
 
-var fs     = require('fs');
 var wd     = require('wd');
-var path   = require('path');
-process.env.DEBUG = process.env.DEBUG || 'sauce-browsertime';
 var debug  = require('debug')('sauce-browsertime');
+var mocha = require('mocha');
 var EventEmitter = require('events').EventEmitter;
+var util = require('util');
 
-var username = process.env.SAUCE_USERNAME;
-var accesskey = process.env.SAUCE_ACCESS_KEY;
-var webdriverHost = 'ondemand.saucelabs.com';
-var webdriverPort = 80;
-
-// Config
-
-var options = {
-  browser: String,
-  platform: String,
-  type: String,
-  orientation: String,
-  version: String,
-  reporter: String,
-  hostname: String,
-  port: Number,
-  help: Boolean
-};
-
-var shorthands = {
-  b: '--browser',
-  p: '--platform',
-  t: '--type',
-  o: '--orientation',
-  R: '--reporter',
-  v: '--version',
-  H: '--hostname',
-  h: '--help'
-};
-
-var nopt = require('nopt')(options, shorthands);
-var help = require('./lib/nopt-help');
-
-if (nopt.help) return help(options, shorthands, { program: 'sauce-browsertime' })
-  .desc('browser', 'Saucelabs browser (default: chrome)')
-  .desc('version', 'Saucelabs browser version (default: unspecified)')
-  .desc('platform', 'Saucelabs platform (default: unspecified)')
-  .desc('type', 'Saucelabs device type (default: unspecified)')
-  .desc('orientation', 'Saucelabs device orientation (default: unspecified)')
-  .desc('hostname', 'Webdriver-grid hostname (default: ' + webdriverHost + ')')
-  .desc('reporter', 'Mocha reporter (default: json)')
-  .desc('port', 'Specify webdriver-grid port (default: 80)')
-  .usage(function() {
-    console.log('Usage: sauce-browsertime [options] [urls, ...]');
-    console.log('');
-    console.log('    $ sauce-browsertime http://example.com');
-    console.log('    $ sauce-browsertime http://example.com/page-one http://example.com/page-two');
-    console.log('    $ sauce-browsertime http://example.com/page-one --browser android');
-    console.log('');
-    console.log('See https://saucelabs.com/platforms for the list of available OS / Browser / Version');
-    console.log('');
-  });
-
-
-var webdriverHost = nopt.hostname || 'ondemand.saucelabs.com';
-var webdriverPort = nopt.port || 80;
-
-var url = nopt.argv.remain[0];
-if (!url) throw new Error('Missing URL(s)');
-
-// checking sauce credential
-if (!username || !accesskey) {
-  console.warn(
-    '\nPlease configure your sauce credential:\n\n' +
-    'export SAUCE_USERNAME=<SAUCE_USERNAME>\n' +
-    'export SAUCE_ACCESS_KEY=<SAUCE_ACCESS_KEY>\n\n'
-  );
-
-  throw new Error('Missing sauce credentials');
-}
+var Test = mocha.Test;
 
 // http configuration, not needed for simple runs
 wd.configureHttp( {
@@ -84,42 +14,51 @@ wd.configureHttp( {
   retries: 5
 });
 
-var desired = { browserName: nopt.browser || 'chrome' };
-desired.name = 'Collecting Navigation Timings with ' + desired.browserName;
-desired.tags = ['sauce-browsertime'];
-if (nopt.platform) desired.platform = nopt.platform;
-if (nopt.version) desired.version = nopt.version;
-if (nopt.type) desired['device-type'] = nopt.type;
-if (nopt.orientation) desired['device-orientation'] = nopt.orientation;
-if (nopt.hostname) webdriverHost = nopt.hostname;
-if (nopt.port) webdriverPort = nopt.port;
+// Public API
+var browsertime = module.exports;
 
-// Run
+// Injected script
+browsertime.snippet = "window.performance ? JSON.stringify(window.performance.toJSON ? window.performance.toJSON() : window.performance.timing, null, 2) : '{}'";
+browsertime.Browsertime = Browsertime;
 
-var runner = new EventEmitter();
+browsertime.run = function run(argv, opts, done) {
+  done = done || function() {};
+  var desired = opts.desired;
 
-var mocha = require('mocha');
-var Test = mocha.Test;
-var Reporter = loadReporter(nopt.reporter);
-var reporter = new Reporter(runner);
+  var runner = new Browsertime(opts);
+  debug('Init tests on %d urls', argv.length);
+  runner.collect(argv, desired, done);
+  return runner;
+};
 
-var browser = wd.remote(webdriverHost, webdriverPort, username, accesskey);
+function Browsertime(opts) {
+  this.opts = opts || {};
+  // Mocha reporter
+  this.suite = new mocha.Suite(opts.desired.name);
+  this._reporter = loadReporter(this.opts.reporter);
+  this.reporter = new this._reporter(this);
+  // Initing browser remote
+  this.browser = wd.remote(
+    this.opts.hostname,
+    this.opts.port,
+    this.opts.username,
+    this.opts.accesskey
+  );
+}
 
-var urls = nopt.argv.remain.concat();
-collect(urls, desired, function(err, data) {
-  if (err) return done(err);
-});
+util.inherits(Browsertime, mocha.Runner);
 
-
-function collect(urls, desired, done) {
+Browsertime.prototype.collect = function collect(urls, desired, done) {
   var data = [];
   var arr = urls.concat();
 
+  var runner = this;
 
   runner.emit('start');
-  runner.emit('suite', { title: desired.name });
+  runner.emit('suite', this.suite);
 
   debug('Init browser', desired);
+  var browser = this.browser;
   browser.init(desired, function(err, id, caps) {
     if (err) return done(err);
 
@@ -141,7 +80,7 @@ function collect(urls, desired, done) {
     // Basic async each
     (function boom(url) {
       if (!url) return end();
-      collectURL(url, function(err, res) {
+      runner.collectURL(url, desired, function(err, res) {
         if (err) return done(err);
         data.push({
           url: url,
@@ -153,14 +92,14 @@ function collect(urls, desired, done) {
       });
     })(arr.shift());
   });
-}
+};
 
-// Injected script
-var snippet = "window.performance ? JSON.stringify(window.performance.toJSON ? window.performance.toJSON() : window.performance.timing) : '{}'";
-function collectURL(url, done) {
+Browsertime.prototype.collectURL = function collectURL(url, desired, done) {
   debug('Getting %s url', url);
+  var runner = this;
+  var browser = this.browser;
 
-  var test = new Test(desired.name + ' - ' + url);
+  var test = new Test(desired.name + ' - ' + url, collectURL);
   test.parent = { fullTitle: function() { return url; } };
 
   runner.emit('test', test);
@@ -169,16 +108,19 @@ function collectURL(url, done) {
 
     debug('Collecting navigation timings for %s', url);
 
-    browser.safeExecute(snippet, function(err, res) {
+    browser.safeExecute(browsertime.snippet, function(err, res) {
       if (err) return done(err);
       debug('Nav timings collected for %s', url);
       var data = typeof res === 'string' ? res : JSON.stringify(res, null, 2);
+      test.fn.toString = function() { return data; };
+      // Tricking mocha into displaying our data in reporters (json mainly)
+      test.duration = JSON.parse(data);
       runner.emit('pass', test);
       runner.emit('test end', test);
       done(null, data);
     });
   });
-}
+};
 
 // Loading helpers for Mocha reporters
 function loadReporter(reporter) {
