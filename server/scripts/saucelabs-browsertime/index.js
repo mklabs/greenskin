@@ -6,11 +6,67 @@ process.env.DEBUG = process.env.DEBUG || 'sauce-browsertime';
 var debug  = require('debug')('sauce-browsertime');
 var EventEmitter = require('events').EventEmitter;
 
-// checking sauce credential
-
 var username = process.env.SAUCE_USERNAME;
 var accesskey = process.env.SAUCE_ACCESS_KEY;
+var webdriverHost = 'ondemand.saucelabs.com';
+var webdriverPort = 80;
 
+// Config
+
+var options = {
+  browser: String,
+  platform: String,
+  type: String,
+  orientation: String,
+  version: String,
+  reporter: String,
+  hostname: String,
+  port: Number,
+  help: Boolean
+};
+
+var shorthands = {
+  b: '--browser',
+  p: '--platform',
+  t: '--type',
+  o: '--orientation',
+  R: '--reporter',
+  v: '--version',
+  H: '--hostname',
+  h: '--help'
+};
+
+var nopt = require('nopt')(options, shorthands);
+var help = require('./lib/nopt-help');
+
+if (nopt.help) return help(options, shorthands, { program: 'sauce-browsertime' })
+  .desc('browser', 'Saucelabs browser (default: chrome)')
+  .desc('version', 'Saucelabs browser version (default: unspecified)')
+  .desc('platform', 'Saucelabs platform (default: unspecified)')
+  .desc('type', 'Saucelabs device type (default: unspecified)')
+  .desc('orientation', 'Saucelabs device orientation (default: unspecified)')
+  .desc('hostname', 'Webdriver-grid hostname (default: ' + webdriverHost + ')')
+  .desc('reporter', 'Mocha reporter (default: json)')
+  .desc('port', 'Specify webdriver-grid port (default: 80)')
+  .usage(function() {
+    console.log('Usage: sauce-browsertime [options] [urls, ...]');
+    console.log('');
+    console.log('    $ sauce-browsertime http://example.com');
+    console.log('    $ sauce-browsertime http://example.com/page-one http://example.com/page-two');
+    console.log('    $ sauce-browsertime http://example.com/page-one --browser android');
+    console.log('');
+    console.log('See https://saucelabs.com/platforms for the list of available OS / Browser / Version');
+    console.log('');
+  });
+
+
+var webdriverHost = nopt.hostname || 'ondemand.saucelabs.com';
+var webdriverPort = nopt.port || 80;
+
+var url = nopt.argv.remain[0];
+if (!url) throw new Error('Missing URL(s)');
+
+// checking sauce credential
 if (!username || !accesskey) {
   console.warn(
     '\nPlease configure your sauce credential:\n\n' +
@@ -21,28 +77,6 @@ if (!username || !accesskey) {
   throw new Error('Missing sauce credentials');
 }
 
-// Config
-
-var nopt = require('nopt')({
-  hostname: String,
-  port: Number,
-  browser: String,
-  platform: String,
-  'device-type': String,
-  'device-orientation': String,
-  'version': String,
-  reporter: String
-});
-
-var webdriverHost = nopt.hostname || 'ondemand.saucelabs.com';
-var webdriverPort = nopt.port || 80;
-
-var url = nopt.argv.remain[0];
-if (!url) throw new Error('Missing URL(s)');
-
-// Injected script
-var snippet = "window.performance ? (window.performance.toJSON ? JSON.stringify(window.performance.toJSON()) : window.performance) : '{}'";
-
 // http configuration, not needed for simple runs
 wd.configureHttp( {
   timeout: 60000,
@@ -52,11 +86,13 @@ wd.configureHttp( {
 
 var desired = { browserName: nopt.browser || 'chrome' };
 desired.name = 'Collecting Navigation Timings with ' + desired.browserName;
-desired.tags = ['navtiming'];
+desired.tags = ['sauce-browsertime'];
 if (nopt.platform) desired.platform = nopt.platform;
 if (nopt.version) desired.version = nopt.version;
-if (nopt['device-type']) desired['device-type'] = nopt['device-type'];
-if (nopt['device-orientation']) desired['device-orientation'] = nopt['device-orientation'];
+if (nopt.type) desired['device-type'] = nopt.type;
+if (nopt.orientation) desired['device-orientation'] = nopt.orientation;
+if (nopt.hostname) webdriverHost = nopt.hostname;
+if (nopt.port) webdriverPort = nopt.port;
 
 // Run
 
@@ -99,7 +135,9 @@ function collect(urls, desired, done) {
       });
     }
 
-    debug('Session %s', id);
+    debug('Session ID %s', id);
+    debug('Test URL: %s', 'https://saucelabs.com/tests/' + id);
+
     // Basic async each
     (function boom(url) {
       if (!url) return end();
@@ -117,6 +155,8 @@ function collect(urls, desired, done) {
   });
 }
 
+// Injected script
+var snippet = "window.performance ? JSON.stringify(window.performance.toJSON ? window.performance.toJSON() : window.performance.timing) : '{}'";
 function collectURL(url, done) {
   debug('Getting %s url', url);
 
@@ -128,12 +168,11 @@ function collectURL(url, done) {
     if (err) return done(err);
 
     debug('Collecting navigation timings for %s', url);
+
     browser.safeExecute(snippet, function(err, res) {
       if (err) return done(err);
       debug('Nav timings collected for %s', url);
-      var data = typeof res === 'string' ? res :
-        JSON.stringify(res.timing, null, 2);
-
+      var data = typeof res === 'string' ? res : JSON.stringify(res, null, 2);
       runner.emit('pass', test);
       runner.emit('test end', test);
       done(null, data);
