@@ -1,9 +1,11 @@
 
-var wd     = require('wd');
-var debug  = require('debug')('sauce-browsertime');
-var mocha = require('mocha');
+var wd           = require('wd');
+var debug        = require('debug')('sauce-browsertime');
+var mocha        = require('mocha');
 var EventEmitter = require('events').EventEmitter;
-var util = require('util');
+var util         = require('util');
+var Intervals    = require('./lib/intervals');
+var Stats        = require('./lib/stats');
 
 var Test = mocha.Test;
 
@@ -26,17 +28,31 @@ browsertime.run = function run(argv, opts, done) {
   var desired = opts.desired;
 
   var runner = new Browsertime(opts);
+  runner.emit('start');
   debug('Init tests on %d urls', argv.length);
-  runner.collect(argv, desired, done);
+  runner.collect(argv, desired, function(err, data) {
+    if (err) return done(err);
+    if (runner.reporter && runner.reporter.stats) {
+      runner.reporter.stats.timings = data.map(function(result) {
+        return {
+          url: result.url,
+          timings: result.stats
+        };
+      }).reduce(function(results, result) {
+        results[result.url] = result.timings;
+        return results;
+      }, {});
+    }
+    runner.emit('end', runner.suite);
+  });
+
   return runner;
 };
 
 function Browsertime(opts) {
   this.opts = opts || {};
-  // Mocha reporter
-  this.suite = new mocha.Suite(opts.desired.name);
-  this._reporter = loadReporter(this.opts.reporter);
-  this.reporter = new this._reporter(this);
+  this.opts.runs = this.opts.runs || 1;
+
   // Initing browser remote
   this.browser = wd.remote(
     this.opts.hostname,
@@ -44,6 +60,11 @@ function Browsertime(opts) {
     this.opts.username,
     this.opts.accesskey
   );
+
+  // Mocha reporter
+  this.suite = new mocha.Suite(opts.desired.name);
+  this._reporter = loadReporter(this.opts.reporter);
+  this.reporter = new this._reporter(this);
 }
 
 util.inherits(Browsertime, mocha.Runner);
@@ -54,8 +75,8 @@ Browsertime.prototype.collect = function collect(urls, desired, done) {
 
   var runner = this;
 
-  runner.emit('start');
-  runner.emit('suite', this.suite);
+  var suite = this.suite;
+  runner.emit('suite', suite);
 
   debug('Init browser', desired);
   var browser = this.browser;
@@ -63,8 +84,7 @@ Browsertime.prototype.collect = function collect(urls, desired, done) {
     if (err) return done(err);
 
     function end() {
-      runner.emit('suite end', { title: desired.name });
-      runner.emit('end', { title: desired.name });
+      runner.emit('suite end', suite);
 
       debug('Ending session %s', id);
       browser.quit(function(err) {
@@ -80,14 +100,43 @@ Browsertime.prototype.collect = function collect(urls, desired, done) {
     // Basic async each
     (function boom(url) {
       if (!url) return end();
-      runner.collectURL(url, desired, function(err, json, res) {
+
+      var runSuite = runner._suite = mocha.Suite.create(suite, url);
+      runner.emit('suite', runSuite);
+      runner.collectURL(url, desired, function(err, results) {
         if (err) return done(err);
+        var metrics = results.map(function(res) {
+          return res.duration;
+        });
+
+        // var keys = Object.keys(metrics.intervals);
+        var intervals = metrics.map(function(metric) {
+          return metric.intervals;
+        });
+
+        var keys = Object.keys(intervals[0]);
+        var stats = keys.map(function(key) {
+          var list = intervals.map(function(interval) {
+            return interval[key];
+          });
+
+          var st = new Stats(key, list);
+          return st.toJSON();
+        });
+
         data.push({
           url: url,
           platform: desired,
-          timings: res
+          data: metrics,
+          stats: stats.reduce(function(a, stat) {
+            var n = stat.name;
+            delete stat.name;
+            a[n] = stat;
+            return a;
+          }, {})
         });
 
+        runner.emit('suite end', runSuite);
         boom(arr.shift());
       });
     })(arr.shift());
@@ -99,27 +148,42 @@ Browsertime.prototype.collectURL = function collectURL(url, desired, done) {
   var runner = this;
   var browser = this.browser;
 
-  var test = new Test(desired.name + ' - ' + url, collectURL);
-  test.parent = { fullTitle: function() { return url; } };
+  debug('Number of runs', this.opts.runs);
+  var runs = this.opts.runs;
+  var run = 0;
+  var results = [];
+  (function baam() {
+    if (run === runs) return done(null, results);
+    run++;
 
-  runner.emit('test', test);
-  browser.get(url, function(err) {
-    if (err) return done(err);
+    debug('#%d %s', run, url);
+    var test = new Test('#' + run, baam);
+    test.parent = { fullTitle: function() { return run; } };
 
-    debug('Collecting navigation timings for %s', url);
+    if (runner._suite) runner._suite.addTest(test);
 
-    browser.safeExecute(browsertime.snippet, function(err, res) {
+    runner.emit('test', test);
+    browser.get(url, function(err) {
       if (err) return done(err);
-      debug('Nav timings collected for %s', url);
-      var data = typeof res === 'string' ? res : JSON.stringify(res, null, 2);
-      test.fn.toString = function() { return data; };
-      // Tricking mocha into displaying our data in reporters (json mainly)
-      test.duration = JSON.parse(data);
-      runner.emit('pass', test);
-      runner.emit('test end', test);
-      done(null, data, test.duration);
+
+      debug('Collecting navigation timings for %s', url);
+      browser.safeExecute(browsertime.snippet, function(err, res) {
+        if (err) return done(err);
+        debug('Nav timings collected for %s', url);
+        var json = typeof res === 'string' ? res : JSON.stringify(res, null, 2);
+        test.fn.toString = function() { return data; };
+        var intervals = new Intervals(JSON.parse(json));
+        var data = intervals.toJSON();
+        // Tricking mocha into displaying our data in reporters (json mainly)
+        test.duration = data;
+        runner.emit('pass', test);
+        runner.emit('test end', test);
+
+        results.push(test);
+        baam();
+      });
     });
-  });
+  })();
 };
 
 // Loading helpers for Mocha reporters

@@ -20,6 +20,7 @@ var options = {
   type: String,
   orientation: String,
   version: String,
+  runs: Number,
   reporter: String,
   storage: String,
   'storage-key': String,
@@ -39,17 +40,20 @@ var shorthands = {
   h: '--help',
   db: '--storage',
   dbk: '--storage-key',
+  n: '--runs',
 };
 
 var nopt = require('nopt')(options, shorthands);
 var help = require('../lib/nopt-help');
+var url = nopt.argv.remain[0];
 
-if (nopt.help) return help(options, shorthands, { program: 'sauce-browsertime' })
+if (nopt.help || !url) return help(options, shorthands, { program: 'sauce-browsertime' })
   .desc('browser', 'Saucelabs browser (default: chrome)')
   .desc('version', 'Saucelabs browser version (default: unspecified)')
   .desc('platform', 'Saucelabs platform (default: unspecified)')
   .desc('type', 'Saucelabs device type (default: unspecified)')
   .desc('orientation', 'Saucelabs device orientation (default: unspecified)')
+  .desc('runs', 'Number of runs per URL (default: 1)')
   .desc('hostname', 'Webdriver-grid hostname (default: ' + webdriverHost + ')')
   .desc('reporter', 'Mocha reporter (default: json)')
   .desc('port', 'Specify webdriver-grid port (default: 80)')
@@ -81,9 +85,6 @@ if (nopt.type) desired['device-type'] = nopt.type;
 if (nopt.orientation) desired['device-orientation'] = nopt.orientation;
 if (nopt.hostname) webdriverHost = nopt.hostname;
 if (nopt.port) webdriverPort = nopt.port;
-
-var url = nopt.argv.remain[0];
-if (!url) throw new Error('Missing URL(s)');
 
 // checking sauce credential
 if (!username || !accesskey) {
