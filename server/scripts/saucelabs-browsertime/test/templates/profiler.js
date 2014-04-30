@@ -68,7 +68,7 @@ __Profiler.prototype.infoLinkCss = 'color:#1D85B8;margin:1em 0 0 0;';
 __Profiler.prototype._getPerfObjKeys = function(obj) {
   var keys = Object.keys(obj);
   return keys.length ? keys : Object.keys(Object.getPrototypeOf(obj));
-}
+};
 
 /**
  * Sets unit used in measurements on canvas.
@@ -77,7 +77,7 @@ __Profiler.prototype._getPerfObjKeys = function(obj) {
  */
 __Profiler.prototype._setUnit = function(canvas) {
   this.unit = (canvas.width - this.textSpace) / this.totalTime;
-}
+};
 
 /**
  * Defines sections of the chart.
@@ -109,7 +109,7 @@ __Profiler.prototype._getSections = function() {
       startTime: 0,
       endTime: 0
     }] : [];
-}
+};
 
 /**
  * Creates main container
@@ -134,7 +134,7 @@ __Profiler.prototype._createContainer = function() {
   header.appendChild(button);
   container.appendChild(header);
   return container;
-}
+};
 
 /**
  * Creates header
@@ -155,7 +155,7 @@ __Profiler.prototype._createHeader = function() {
   c.appendChild(h);
 
   return c;
-}
+};
 
 /**
  * Creates close buttonr
@@ -168,7 +168,7 @@ __Profiler.prototype._createCloseButton = function() {
   b.style.cssText = this.cssReset + this.buttonCss;
 
   return b;
-}
+};
 
 /**
  * Creates info link
@@ -182,7 +182,7 @@ __Profiler.prototype._createInfoLink = function() {
   a.style.cssText = this.cssReset + this.infoLinkCss;
 
   return a;
-}
+};
 
 /**
  * Creates information when performance.timing is not supported
@@ -192,7 +192,7 @@ __Profiler.prototype._createNotSupportedInfo = function() {
   var p = document.createElement('p');
   p.innerHTML = 'Navigation Timing API is not supported by your browser';
   return p;
-}
+};
 
 /**
  * Creates main bar chart
@@ -212,7 +212,7 @@ __Profiler.prototype._createChart = function() {
   chartContainer.appendChild(infoLink);
 
   return chartContainer;
-}
+};
 
 /**
  * Prepare draw function.
@@ -230,10 +230,10 @@ __Profiler.prototype._prepareDraw = function(canvas, mode, eventData) {
     sectionTimeBounds : [sectionData.startTime, sectionData.endTime],
     eventTimeBounds : [eventData.time, eventData.timeEnd],
     label : eventData.label
-  }
+  };
 
   return this._drawBar(mode, canvas, canvas.width, barOptions);
-}
+};
 
 /**
  * Draws a single bar on the canvas
@@ -312,8 +312,8 @@ __Profiler.prototype._drawBar = function(mode, canvas, barWidth, options) {
     // label
     context.fillText(timeLabel, barWidth - this.textSpace + 10, 2 * this.barHeight / 3);
     context.fillText(nameLabel, barWidth - this.textSpace + this.timeLabelWidth + 15, 2 * this.barHeight / 3);
-  }
-}
+  };
+};
 
 /**
  * Draws the chart on the canvas
@@ -371,7 +371,7 @@ __Profiler.prototype._drawChart = function(canvas) {
     draw.call(this, context);
     context.translate(0, step);
   }, this);
-}
+};
 
 /**
  * Matches events with the section they belong to
@@ -394,7 +394,7 @@ __Profiler.prototype._matchEventsWithSections = function() {
 
     sectionEvents.sort(function(a, b){
       return data[a].time - data[b].time;
-    })
+    });
 
     firstEventIndex = sectionEvents[0];
     lastEventIndex = sectionEvents[sectionEvents.length - 1];
@@ -409,7 +409,7 @@ __Profiler.prototype._matchEventsWithSections = function() {
       }
     }
   }
-}
+};
 
 /**
  * Gets timing data and calculates
@@ -450,7 +450,7 @@ __Profiler.prototype._getData = function() {
   this.totalTime = totalTime;
 
   return events;
-}
+};
 
 /**
  * Actually init the chart
@@ -476,7 +476,7 @@ __Profiler.prototype._init = function() {
   }
 
   this.container.appendChild(content);
-}
+};
 
 /**
  * Build the overlay with the timing chart
@@ -502,4 +502,4 @@ __Profiler.prototype.init = function(element, timeout) {
   } else {
     this._init();
   }
-}
+};
