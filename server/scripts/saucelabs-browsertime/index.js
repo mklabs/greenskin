@@ -30,8 +30,10 @@ browsertime.run = function run(argv, opts, done) {
   var runner = new Browsertime(opts);
   runner.emit('start');
   debug('Init tests on %d urls', argv.length);
-  runner.collect(argv, desired, function(err, data) {
+  runner.collect(argv, desired, function(err, data, caps) {
     if (err) return done(err);
+
+    // Hack around Mocha reporter to include our own stats into the reporter output (json mainly)
     if (runner.reporter && runner.reporter.stats) {
       runner.reporter.stats.timings = data.map(function(result) {
         return {
@@ -42,6 +44,8 @@ browsertime.run = function run(argv, opts, done) {
         results[result.url] = result.timings;
         return results;
       }, {});
+
+      runner.reporter.stats.caps = caps;
     }
     runner.emit('end', runner.suite);
   });
@@ -80,17 +84,20 @@ Browsertime.prototype.collect = function collect(urls, desired, done) {
 
   debug('Init browser', desired);
   var browser = this.browser;
-  browser.init(desired, function(err, id, caps) {
+  browser.init(desired, function(err, id) {
     if (err) return done(err);
 
     function end() {
       runner.emit('suite end', suite);
 
       debug('Ending session %s', id);
-      browser.quit(function(err) {
+      browser.sessionCapabilities(function(err, caps) {
         if (err) return done(err);
-        browser.sauceJobStatus(true);
-        done(null, data);
+        browser.quit(function(err) {
+          if (err) return done(err);
+          browser.sauceJobStatus(true);
+          done(null, data, caps);
+        });
       });
     }
 
@@ -157,7 +164,7 @@ Browsertime.prototype.collectURL = function collectURL(url, desired, done) {
     run++;
 
     debug('#%d %s', run, url);
-    var test = new Test('#' + run, baam);
+    var test = new Test(url + ' #' + run, baam);
     test.parent = { fullTitle: function() { return run; } };
 
     if (runner._suite) runner._suite.addTest(test);

@@ -60,8 +60,8 @@ for browser in $BROWSERS; do
   mkdir -p $RESULT_DIR/$browser
   bro=$browser
    [ &quot;ie&quot; == $browser ] &amp;&amp; bro=&quot;internet explorer&quot;
-  echo sauce-browsertime $PERF_URLS --browser &quot;$bro&quot; --db index.json
-  sauce-browsertime $PERF_URLS --browser &quot;$bro&quot; --db index.json &gt; $RESULT_DIR/$browser/metrics.json
+  echo sauce-browsertime $PERF_URLS --browser &quot;$bro&quot;
+  sauce-browsertime $PERF_URLS --browser &quot;$bro&quot; &gt; $RESULT_DIR/$browser/metrics.json
 
    [ &quot;android&quot; == $browser ] &amp;&amp; bro=&quot;chrome-android&quot;
    [ &quot;ie&quot; == $browser ] &amp;&amp; bro=&quot;internet-explorer&quot;
