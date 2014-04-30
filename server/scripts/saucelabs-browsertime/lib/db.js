@@ -18,9 +18,8 @@ function DB(file, options) {
 
 DB.prototype.save = function save(results) {
   this.data[this.key] = results;
-  debug(typeof results);
-  debug('Process results', results);
-  debug('Stored', this.data);
+  debug('Processing results');
+  debug('Saving', this.key);
   this.persist();
 };
 

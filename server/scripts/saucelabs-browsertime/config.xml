@@ -1,7 +1,8 @@
+
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description></description>
+  <description>Testing out browsertime metrics</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -26,7 +27,7 @@
           <description>See https://saucelabs.com/platforms for available platforms
 
 Comma separated list of browsers.</description>
-          <defaultValue>chrome, firefox, internet explorer, android, opera</defaultValue>
+          <defaultValue>chrome, firefox, ie, android, opera</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
@@ -49,18 +50,19 @@ Comma separated list of browsers.</description>
 
 RESULT_DIR=results/$BUILD_NUMBER
 URLS=&quot;$PERF_URLS&quot;
-BROWSERS=$(node -pe &apos;b = process.env.SAUCE_BROWSERS; b.split(/,\s?/).join(&quot; &quot;)&apos;)
+BROWSERS=$(node -pe &apos;b = process.env.SAUCE_BROWSERS; b.split(/,\s?/).join(&quot;\n&quot;)&apos;)
 
 # URL_KEY=$(node -pe &apos;process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, &quot;&quot;).replace(/(\/|\?|-|&amp;|=|\.)/g, &quot;_&quot;)&apos; &quot;$url&quot;);
 
 for browser in $BROWSERS; do
   mkdir -p $RESULT_DIR/$browser
-  echo saucelabs-browsertime $PERF_URLS --browser $browser --db index.json
-  saucelabs-browsertime $PERF_URLS --browser $browser --db index.json &gt; $RESULT_DIR/$browser/metrics.json
+   [ &quot;ie&quot; == $browser ] &amp;&amp; browser=&quot;internet explorer&quot;
+  echo sauce-browsertime $PERF_URLS --browser $browser --db index.json
+  sauce-browsertime $PERF_URLS --browser $browser --db index.json &gt; $RESULT_DIR/$browser/metrics.json
+  sauce-browsertime-html  $RESULT_DIR/$browser/metrics.json &gt;  $RESULT_DIR/$browser/index.html
 done</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
   <buildWrappers/>
 </project>
-

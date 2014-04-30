@@ -20,9 +20,11 @@ Options:
   -o, --orientation      - Saucelabs device orientation (default: unspecified)
   -v, --version          - Saucelabs browser version (default: unspecified)
   -R, --reporter         - Mocha reporter (default: json)
+  -db, --storage         - Path to JSON file to aggregate results over time (default: disabled)
+  -dbk, --storage-key    - The "key" to use to persist the result (default: current timestamp)
   -H, --hostname         - Webdriver-grid hostname (default: ondemand.saucelabs.com)
   --port                 - Specify webdriver-grid port (default: 80)
-  --help
+  -h, --help
 ```
 
 Every webdriver enabled browser on Saucelabs, implementing [Navigation Timing API](http://caniuse.com/#feat=nav-timing) should be supported.
@@ -450,6 +452,17 @@ Nyan!
          -_-_ ""  ""
 
       3 passing (18s)
+
+## Storage
+
+Basic, store navtiming results for specific runs in a JSON file.
+
+Key is the timestamp, configurable through `--storage-key`. Stored data
+includes: URL, platform data (desired object), and raw navigation
+timings.
+
+    $ sauce-browsertime --storage index.json
+
 
 ### TODOs
 

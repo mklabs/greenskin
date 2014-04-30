@@ -2,7 +2,10 @@
   "name": "saucelabs-browsertime",
   "version": "0.0.1",
   "description": "Collects Navigation Timing through Webdriver with SauceLabs",
-  "bin": "bin/sauce-browsertime",
+  "bin": {
+    "sauce-browsertime": "bin/sauce-browsertime",
+    "sauce-browsertime-html": "bin/sauce-browsertime-html"
+  },
   "main": "index.js",
   "scripts": {
     "test": "DEBUG=* node bin/sauce-browsertime http://example.com"
@@ -12,6 +15,7 @@
     "wd": "^0.2.19",
     "nopt": "^2.2.1",
     "mocha": "~1.18.2",
-    "debug": "~0.8.1"
+    "debug": "~0.8.1",
+    "hogan.js": "^2.0.0"
   }
 }
