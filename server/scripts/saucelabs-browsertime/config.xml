@@ -9,7 +9,7 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://example.com http://example.com/1</defaultValue>
+          <defaultValue>http://example.com http://example.com/2</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SAUCE_USERNAME</name>
@@ -26,12 +26,17 @@
           <description>See https://saucelabs.com/platforms for available platforms. See http://caniuse.com/#feat=nav-timing for the list of browsers implementing Navigation Timing API.
 
 Comma separated list of browsers.</description>
-          <defaultValue>chrome, firefox, ie, android</defaultValue>
+          <defaultValue>chrome</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
           <description>Log debug option</description>
-          <defaultValue>*</defaultValue>
+          <defaultValue>none</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PERF_RUNS</name>
+          <description>Number of times per URL</description>
+          <defaultValue>3</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -47,8 +52,6 @@ Comma separated list of browsers.</description>
     <hudson.tasks.Shell>
       <command>#!/usr/bin/env bash
 
-[ -e node_modules ] || npm i hogan.js
-
 RESULT_DIR=results/$BUILD_NUMBER
 URLS=&quot;$PERF_URLS&quot;
 BROWSERS=$(node -pe &apos;b = process.env.SAUCE_BROWSERS; b.split(/,\s?/).join(&quot;\n&quot;)&apos;)
@@ -56,28 +59,43 @@ BROWSERS_HTML=$(node -pe &apos;b = process.env.SAUCE_BROWSERS; b.split(/,\s?/).j
 
 # URL_KEY=$(node -pe &apos;process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, &quot;&quot;).replace(/(\/|\?|-|&amp;|=|\.)/g, &quot;_&quot;)&apos; &quot;$url&quot;);
 
+rm -rf reports
+mkdir -p reports
+
 for browser in $BROWSERS; do
   mkdir -p $RESULT_DIR/$browser
   bro=$browser
-   [ &quot;ie&quot; == $browser ] &amp;&amp; bro=&quot;internet explorer&quot;
-  echo sauce-browsertime $PERF_URLS --browser &quot;$bro&quot;
-  sauce-browsertime $PERF_URLS --browser &quot;$bro&quot; &gt; $RESULT_DIR/$browser/metrics.json
+  [ &quot;ie&quot; == $browser ] &amp;&amp; bro=&quot;internet explorer&quot;
 
-   [ &quot;android&quot; == $browser ] &amp;&amp; bro=&quot;chrome-android&quot;
-   [ &quot;ie&quot; == $browser ] &amp;&amp; bro=&quot;internet-explorer&quot;
-  sauce-browsertime-html  $RESULT_DIR/$browser/metrics.json &quot;$bro&quot; &gt;  $RESULT_DIR/$browser/index.html
-  sauce-browsertime-html  $RESULT_DIR/$browser/metrics.json &quot;$bro&quot; &gt;  $RESULT_DIR/$browser.html
+  sauce-browsertime $PERF_URLS --browser &quot;$bro&quot; -n $PERF_RUNS --reporter tap --output $RESULT_DIR/$browser/metrics.json --assert-pageload-max=2000 &gt; reports/$browser.tap
+
+  [ &quot;android&quot; == $browser ] &amp;&amp; bro=&quot;chrome-android&quot;
+  [ &quot;ie&quot; == $browser ] &amp;&amp; bro=&quot;internet-explorer&quot;
+  sauce-browsertime-html  $RESULT_DIR/$browser/metrics.json -b &quot;$bro&quot; &gt;  $RESULT_DIR/$browser/index.html
+  sauce-browsertime-html  $RESULT_DIR/$browser/metrics.json -b &quot;$bro&quot; &gt;  $RESULT_DIR/$browser.html
 done</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
+    <org.tap4j.plugin.TapPublisher plugin="tap@1.18">
+      <testResults>reports/*.tap</testResults>
+      <failIfNoResults>false</failIfNoResults>
+      <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
+      <outputTapToConsole>false</outputTapToConsole>
+      <enableSubtests>false</enableSubtests>
+      <discardOldReports>false</discardOldReports>
+      <todoIsFailure>false</todoIsFailure>
+      <includeCommentDiagnostics>false</includeCommentDiagnostics>
+      <validateNumberOfTests>false</validateNumberOfTests>
+      <planRequired>true</planRequired>
+    </org.tap4j.plugin.TapPublisher>
     <htmlpublisher.HtmlPublisher plugin="htmlpublisher@1.3">
       <reportTargets>
         <htmlpublisher.HtmlPublisherTarget>
-          <reportName>Browsertime timings</reportName>
+          <reportName>Browsertimings</reportName>
           <reportDir>results/$BUILD_NUMBER</reportDir>
-          <reportFiles>chrome.html, firefox.html, ie.html, android.html</reportFiles>
-          <keepAll>false</keepAll>
+          <reportFiles>index.html, chrome.html, ie.html, firefox.html, android.html</reportFiles>
+          <keepAll>true</keepAll>
           <allowMissing>false</allowMissing>
           <wrapperName>htmlpublisher-wrapper.html</wrapperName>
         </htmlpublisher.HtmlPublisherTarget>

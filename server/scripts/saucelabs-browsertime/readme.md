@@ -486,7 +486,18 @@ setup a Job to run the perf test, at a fixed interval or on SCM change:
 - Plugin configuration for htmlpublisher (optional to have it installed,
   jenkins will just ignore the conf)
 
-See config.xml file for further detail
+See config.xml file for further detail.
+
+    # Job creation
+    $ curl -X POST -H 'Content-Type: application/xml' $JEKINS_URL/pluginManager/installNecessaryPlugins --data-binary @config.xml
+
+    # Check plugins
+    $ curl -X POST -H 'Content-Type: application/xml' $JEKINS_URL/pluginManager/prevalidateConfig --data-binary @config.xml
+
+    # Install plugins
+    $ curl -X POST -H 'Content-Type: application/xml' $JEKINS_URL/pluginManager/installNecessaryPlugins --data-binary @config.xml
+
+
 
 ### TODOs
 

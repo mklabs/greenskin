@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+var debug  = require('../lib/debug')('sauce-browsertime');
+
 var sbt  = require('..');
 var fs   = require('fs');
 var path = require('path');
@@ -86,10 +88,6 @@ if (nopt.help || !url) return help(options, shorthands, { program: 'sauce-browse
     console.log();
     process.nextTick(assertHelp);
   });
-
-// This hackery is required for debug to write on STDERR like it used to. We want STDOUT free for I/O redirection.
-console.log = console.error;
-var debug  = require('debug')('sauce-browsertime');
 
 var webdriverHost = nopt.hostname || 'ondemand.saucelabs.com';
 var webdriverPort = nopt.port || 80;

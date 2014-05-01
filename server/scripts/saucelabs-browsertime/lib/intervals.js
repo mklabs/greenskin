@@ -13,6 +13,7 @@ function Intervals(data) {
   this.timings = data || {};
 
   var t = this.timings;
+  if (t.timing) t = t.timing;
   this.intervals = [
     new MarkInterval('domainLookupTime', t.domainLookupStart, t.domainLookupEnd),
     new MarkInterval('redirectionTime', t.navigationStart, t.fetchStart),
