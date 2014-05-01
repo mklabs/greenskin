@@ -17,6 +17,7 @@
     "mocha": "~1.18.2",
     "debug": "~0.8.1",
     "hogan.js": "^2.0.0",
-    "simple-statistics": "^0.8.0"
+    "simple-statistics": "^0.8.0",
+    "mkdirp": "^0.4.0"
   }
 }

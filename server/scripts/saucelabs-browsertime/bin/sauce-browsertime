@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-// This hackery is required for debug to write on STDERR like it used to. We want STDOUT free for I/O redirection.
-console.log = console.error;
-var debug  = require('debug')('sauce-browsertime');
+var sbt  = require('..');
+var fs   = require('fs');
+var path = require('path');
+var mkdirp = require('mkdirp');
 
 var username = process.env.SAUCE_USERNAME;
 var accesskey = process.env.SAUCE_ACCESS_KEY;
@@ -19,10 +20,10 @@ var options = {
   version: String,
   runs: Number,
   reporter: String,
-  storage: String,
-  'storage-key': String,
+  output: String,
   hostname: String,
   port: Number,
+  'assert-help': Boolean,
   help: Boolean
 };
 
@@ -33,6 +34,7 @@ var shorthands = {
   o: '--orientation',
   R: '--reporter',
   v: '--version',
+  O: '--output',
   H: '--hostname',
   h: '--help',
   n: '--runs',
@@ -41,6 +43,27 @@ var shorthands = {
 var nopt = require('nopt')(options, shorthands);
 var help = require('../lib/nopt-help');
 var url = nopt.argv.remain[0];
+
+function assertHelp(verbose) {
+  console.log();
+  console.log('Asserts:');
+  console.log();
+  console.log('  --assert-name-stat=[value]   - Specify a test assertion on [name] metric');
+  console.log('  --assert-name=value          - Specify a test assertion on [name] average value');
+  console.log();
+  if (!verbose) return;
+  console.log();
+  console.log('Metrics: \n\n  --assert-' + sbt.Intervals.keys('\n  --assert-', true));
+  console.log();
+  console.log('Available stats: min, max, avg, media, mad, p60, p70, p80, p90');
+  console.log();
+  console.log('Example:');
+  console.log();
+  console.log('sauce-browsertime http://example.com -n 3 --assert-pageLoadTime-max=2000 assert-backendTime-p90=250');
+  console.log('');
+}
+
+if (nopt['assert-help']) return assertHelp(true);
 
 if (nopt.help || !url) return help(options, shorthands, { program: 'sauce-browsertime' })
   .desc('browser', 'Saucelabs browser (default: chrome)')
@@ -52,17 +75,21 @@ if (nopt.help || !url) return help(options, shorthands, { program: 'sauce-browse
   .desc('hostname', 'Webdriver-grid hostname (default: ' + webdriverHost + ')')
   .desc('reporter', 'Mocha reporter (default: json)')
   .desc('port', 'Specify webdriver-grid port (default: 80)')
+  .desc('output', 'Writes JSON result to filepath (default: unspecified)')
+  .desc('assert-help', 'Display all known assert types')
   .usage(function() {
     console.log('Usage: sauce-browsertime [options] [urls, ...]');
     console.log('');
-    console.log('    $ sauce-browsertime http://example.com');
-    console.log('    $ sauce-browsertime http://example.com/page-one http://example.com/page-two');
-    console.log('    $ sauce-browsertime http://example.com/page-one --browser android');
+    console.log('    $ sauce-browsertime http://example.com -b firefox -n 3 --assert-pageload-max=5000 --assert-frontend-p90=2500');
     console.log('');
     console.log('See https://saucelabs.com/platforms for the list of available OS / Browser / Version');
-    console.log('');
+    console.log();
+    process.nextTick(assertHelp);
   });
 
+// This hackery is required for debug to write on STDERR like it used to. We want STDOUT free for I/O redirection.
+console.log = console.error;
+var debug  = require('debug')('sauce-browsertime');
 
 var webdriverHost = nopt.hostname || 'ondemand.saucelabs.com';
 var webdriverPort = nopt.port || 80;
@@ -97,8 +124,12 @@ nopt.username = username;
 nopt.accesskey = accesskey;
 nopt.desired = desired;
 
-require('..').run(nopt.argv.remain, nopt, function(err, results) {
+sbt.run(nopt.argv.remain, nopt, function(err, results) {
   if (err) throw err;
   // post process here
+  if (nopt.output) {
+    debug('Writing results to %s file', nopt.output);
+    mkdirp.sync(path.dirname(nopt.output));
+    fs.writeFileSync(nopt.output, JSON.stringify(results, null, 2));
+  }
 });
-

@@ -6,9 +6,7 @@ Using Webdriver to collect Navigation Timing, on Saucelabs.
 ```
 Usage: sauce-browsertime [options] [urls, ...]
 
-    $ sauce-browsertime http://example.com
-    $ sauce-browsertime http://example.com/page-one http://example.com/page-two
-    $ sauce-browsertime http://example.com/page-one --browser android
+    $ sauce-browsertime http://example.com -b firefox -n 3 --assert-pageload-max=5000 --assert-frontend-p90=2500
 
 See https://saucelabs.com/platforms for the list of available OS / Browser / Version
 
@@ -19,34 +17,240 @@ Options:
   -t, --type             - Saucelabs device type (default: unspecified)
   -o, --orientation      - Saucelabs device orientation (default: unspecified)
   -v, --version          - Saucelabs browser version (default: unspecified)
-  -R, --reporter         - Mocha reporter (default: json)
   -n, --runs             - Number of runs per URL (default: 1)
+  -R, --reporter         - Mocha reporter (default: json)
   -H, --hostname         - Webdriver-grid hostname (default: ondemand.saucelabs.com)
   --port                 - Specify webdriver-grid port (default: 80)
   -h, --help
+
+Asserts:
+
+  --assert-name-stat=[value]   - Specify a test assertion on [name] metric
+  --assert-name=value          - Specify a test assertion on [name] average value
+
+Available stats: min, max, avg, media, mad, p60, p70, p80, p90
 ```
 
 Every webdriver enabled browser on Saucelabs, implementing [Navigation Timing API](http://caniuse.com/#feat=nav-timing) should be supported.
 
-## Usage
+## Example
 
-    # https://saucelabs.com/docs/onboarding
-    export SAUCE_USERNAME=<your_username>
-    export SAUCE_ACCESS_KEY=<your_accesskey>
+```
+$ sauce-browsertime test/urls.txt -n 3 --assert-pageLoadTime-max=2000 --assert-backendTime-max=800 --assert-backendTime-p90=500 --reporter spec
 
-    $ sauce-browsertime http://example.com
+Collecting Navigation Timings with chrome
+  saucelabs.com
+    √ saucelabs.com #1
+    √ saucelabs.com #2
+    √ saucelabs.com #3
 
-    # Multiple URLs run
-    $ sauce-browsertime http://example.com http://example.com/page-one http://example.com/page-two
+  https://developer.mozilla.org/en-US/docs/Navigation_timing
+    √ https://developer.mozilla.org/en-US/docs/Navigation_timing #1
+    √ https://developer.mozilla.org/en-US/docs/Navigation_timing #2
+    √ https://developer.mozilla.org/en-US/docs/Navigation_timing #3
 
-    # Turn on the log
-    $ DEBUG="sauce-browsertime" sauce-browsertime http://example.com
+  https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overview.ht
+ml
+    √ https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overvie
+w.html #1
+    √ https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overvie
+w.html #2
+    √ https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overvie
+w.html #3
 
-    # Redirect output (DEBUG logs are written to STDERR)
-    $ DEBUG="sauce-browsertime" sauce-browsertime http://example.com > results.json
+  http://www.html5rocks.com/en/tutorials/webperformance/basics/
+    √ http://www.html5rocks.com/en/tutorials/webperformance/basics/ #1
+    √ http://www.html5rocks.com/en/tutorials/webperformance/basics/ #2
+    √ http://www.html5rocks.com/en/tutorials/webperformance/basics/ #3
 
-    # Multiple runs per URL
-    $ sauce-browsertime http://example.com -n 3
+  http://caniuse.com/nav-timing
+    √ http://caniuse.com/nav-timing #1
+    √ http://caniuse.com/nav-timing #2
+    √ http://caniuse.com/nav-timing #3
+
+  http://kaaes.github.io/timing/info.html
+    √ http://kaaes.github.io/timing/info.html #1
+    √ http://kaaes.github.io/timing/info.html #2
+    √ http://kaaes.github.io/timing/info.html #3
+
+  http://docs.seleniumhq.org/projects/webdriver/
+    √ http://docs.seleniumhq.org/projects/webdriver/ #1
+    √ http://docs.seleniumhq.org/projects/webdriver/ #2
+    √ http://docs.seleniumhq.org/projects/webdriver/ #3
+
+Asserts - saucelabs.com
+  √ Assert pageload max <= 2000 (Value: 318)
+  √ Assert backend max <= 800 (Value: 32)
+  √ Assert backend p90 <= 500 (Value: 32)
+Asserts - https://developer.mozilla.org/en-US/docs/Navigation_timing
+  √ Assert pageload max <= 2000 (Value: 1226)
+  √ Assert backend max <= 800 (Value: 237)
+  √ Assert backend p90 <= 500 (Value: 237)
+Asserts - https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Ove
+rview.html
+  1) Assert pageload max <= 2000 (Value: 3639)
+  √ Assert backend max <= 800 (Value: 348)
+  √ Assert backend p90 <= 500 (Value: 348)
+Asserts - http://www.html5rocks.com/en/tutorials/webperformance/basics/
+  √ Assert pageload max <= 2000 (Value: 1154)
+  √ Assert backend max <= 800 (Value: 361)
+  √ Assert backend p90 <= 500 (Value: 361)
+Asserts - http://caniuse.com/nav-timing
+  √ Assert pageload max <= 2000 (Value: 1296)
+  √ Assert backend max <= 800 (Value: 178)
+  √ Assert backend p90 <= 500 (Value: 178)
+Asserts - http://kaaes.github.io/timing/info.html
+  √ Assert pageload max <= 2000 (Value: 643)
+  √ Assert backend max <= 800 (Value: 188)
+  √ Assert backend p90 <= 500 (Value: 188)
+Asserts - http://docs.seleniumhq.org/projects/webdriver/
+  √ Assert pageload max <= 2000 (Value: 665)
+  √ Assert backend max <= 800 (Value: 293)
+  √ Assert backend p90 <= 500 (Value: 293)
+
+  41 passing (57s)
+  1 failing
+
+  1) Collecting Navigation Timings with chrome Asserts - https://dvcs.w3.org/hg/
+webperf/raw-file/tip/specs/NavigationTiming/Overview.html Assert pageload max <=
+ 2000 (Value: 3639):
+     Error: Assert pageLoadTime-max <= 2000 (Value: 3639)
+```
+
+JSON output
+
+```json
+{
+  "stats": {
+    "suites": 2,
+    "tests": 10,
+    "passes": 10,
+    "pending": 0,
+    "failures": 0,
+    "start": "2014-05-01T02:30:05.335Z",
+    "timings": {
+      "http://example.com": {
+        "domainLookupTime": {
+          "min": 0,
+          "max": 118,
+          "avg": 11.8,
+          "median": 0,
+          "mad": 0,
+          "p60": 0,
+          "p70": 0,
+          "p80": 0,
+          "p90": 59
+        },
+        "redirectionTime": {
+          "min": 0,
+          "max": 0,
+          "avg": 0,
+          "median": 0,
+          "mad": 0,
+          "p60": 0,
+          "p70": 0,
+          "p80": 0,
+          "p90": 0
+        },
+        "serverConnectionTime": {
+          "min": 0,
+          "max": 2,
+          "avg": 0.2,
+          "median": 0,
+          "mad": 0,
+          "p60": 0,
+          "p70": 0,
+          "p80": 0,
+          "p90": 1
+        },
+        "serverResponseTime": {
+          "min": 2,
+          "max": 7,
+          "avg": 4.1,
+          "median": 4,
+          "mad": 1,
+          "p60": 5,
+          "p70": 5,
+          "p80": 5.5,
+          "p90": 6.5
+        },
+        "pageDownloadTime": {
+          "min": 0,
+          "max": 7,
+          "avg": 1.1,
+          "median": 0.5,
+          "mad": 0.5,
+          "p60": 1,
+          "p70": 1,
+          "p80": 1,
+          "p90": 4
+        },
+        "domInteractiveTime": {
+          "min": 12,
+          "max": 151,
+          "avg": 30.1,
+          "median": 16,
+          "mad": 4,
+          "p60": 19,
+          "p70": 21,
+          "p80": 22.5,
+          "p90": 87.5
+        },
+        "domContentLoadedTime": {
+          "min": 12,
+          "max": 151,
+          "avg": 30.2,
+          "median": 16,
+          "mad": 3.5,
+          "p60": 19,
+          "p70": 21,
+          "p80": 22.5,
+          "p90": 87.5
+        },
+        "pageLoadTime": {
+          "min": 12,
+          "max": 151,
+          "avg": 30.4,
+          "median": 16.5,
+          "mad": 4,
+          "p60": 19.5,
+          "p70": 21.5,
+          "p80": 23,
+          "p90": 87.5
+        },
+        "frontEndTime": {
+          "min": 5,
+          "max": 18,
+          "avg": 10.9,
+          "median": 9.5,
+          "mad": 2.5,
+          "p60": 11,
+          "p70": 13.5,
+          "p80": 16,
+          "p90": 17.5
+        },
+        "backEndTime": {
+          "min": 5,
+          "max": 126,
+          "avg": 18.4,
+          "median": 6.5,
+          "mad": 1.5,
+          "p60": 8,
+          "p70": 8,
+          "p80": 8.5,
+          "p90": 67.5
+        }
+      }
+    },
+    "end": "2014-05-01T02:30:26.213Z",
+    "duration": 20878
+  },
+  "test": [],
+  "failures": [],
+  "passes": []
+}
+
+```
 
 ## Reporters
 

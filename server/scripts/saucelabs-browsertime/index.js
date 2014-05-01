@@ -1,4 +1,6 @@
 
+var fs           = require('fs');
+var path         = require('path');
 var wd           = require('wd');
 var debug        = require('debug')('sauce-browsertime');
 var mocha        = require('mocha');
@@ -6,10 +8,11 @@ var EventEmitter = require('events').EventEmitter;
 var util         = require('util');
 var Intervals    = require('./lib/intervals');
 var Stats        = require('./lib/stats');
+var exists       = fs.existsSync || path.existsSync;
 
 var Test = mocha.Test;
 
-// http configuration, not needed for simple runs
+// http configuration
 wd.configureHttp( {
   timeout: 60000,
   retryDelay: 15000,
@@ -22,10 +25,19 @@ var browsertime = module.exports;
 // Injected script
 browsertime.snippet = "window.performance ? JSON.stringify(window.performance.toJSON ? window.performance.toJSON() : window.performance.timing, null, 2) : '{}'";
 browsertime.Browsertime = Browsertime;
+browsertime.Intervals = Intervals;
+browsertime.Stats = Stats;
 
 browsertime.run = function run(argv, opts, done) {
   done = done || function() {};
   var desired = opts.desired;
+
+  var fromFile = argv.length === 1 && path.extname(argv[0]) === '.txt';
+  var file = argv[0];
+  if (file && exists(file)) {
+    argv = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+    debug('Loading URLs from %s file', file);
+  }
 
   var runner = new Browsertime(opts);
   runner.emit('start');
@@ -33,20 +45,33 @@ browsertime.run = function run(argv, opts, done) {
   runner.collect(argv, desired, function(err, data, caps) {
     if (err) return done(err);
 
+    var stats = data.map(function(result) {
+      return {
+        url: result.url,
+        timings: result.stats
+      };
+    }).reduce(function(results, result) {
+      results[result.url] = result.timings;
+      return results;
+    }, {});
+
     // Hack around Mocha reporter to include our own stats into the reporter output (json mainly)
     if (runner.reporter && runner.reporter.stats) {
-      runner.reporter.stats.timings = data.map(function(result) {
-        return {
-          url: result.url,
-          timings: result.stats
-        };
-      }).reduce(function(results, result) {
-        results[result.url] = result.timings;
-        return results;
-      }, {});
-
+      runner.reporter.stats.timings = stats;
       runner.reporter.stats.caps = caps;
     }
+
+    // Kick off assert suites
+    Object.keys(stats).forEach(function(url) {
+      runner.asserts(url, stats[url]);
+    });
+
+    done(null, {
+      caps: caps,
+      stats: stats,
+      data: data
+    });
+
     runner.emit('end', runner.suite);
   });
 
@@ -178,11 +203,12 @@ Browsertime.prototype.collectURL = function collectURL(url, desired, done) {
         if (err) return done(err);
         debug('Nav timings collected for %s', url);
         var json = typeof res === 'string' ? res : JSON.stringify(res, null, 2);
-        test.fn.toString = function() { return data; };
         var intervals = new Intervals(JSON.parse(json));
         var data = intervals.toJSON();
         // Tricking mocha into displaying our data in reporters (json mainly)
         test.duration = data;
+
+        test.fn.toString = function() { return JSON.stringify(data, null, 2); };
         runner.emit('pass', test);
         runner.emit('test end', test);
 
@@ -191,6 +217,86 @@ Browsertime.prototype.collectURL = function collectURL(url, desired, done) {
       });
     });
   })();
+};
+
+Browsertime.prototype.asserts = function _asserts(url, stats) {
+  var asserts = this.parseAsserts(this.opts);
+  if (!asserts.length) return;
+
+  var suite = mocha.Suite.create(this.suite, 'Asserts - ' + url);
+
+  var runner = this;
+  runner.emit('suite', suite);
+
+  asserts.forEach(function me(assert) {
+    var assertion = this.makeAssertion(stats, assert);
+
+    var title = util.format('Assert %s <= %d (Value: %d)', assertion.metricName, assert.value, assertion.metric);
+    var test = new Test(title, assertion);
+    test.parent = { fullTitle: function() { return assert.name; } };
+    suite.addTest(test);
+    runner.emit('test', test);
+
+    test.run(function(err) {
+      if (err) runner.emit('fail', test, err);
+      else runner.emit('pass', test);
+
+      runner.emit('test end', test);
+    });
+  }, this);
+
+  runner.emit('suite end', suite);
+};
+
+Browsertime.prototype.makeAssertion = function makeAssertion(data, assert) {
+  // Normalize stats key down to lower case, to ease the match
+  var stats = Object.keys(data).map(function(metric) {
+    return {
+      name: metric.toLowerCase().replace(/time$/, ''),
+      data: data[metric]
+    };
+  }).reduce(function(a, b) {
+    a[b.name] = b.data;
+    return a;
+  }, {});
+
+  var parts = assert.name.split('-');
+  var name = parts[0].toLowerCase().replace(/time$/, '');
+  var stat = parts[1] || 'avg';
+  var metric = stats[name];
+  var value = metric && metric[stat];
+
+  var fn = function assertion() {
+    if (typeof value === 'undefined') throw new Error('Cannot find ' + name + ' ' + stat + ' value.\n' + JSON.stringify(stats, null, 2));
+    if (isNaN(value)) throw new Error(name + ' ' + stat + ' value is not a number: ' + value);
+
+    var ok = value <= assert.value;
+    var msg = util.format('Assert %s <= %d (Value: %d)', assert.name, assert.value, value);
+
+    debug('Assert %s %s', assert.name, ok ? 'OK' : 'NOK');
+    if (!ok) throw new Error(msg);
+  };
+
+  fn.metric = parseFloat(value).toFixed(2);
+  fn.metricName = name + ' ' + stat;
+
+  return fn;
+};
+
+Browsertime.prototype.parseAsserts = function parseAsserts(opts) {
+  var r = /^assert-/;
+  return Object.keys(opts).filter(function(option) {
+    return r.test(option);
+  }).map(function(option) {
+    return {
+      name: option.replace(r, ''),
+      value: parseFloat(opts[option]).toFixed(2)
+    };
+  });
+  // .reduce(function(options, option) {
+  //   options[option.name] = option.value;
+  //   return options;
+  // }, {});
 };
 
 // Loading helpers for Mocha reporters

@@ -37,3 +37,13 @@ Intervals.prototype.toJSON = function toJSON() {
     }, {})
   };
 };
+
+// Static
+Intervals.keys = function _keys(delim, shorten) {
+  var intervals = new Intervals();
+  var keys = Object.keys(intervals.toJSON().intervals);
+  if (shorten) keys = keys.map(function(key) {
+    return key.replace(/time$/i, '');
+  });
+  return delim ? keys.join(delim) : keys;
+};

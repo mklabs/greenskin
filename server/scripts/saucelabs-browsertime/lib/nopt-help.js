@@ -1,6 +1,5 @@
 
 module.exports = help;
-
 help.Helper = Helper;
 
 // Give it the raw typedef options passed to nopt, returns a typical usage help text.
@@ -16,7 +15,7 @@ function Helper(types, shorts, opts) {
   this.descriptions = {};
 
   // To let desc go through before outputting anything
-  process.nextTick(this.show.bind(this));
+  if (!this.opts.silent) process.nextTick(this.show.bind(this));
 }
 
 Helper.prototype.show = function show() {
