@@ -15,6 +15,18 @@ ex. phantomas or feature for now.
 - Job sets up basic info on the job type, namely type and namespace props.
   - namespace should be used in templates in the parent app to route to proper sub view / actions.
 
+## Anatomy
+
+Is an express 4.x application, with:
+
+- Standard view with the following tabs
+- Current build: Display the last or currently job on CI
+- Build history: A simple list of passed build
+- Build view: When clicking on a particular build, access to job log and
+  any other particular info for this job
+- Edit: A form on top of the CI job config (XML file for Jenkins)
+- Any other additional tabs
+
 ## Example
 
 A basic example

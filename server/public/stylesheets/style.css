@@ -740,7 +740,7 @@ pre.log .fold-start:not(.fold),pre.log .fold-end {
   -ms-flex: 1;
   flex: 1;
   position: relative;
-  padding-top: 20px;
+  /* padding-top: 20px; */
 }
 
 .app-top {
