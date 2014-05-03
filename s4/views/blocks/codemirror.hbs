@@ -1,0 +1,14 @@
+
+<div class="col-sm-10">
+  <textarea class="js-codemirror form-control"
+    name="{{ name }}"
+    data-line-numbers="true">{{{ body }}}</textarea>
+</div>
+
+{{#extend "scripts"}}
+<script src="{{ baseURL }}/js/blocks/codemirror.js"></script>
+{{/extend}}
+
+{{#extend "stylesheets"}}
+<link rel="stylesheet" href="{{ baseURL }}/stylesheets/blocks/codemirror.css"/>
+{{/extend}}

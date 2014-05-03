@@ -28,7 +28,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "jenkins-master" do |jenkins|
     jenkins.vm.box = "centos63.minimal"
     jenkins.vm.hostname = "jenkins.dev"
-    jenkins.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box"
+
+    # For CentOS6.5 box
+    # jenkins.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box"
 
     # to be able to run the playbook locally from the VM
     jenkins.vm.synced_folder "vms/jenkins-master/provisioning/", "/ansible"
@@ -36,7 +38,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     jenkins.vm.network "forwarded_port", guest: 80, host: 10080
     jenkins.vm.network "forwarded_port", guest: 3000, host: 13000
-    jenkins.vm.network "forwarded_port", guest: 3000, host: 3000
+    # jenkins.vm.network "forwarded_port", guest: 3000, host: 3000
     jenkins.vm.network "forwarded_port", guest: 8080, host: 18080
     jenkins.vm.network :private_network, ip: "192.168.33.12"
 
