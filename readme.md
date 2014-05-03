@@ -1,16 +1,26 @@
-# Hermód
+# Greenskin
 
-An express based webapp, sitting on top of Jenkins, aiming to provide a simple and fun way to monitor Frontend Performance and / or run functional testing.
+A set of monitoring tools, with a focus on frontend metrics, aiming to provide a
+simple and fun way to monitor Frontend Performance and / or run functional testing.
 
-![](imgs/intro.png)
+The project is based on the following systems:
 
-Based on PhantomJS / Phantomas for metrics collection, Mocha / Gherkin to run the functional tests and Jenkins as a robust Job scheduler with distributed capabilities (Master / Slave)
+- Expressjs - To support the frontend webapp
+- CI Server - Jenkins, Travis or built-in (based on kue)
+- Statsd - with support for backend such as Graphite, Cube or raw git.
+- PhantomJS / Webdriver - For browser automation and collectng metrics
+- Phantomas / Browsertime - Monitoring and assertion tools.
+- VM / Slaves / Saucelabs - Provisioning cookbook and tight integraiton
+  to Saucelabs for browser instrumentation
 
 The webapp is only one part of the system, we provide ansible playbooks & basic install script for provisioning the main server (required), and (optional) remote slaves.
 
-Redis is an optional, but recommended, dependency for running Feature through [kue](https://github.com/learnboost/kue) "locally".
+![](imgs/intro.png)
+
 
 ## Description
+
+TODO: Webdriver integration / Saucelabs
 
 Most of the metrics are gathered by Phantomas, instrumented via Jenkins, from optional remote slaves.
 
@@ -89,14 +99,6 @@ Jenkins is usually available at `/jenkins`. Assuming the Simple Theme Plugin is 
 
 ## Components
 
-Systems
-
-- Expressjs
-- Jenkins
-- Graphite
-- PhantomJS
-- Phantomas
-
 Frontend
 
 - bootstrap v3
@@ -112,8 +114,34 @@ Frontend
 - ansiparse (with a bit of CSS from travis.org)
 - cucumber/gherkin
 
+## Docs
+
+And global thoughts:
+
+- The webapp & subapps / package works together to provide the UI,
+  scripts and libraries to perform a performance / functional test (ex:
+  phantomas, browsertime)
+
+- The runner is a CI server, default being Jenkins. Travis integration
+  is possible (is it ? can't setup cron, only on post push on a github
+  repo) and / or a minimal job runner based on kue.
+
+- Slaves / Test agent: Handled by Jenkins Master / Slave configuration,
+  are the VMs provided where the tests are executed. They include xvfb
+  and Firefox by default (TODO: check on non-centos system for Chrome &
+  Chromedriver provisioning) / (TODO: Check on setting up a Selenium
+  server there to, and register to selenium grid)
+
+- Saucelabs: Saucelabs service is an interresting alternative with
+  broader browser support eliminating the need of any slaves / test
+  agent setup and maintenance.
+
+-
 
 ## Install
+
+> TODO: Rework install processus etc. This is for production case, work
+> an a simpler / local workflow for quick preview
 
 The app can work with any Jenkins instance, by using a job prefix to help
 isolating job related to the frontend monitoring. Though, we recommend using
