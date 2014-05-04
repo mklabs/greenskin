@@ -1,12 +1,13 @@
 
 <div class="col-sm-12 js-codemirror">
   <a href="#" class="js-codemirror-show btn btn-link">
-    Show {{ name }} config
+    Show {{ codemirror.name }} config
   </a>
 
   <textarea class="js-textarea form-control is-hidden"
     name="{{ codemirror.name }}"
     data-line-numbers="true"
+    data-mode="{{ codemirror.name }}"
     data-hidden="true"
     >{{{ body }}}</textarea>
 </div>

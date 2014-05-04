@@ -53,7 +53,21 @@ URLS="$PERF_URLS"
 
 RESULT_DIR="results/$BUILD_NUMBER"
 
+
+
+echo """
+
+URLs: $URLS
+
+JSON Configuration:
+
+$JSON_CONFIG
+
+"""
+
 ./node_modules/.bin/phantomas --help
+
+echo "$JSON_CONFIG" > config.json
 
 for url in $URLS; do
 
@@ -70,17 +84,35 @@ for url in $URLS; do
   """
 
   mkdir -p $URL_DIR
-  ./node_modules/.bin/phantomas $url \
+
+  # echoing to user
+  echo ./node_modules/.bin/phantomas $url \
     --reporter json \
+    --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
+    --verbose
+
+  echo ""
+
+  # actual run
+  ./node_modules/.bin/phantomas $url \
+    --reporter json \
+    --config ./config.json \
+    --screenshot $URL_DIR/screenshot.png \
+    --screenshot $URL_DIR/screenshot.png \
+    --har $URL_DIR/har.json \
+    --film-strip --film-strip-dir $URL_DIR/filmstrip \
+    --verbose \
     > $URL_DIR/build.json
 
   cat $URL_DIR/build.json
   echo ""
 done
+
+rm config.json
 
 ]]></command>
     </hudson.tasks.Shell>

@@ -21,11 +21,14 @@
 
   CodeMirrorView.prototype.textarea = function() {
     var el = this.textarea = this.$('.js-textarea');
-    var mode = el.data('mode') || this.shebang(el.val()) || 'xml';
-    console.log('?mode', mode);
+    var mode = this.shebang(el.val()) || el.data('mode') || 'xml';
     var data = el.data() || {};
     if (data.codemirror) data = data.codemirror;
-    data.mode = data.mode || mode;
+    data.mode = mode;
+
+    if (data.mode === 'json') {
+      data.mode = 'application/json';
+    }
 
     var editor = this.editor = CodeMirror.fromTextArea(el[0], data);
     var cm = this.cm = el.next('.CodeMirror');
@@ -33,11 +36,15 @@
     cm.addClass('form-control');
     if (data.hidden) cm.addClass('is-hidden');
 
+    // Attach textarea ref to editor
+    editor.__textarea = el[0];
+
     // Adding in screenful button
     cm
       .addClass('js-fullscreen-target graph')
       .append(this.createFullscreenButton());
 
+    el.data('editor', editor);
     this.$el.data('editor', editor);
   };
 

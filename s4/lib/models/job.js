@@ -1,4 +1,5 @@
 
+var _    = require('underscore');
 var util = require('util');
 var debug = require('debug')('gs:job');
 var async = require('async');
@@ -28,6 +29,7 @@ function Job() {
   if (xml) this.getCron();
   if (xml) this.getURLs();
   if (xml) this.namespace();
+  if (xml) this.jsonConfig();
 }
 
 util.inherits(Job, Model);
@@ -73,13 +75,13 @@ Job.prototype.fetch = function fetch(done) {
     me.getCron();
     me.getURLs();
     me.script();
+    me.jsonConfig();
 
     // Request build infos ? Configurable through opts ?
     var props = ['lastBuild', 'lastFailedBuild', 'lastCompletedBuild', 'lastUnstableBuild', 'lastUnsuccessfulBuild', 'lastSuccessfulBuild'];
 
     async.each(props, function(prop, done) {
       var info = me.get(prop);
-      debug('Get %s info', prop, info);
       if (!info) return done();
 
       var build = new Build({
@@ -89,7 +91,6 @@ Job.prototype.fetch = function fetch(done) {
 
       build.on('error', done);
       build.on('sync', function() {
-        debug('Set prop', prop);
         me.set(prop, build.toJSON());
         done();
       });
@@ -186,7 +187,7 @@ Job.prototype.getCron = function getCron() {
   var lines = xml.split(/\r?\n/);
   var line = this.line(lines, /<hudson.triggers.TimerTrigger>/);
   var value = (lines[line].match(/<spec>(.+)<\/spec>/) || [])[1];
-  if (!value) throw new Error('Cannot get cron value from XML');
+  if (!value) return this.error(new Error('Cannot get cron value from XML'));
 
   this.set('cron', value);
 
@@ -208,7 +209,7 @@ Job.prototype.getURLs = function getURLs() {
 };
 
 Job.prototype.setURLs = function setURLs(urls) {
-  if (!urls) throw new Error('Missing URLs');
+  if (!urls) this.error(new Error('Missing URLs'));
 
   urls = urls.filter(function(url) {
     return url;
@@ -239,20 +240,31 @@ Job.prototype.getScript = function getScript(xml) {
   var lines = xml.split(/\r?\n/);
   var line = this.line(lines, /<command><!\[CDATA\[#!/, 0);
   if (!line) {
-    debug('Err', new Error('Cannot get line shebang'));
-    return;
+    line = this.line(lines, /<command>#!/, 0);
+    if (!line) {
+      debug('Err', new Error('Cannot get line shebang'));
+      return;
+    }
   }
 
-  var end = this.line(lines.slice(line), /^\]\]>/, 0) + line;
+  var end = this.line(lines.slice(line), /^\]\]>/, 0);
   if (!end) {
-    debug('Err', new Error('Cannot get script end shell'));
-    return;
+    end = this.line(lines.slice(line), /<\/command>/, 0);
+    if (!end) {
+      debug('Err', new Error('Cannot get script end shell'));
+      return;
+    }
   }
+
+  end = end + line;
 
   var body = lines.slice(line, end).join('\n');
-  body = body.replace(/<command><!\[CDATA\[/, '');
+  body = body
+    .replace(/<command><!\[CDATA\[/, '')
+    .replace(/<command>/, '')
+    .replace(/<\/command>/, '');
 
-  return body.trim();
+  return _.unescape(body.trim());
 };
 
 Job.prototype.setScript = function setScript(code, xml) {
@@ -276,9 +288,45 @@ Job.prototype.setScript = function setScript(code, xml) {
   return xml;
 };
 
+// JSON config - similar to PERF_URLS, but we JSON.parse instead of .split-ing
+Job.prototype.jsonConfig = function jsonConfig(value) {
+  if (value) {
+    this.setJSON(value);
+    return this;
+  }
+
+  var json = this.param('JSON_CONFIG');
+  if (!json) return this.error(new Error('Cannot get JSON_CONFIG from xml'));
+
+  var data = {};
+  try {
+    data = JSON.parse(json);
+  } catch(e) {
+    return this.error(new Error('Error parsing JSON from XML:\n' + json));
+  }
+
+  this.set('json', JSON.stringify(data, null, 2));
+  this.set('jsonConfig', data);
+
+  return data;
+};
+
+Job.prototype.setJSON = function setJSON(value, xml) {
+  var value;
+
+  try {
+    // Force output to single line
+    value = JSON.stringify(JSON.parse(value));
+  } catch(e) {}
+
+  this.param('JSON_CONFIG', value);
+  this.set('json', value);
+  return this;
+};
+
 // General param getter / setter
-Job.prototype.param = function(name, value) {
-  var xml = this.get('xml');
+Job.prototype.param = function(name, value, xml) {
+  xml = xml || this.get('xml');
   if (!xml) return;
 
   var lines = xml.split(/\r?\n/);
@@ -288,12 +336,18 @@ Job.prototype.param = function(name, value) {
   var reg = /<defaultValue><!\[CDATA\[(.+)\]\]><\/defaultValue>/;
   var replace = '<defaultValue><![CDATA[$value]]></defaultValue>';
   var val = (lines[line].match(reg) || [])[1];
-  if (!val) throw new Error('Cannot get ' + name + ' param value from XML');
+  if (!val) {
+    val = (lines[line].match(/<defaultValue>(.+)<\/defaultValue>/) || [])[1];
+    if (val) val = _.unescape(val);
+  }
 
+  if (!val) return this.error(new Error('Cannot get ' + name + ' param value from XML'));
+
+  // getter
   if (!value) return val;
 
+  // setter
   lines[line] = lines[line].replace(reg, replace.replace(/\$value/, value));
-
   xml = lines.join('\n');
   this.set('xml', xml);
 };

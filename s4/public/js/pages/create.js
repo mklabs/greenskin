@@ -1,5 +1,8 @@
 (function(doc, exports) {
 
+  // TODO: Code related to metric table / phantomas config should go to
+  // their own block / component
+
   var page = exports.CreatePage = Object.create({
     init: function(el, config) {
       this.el = el;
@@ -13,11 +16,17 @@
       this.table(doc.querySelector('.js-metrics'));
 
       this.cron();
-      this.phantomasConfig();
       this.select();
       this.events();
 
       this.initMetricTable(doc.querySelector('.js-metrics'));
+
+      // lazy async manage between this page and the block / component
+      // it relies on (codemirror)
+      var self = this;
+      setTimeout(function() {
+        self.jsonChecker(self.$el.find('[name=json]'));
+      }, 50);
     },
 
     select: function() {
@@ -67,7 +76,7 @@
       });
     },
 
-    phantomasConfig: function phantomasConfig() {
+    phantomasConfig: function phantomasConfig(el) {
       var textarea = doc.querySelector('[name=json_config]');
       if (!textarea) return;
       var cm = CodeMirror.fromTextArea(textarea, {
@@ -80,15 +89,25 @@
 
       $(textarea).data('codemirror', cm);
 
+      this.jsonChecker(cm);
+    },
+
+    jsonChecker: function(cm) {
+      if (cm instanceof $) cm = cm.data('editor');
+      if (!cm) return;
+
+      var textarea = cm.__textarea;
+
       var self = this;
       cm.on('change', function(e) {
-        var el = $('.js-json-error');
+        var el = self.$el.find('.js-json-error');
         var err = self.checkJSON(cm.getValue());
         if (err) {
           el
           .removeClass('is-hidden').text(err.message)
           .closest('.form-group').addClass('has-error')
           .find('.form-control').addClass('bg-danger');
+          textarea.setCustomValidity(err.message);
         } else {
           el
           .addClass('is-hidden').text('')
@@ -97,6 +116,8 @@
 
           if (!self._lock) self.initMetricTable(doc.querySelector('.js-metrics'));
           self._lock = false;
+
+          textarea.setCustomValidity('');
         }
       });
     },

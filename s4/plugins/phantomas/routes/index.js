@@ -55,6 +55,7 @@ router.post('/:name/edit', function(req, res, next) {
   job.setCron(params.cron);
   job.setURLs(params.urls);
   job.script(params.script);
+  job.jsonConfig(params.json);
 
   job.save()
     .on('error', next)
