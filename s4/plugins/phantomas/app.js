@@ -14,6 +14,10 @@ app.on('mount', function(gs) {
   debug('App mounted, setting gs instance');
   app.gs = gs;
   // Attach here any initialization logic
+  gs.locals.buttons.push({
+    name: 'Create Job (simple metrics)',
+    url: '/phantomas/create'
+  });
 });
 
 // view engine setup

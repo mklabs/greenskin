@@ -7,10 +7,19 @@
 {{/extend}}
 
 {{#edit}}
-  {{#tabs "phantomas"}}
-    <li>
-      <a href="{{ baseURL }}/view//">Metrics</a>
-    </li>
+  <p class="description">
+    {{ job.description }}
+  </p>
+
+  <p class="description">
+    {{#job.urls}}
+    <a href="{{.}}">
+    {{ . }}
+    </a>
+    {{/job.urls}}
+  </p>
+
+  {{#tabs tabs job}}
   {{/tabs}}
 {{/edit}}
 
@@ -18,55 +27,65 @@
 <div class="page-header">
   <h2 class="page-title">Create phantomas job</h2>
 </div>
-{{/edit}}
-
 <p class="description">
   Fill in the form below to create a new Job, with a Phantomas script.
 </p>
+{{/edit}}
 
+{{#saved}}
+<div class="alert alert-success">
+  Job {{ job.name }} saved.
+</div>
+{{/saved}}
 
-<form action="{{ action }}" class="form form-horizontal {{#edit}}form-edit{{/edit}} js-job-form" method="post" data-cron="{{ cron }}">
+<form action="{{ action }}" class="form
+  {{#edit}}form-edit{{/edit}} js-job-form" method="post" data-cron="{{ job.cron }}">
 
   <div class="form-group">
-    <label for="ipt_name" class="col-sm-2 control-label">Job name</label>
-    <div class="col-sm-10">
-      <input
-        required
-        {{#edit}}disabled{{/edit}}
-        id="ipt_name"
-        name="name"
-        value="{{ job.name }}"
-        type="text"
-        class="form-control"
-        placeholder="Fancy name">
+    <label for="ipt_name" class="control-label">Job name</label>
+    <input
+      required
+      {{#edit}}disabled{{/edit}}
+      id="ipt_name"
+      name="name"
+      value="{{ job.name }}"
+      type="text"
+      class="form-control"
+      placeholder="Fancy name">
 
-      {{#edit}}
-      <input type="hidden" name="name" value="{{ job.name }}">
-      {{/edit}}
+    {{#edit}}
+    <input type="hidden" name="name" value="{{ job.name }}">
+    {{/edit}}
+  </div>
+
+  <div class="form-group">
+    <label for="ipt_frequency" class="control-label">Frequency</label>
+    <div class="js-cron form-control cron-box">
+
+      <span class="js-cron-text cron-text"><span>
     </div>
+    <input type="hidden" name="cron" class="js-cron-input">
   </div>
 
-  <div class="form-group">
-    <label for="ipt_frequency" class="col-sm-2 control-label">Frequency</label>
-    <div class="col-sm-10">
-      <div class="js-cron form-control cron-box">
-
-        <span class="js-cron-text cron-text"><span>
-      </div>
-      <input type="hidden" name="cron" class="js-cron-input">
-    </div>
+  <div class="form-group row" style="margin-top: 50px;">
+    {{> urls }}
   </div>
 
-  <div class="form-group">
-    <label class="control-label col-sm-2">Job XML</label>
-    {{#codemirror "xml"}}
-    {{ job.xml }}
-    {{/codemirror}}
+  <div class="form-group row">
+    <fieldset class="col-sm-12">
+      <legend>Job Script</legend>
+      {{#codemirror "script"}}
+      {{ job.script }}
+      {{/codemirror}}
+
+      {{#codemirror "xml"}}
+      {{ job.xml }}
+      {{/codemirror}}
+
+    </fieldset>
   </div>
 
-
-
-  <div class="form-submit">
+  <div class="form-submit col-sm-12">
     <div class="col-sm-offset-2 col-sm-10">
       <button type="submit" class="btn btn-primary right">Save</button>
     </div>

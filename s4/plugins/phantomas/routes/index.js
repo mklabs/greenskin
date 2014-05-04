@@ -19,59 +19,75 @@ router.get('/create', function(req, res) {
     xml: xml.trim()
   });
 
-  debug('Create:', job.keys());
+  job.script();
+
   res.render('form', {
     job: job.toJSON()
   });
 });
 
-router.post('/create', function(req, res, next) {
+router.get('/:name/edit', function(req, res, next) {
+  var job = new app.gs.Job({
+    name: req.params.name
+  });
+
+  job.fetch().on('error', next);
+  job.once('sync', function() {
+    res.render('form', {
+      job: job.toJSON(),
+        tabs: { edit: true },
+      edit: true
+    });
+  });
+});
+
+router.post('/:name/edit', function(req, res, next) {
   var params = req.body;
-
-  params.urls = params.urls || [];
-  params.json_config = params.json_config || params.jsonconfig || params.config || '{}';
-  debug('Create Job', params);
-
   var name = params.name;
   var xml = params.xml;
-
   if (!name) return next(new Error('Missing name'));
   if (!xml) return next(new Error('Missing xml'));
 
-  // xml = replaceUrlsXML(xml, params.urls);
-  // xml = replaceTimerXML(xml, params.cron);
-
-  // var jsonconfig;
-  // try {
-  //   jsonconfig = JSON.parse(params.json_config);
-  //   params.json_config = JSON.stringify(jsonconfig);
-  // } catch(e) {
-  //   return next(e);
-  // }
-
-  // if (params.template === 'feature') {
-  //   xml = xml.replace('SCRIPT_BODY', function() {
-  //     return mochaRunner;
-  //   });
-
-  //   if (!jsonconfig.steps) {
-  //     jsonconfig.steps = mochaSteps;
-  //     params.json_config = JSON.stringify(jsonconfig);
-  //   }
-  // }
-
-  // xml = replaceJSONConfig(xml, params.json_config);
-
-  debug('Jenkins creating %s job with %s template', name);
   var job = new app.gs.Job({
     name: name,
     xml: xml
   });
 
+  job.setCron(params.cron);
+  job.setURLs(params.urls);
+  job.script(params.script);
+
   job.save()
     .on('error', next)
     .on('saved', function() {
-      debug('Jenkins job creation OK');
+      var data = job.toJSON();
+      res.render('form', {
+        saved: true,
+        tabs: { edit: true },
+        job: data
+      });
+    });
+});
+
+router.post('/create', function(req, res, next) {
+  var params = req.body;
+  var name = params.name;
+  var xml = params.xml;
+  if (!name) return next(new Error('Missing name'));
+  if (!xml) return next(new Error('Missing xml'));
+
+  var job = new app.gs.Job({
+    name: name,
+    xml: xml
+  });
+
+  if (params.cron) job.setCron(params.cron);
+  if (params.urls) job.setURLs(params.urls);
+  if (params.script) job.script(params.script);
+
+  job.save()
+    .on('error', next)
+    .on('saved', function() {
       res.redirect('/');
     });
 });

@@ -1,0 +1,14 @@
+<ul class="nav nav-tabs job-tabs">
+  <li {{#tabs.current}}class="active"{{/tabs.current}}>
+    <a href="{{ baseURL }}/view/{{ job.name }}">Current</a>
+  </li>
+  <li {{#tabs.builds}}class="active"{{/tabs.builds}}>
+    <a href="{{ baseURL }}/view/{{ job.name }}/builds">Build History</a>
+  </li>
+
+  {{{ body }}}
+
+  <li {{#tabs.edit}}class="active"{{/tabs.edit}}>
+    <a href="{{ baseURL }}/{{ job.namespace }}/{{ job.name }}/edit/">Edit</a>
+  </li>
+</ul>

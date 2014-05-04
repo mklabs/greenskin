@@ -1,8 +1,14 @@
 
-<div class="col-sm-10">
-  <textarea class="js-codemirror form-control"
+<div class="col-sm-12 js-codemirror">
+  <a href="#" class="js-codemirror-show btn btn-link">
+    Show {{ name }} config
+  </a>
+
+  <textarea class="js-textarea form-control is-hidden"
     name="{{ name }}"
-    data-line-numbers="true">{{{ body }}}</textarea>
+    data-line-numbers="true"
+    data-hidden="true"
+    >{{{ body }}}</textarea>
 </div>
 
 {{#extend "scripts"}}

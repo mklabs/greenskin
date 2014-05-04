@@ -5,6 +5,7 @@
 
 var util = require('util');
 var Model = require('./model');
+var async = require('async');
 var Job = require('./job');
 
 var debug = require('debug')('gs:jobs');
@@ -23,9 +24,24 @@ Jobs.prototype.fetch = function fetch() {
   this.client.list(function(err, jobs) {
     if (err) return me.error(err);
     me.emit('jobs', jobs);
-    jobs = me.parse(jobs);
-    console.log(jobs);
-    me.emit('render', { jobs: jobs });
+    // jobs = me.parse(jobs);
+
+    function done(err, results) {
+      if (err) return me.error(err);
+      me.emit('render', { jobs: results });
+    }
+
+    async.map(jobs, function(data, next) {
+      debug('Getting job %s info', data.name);
+      var job = new Job(data);
+
+      job.fetch()
+        .on('error', next)
+        .once('sync', function(jobdata) {
+          next(null, job.toJSON());
+        });
+    }, done);
+
   });
 
   return this;
@@ -37,3 +53,4 @@ Jobs.prototype.parse = function parse(jobs) {
     return job.toJSON();
   });
 };
+

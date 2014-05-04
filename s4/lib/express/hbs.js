@@ -53,12 +53,13 @@ fs.readdirSync(blocksDir).forEach(function(file) {
   hbs.registerHelper(name, function() {
     var args = [].slice.call(arguments);
     var ctx = args.pop();
+    var data = args[0] || {};
 
-    debug('Render helper %s with args:', name, args);
-    return new hbs.handlebars.SafeString(template({
-      name: args[0],
-      body: ctx.fn(this)
-    }));
+    var context = {};
+    context.body = ctx.fn(this).trim();
+    context[name] = data;
+    context.job = args[1] || {};
+    return new hbs.handlebars.SafeString(template(context));
   });
 
 });

@@ -168,6 +168,8 @@
         }, {});
 
         var cm = $('[name=json_config]').data('codemirror');
+        if (!cm) return;
+
         var json = cm.getValue();
 
         var data = {};

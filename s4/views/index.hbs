@@ -34,39 +34,39 @@
         </a>
       </td>
       <td>
-        <a href="/view/{{ name }}/last">{{ name }}</a>
+        <a href="/view/{{ name }}/">{{ name }}</a>
         <a href="{{ url }}">(jenkins)</a>
       </td>
       <td>
-        <a href="/{{ namespace }}/edit/{{ name }}" class="label label-default">
+        <a href="/{{ namespace }}/{{ name }}/edit/" class="label label-default">
         {{ type }}
         </a>
       </td>
       <td>
         {{#lastSuccessfulBuild}}
-        <a href="/{{ namespace }}/view/{{ name }}/{{ lastSuccessfulBuild.number }}">
+        <a href="/{{ namespace }}/view/{{ name }}/b/{{ lastSuccessfulBuild.number }}">
         {{ lastSuccessfulBuild.moment }}
         </a>
         {{/lastSuccessfulBuild}}
       </td>
       <td>
         {{#lastFailedBuild}}
-        <a href="/{{ namespace }}/view/{{ name }}/{{ lastFailedBuild.number }}">
+        <a href="/{{ namespace }}/view/{{ name }}/b/{{ lastFailedBuild.number }}">
         {{ lastFailedBuild.moment }}
         </a>
         {{/lastFailedBuild}}
       </td>
       <td>
         {{#lastBuild}}
-        <a href="/{{ namespace }}/view/{{ name }}/{{ lastBuild.number }}">
+        <a href="/{{ namespace }}/view/{{ name }}/b/{{ lastBuild.number }}">
         {{ lastBuild._duration }}
         </a>
         {{/lastBuild}}
       </td>
       <td>
         <div class="btn-group right">
-          <a class="btn btn-default" href="/view/{{ name }}/build" role="button">Run</a>
-          <a class="btn btn-default" href="/{{ namespace }}/edit/{{ name }}" role="button">Edit</a>
+          <a class="btn btn-default" href="/view/{{ name }}/run" role="button">Run</a>
+          <a class="btn btn-default" href="/{{ namespace }}/{{ name }}/edit" role="button">Edit</a>
           <a class="btn btn-danger"  href="/delete/{{ name }}" role="button" onclick="return confirm('Sure ?')">Delete</a>
         </div>
       </td>

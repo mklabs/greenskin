@@ -7,56 +7,6 @@
     </div>
 </div>
 
-<div class="form-group js-urls">
-  <label class="col-sm-2 control-label">URLs</label>
-  <div class="col-sm-10">
-    <table class="table">
-      <thead>
-        <tr>
-          <th></th>
-          <th width="10%"></th>
-          <th width="10%"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="is-hidden js-row-template">
-          <td>
-            <a href="#" class="js-link is-hidden"></a>
-            <input type="hidden" name="urls[]" class="js-hidden">
-            <input type="text" value="" class="js-input form-control" placeholder="http://example.com">
-          </td>
-          <td>
-            <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
-          </td>
-          <td>
-            <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
-          </td>
-        </tr>
-
-        {{#job.urls}}
-        <tr>
-          <td>
-            <a href="{{ . }}" class="js-link" target="_blank">{{ . }}</a>
-            <input type="hidden" name="urls" class="js-hidden" value="{{ . }}">
-            <input type="text" value="{{ . }}" class="js-input form-control is-hidden">
-          </td>
-          <td>
-            <a class="btn btn-default js-edit right" href="#" role="button">Edit</a>
-          </td>
-          <td>
-            <a class="btn btn-danger js-delete right" href="#" role="button">Delete</a>
-          </td>
-        </tr>
-        {{/job.urls}}
-        <tr class="js-create-row">
-          <td colspan="3">
-            <a class="btn btn-default right js-add" href="#" role="button">Create</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
 <div class="form-group js-metrics">
   <label class="col-sm-2 control-label">Metrics</label>

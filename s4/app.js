@@ -8,12 +8,17 @@ var bodyParser = require('body-parser');
 var hbs        = require('./lib/express/hbs');
 var stylus     = require('./lib/express/stylus');
 var debug      = require('debug')('gs');
+var config     = require('./package').config;
 
 
 var app = module.exports = express();
 app.Jobs = require('./lib/models/jobs');
 app.Model = require('./lib/models/model');
 app.Job = require('./lib/models/job');
+app.Build = require('./lib/models/build');
+
+app.locals.buttons = [];
+app.locals.config = config;
 
 // For subapps to pass around the layout filepath
 app.layout = path.join(__dirname, 'views/layout.hbs');

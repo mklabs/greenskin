@@ -14,7 +14,7 @@ module.exports = Model;
 // Based off Backbone
 
 // List of known instance props to exclude from serialize
-var excludes = ['attributes', 'cid', 'options', '_defaults'];
+var excludes = ['attributes', 'cid', 'options', '_defaults', 'backend', 'client'];
 
 // Base Model
 function Model(attributes, options) {
@@ -24,6 +24,7 @@ function Model(attributes, options) {
   this.options = options || {};
   this._defaults = this.defaults();
   this.attributes = _.defaults({}, this._defaults, attrs);
+  // debug('Init model', this.cid, this.keys());
 
   this.setup(config);
   this.initialize.apply(this, arguments);
@@ -39,12 +40,11 @@ Model.prototype.setup = function setup(config) {
 };
 
 Model.prototype.createClient = function createClient(type) {
-  debug('Create client for backend', type);
+  // debug('Create client for backend', type);
   if (type === 'jenkins') this.client = new Jenkins({ host: config.jenkins });
   if (!this.client) throw new Error('Backend ' + type + 'not implemented');
   return this.client;
 };
-
 
 Model.prototype.toJSON = function toJSON() {
   var me = this;
@@ -72,6 +72,45 @@ Model.prototype.parse = function parse(res) {
   return res;
 };
 
+// Default, ensure default value in serialization and define convenience
+// accessor for these props
 Model.prototype.defaults = function defaults(defs) {
-  this._defaults = _.clone(defs);
+  this._defaults = _.clone(defs || {});
+
+  var self = this;
+  Object.keys(this._defaults).forEach(function(def) {
+    Object.defineProperty(this, def, {
+      get: function() {
+        return self.get(def);
+      }
+    });
+  }, this);
+};
+
+Model.prototype.get = function get(name) {
+  return this.attributes[name];
+};
+
+Model.prototype.set = function set(key, val, options) {
+  var attrs;
+  var current = this.attributes;
+  if (key == null) return this;
+
+  // Handle both `"key", value` and `{key: value}` -style arguments.
+  if (typeof key === 'object') {
+    attrs = key;
+    options = val;
+  } else {
+    (attrs = {})[key] = val;
+  }
+
+  options || (options = {});
+
+  // For each `set` attribute, update or delete the current value.
+  Object.keys(attrs).forEach(function(attr) {
+    var val = attrs[attr];
+    current[attr] = val;
+  });
+
+  return this;
 };
