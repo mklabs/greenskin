@@ -1,9 +1,11 @@
 
 var util = require('util');
-var Model = require('./model');
 var debug = require('debug')('gs:job');
 var async = require('async');
 var request = require('request');
+
+var Model = require('./model');
+var Build = require('./build');
 
 module.exports = Job;
 
@@ -66,8 +68,33 @@ Job.prototype.fetch = function fetch(done) {
     me.getCron();
     me.getURLs();
     me.script();
-    me.emit('sync');
-    done();
+
+    // Request build infos ? Configurable through opts ?
+    var props = ['lastBuild', 'lastFailedBuild', 'lastCompletedBuild', 'lastUnstableBuild', 'lastUnsuccessfulBuild', 'lastSuccessfulBuild'];
+
+    async.each(props, function(prop, done) {
+      var info = me.get(prop);
+      debug('Get %s info', prop, info);
+      if (!info) return done();
+
+      var build = new Build({
+        name: me.name,
+        number: info.number
+      });
+
+      build.on('error', done);
+      build.on('sync', function() {
+        debug('Set prop', prop);
+        me.set(prop, build.toJSON());
+        done();
+      });
+
+      build.fetch();
+    }, function(err) {
+      if (err) return me.error(err, results);
+      me.emit('sync');
+      done();
+    });
   });
 
   return this;

@@ -43,25 +43,19 @@
         </a>
       </td>
       <td>
-        {{#lastSuccessfulBuild}}
-        <a href="/{{ namespace }}/view/{{ name }}/b/{{ lastSuccessfulBuild.number }}">
+        <a href="/{{ namespace }}/view/{{ name }}/{{ lastSuccessfulBuild.number }}">
         {{ lastSuccessfulBuild.moment }}
         </a>
-        {{/lastSuccessfulBuild}}
       </td>
       <td>
-        {{#lastFailedBuild}}
-        <a href="/{{ namespace }}/view/{{ name }}/b/{{ lastFailedBuild.number }}">
+        <a href="/{{ namespace }}/{{ name }}/{{ lastFailedBuild.number }}">
         {{ lastFailedBuild.moment }}
         </a>
-        {{/lastFailedBuild}}
       </td>
       <td>
-        {{#lastBuild}}
-        <a href="/{{ namespace }}/view/{{ name }}/b/{{ lastBuild.number }}">
+        <a href="/{{ namespace }}/{{ name }}/{{ lastBuild.number }}">
         {{ lastBuild._duration }}
         </a>
-        {{/lastBuild}}
       </td>
       <td>
         <div class="btn-group right">
