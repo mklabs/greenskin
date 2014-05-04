@@ -2,17 +2,7 @@
 <script src="/js/pages/build.js"></script>
 {{/extend}}
 
-<p class="description">
-  {{ job.description }}
-</p>
-
-<p class="description">
-  {{#job.urls}}
-  <a href="{{.}}">
-  {{ . }}
-  </a>
-  {{/job.urls}}
-</p>
+{{> job_header }}
 
 <!-- Nav tabs -->
 {{#tabs tab job}}

@@ -8,8 +8,6 @@ var app = require('..');
 
 var xml = fs.readFileSync(path.join(__dirname, '../config.xml'), 'utf8');
 
-
-/* GET home page. */
 router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
 });
@@ -64,6 +62,7 @@ router.post('/:name/edit', function(req, res, next) {
       var data = job.toJSON();
       res.render('form', {
         saved: true,
+        edit: true,
         tabs: { edit: true },
         title: job.name,
         job: data

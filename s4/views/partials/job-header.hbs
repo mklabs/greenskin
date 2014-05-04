@@ -1,0 +1,16 @@
+
+<p class="description">
+  {{ job.description }}
+</p>
+
+<p class="description">
+  {{#job.urls}}
+  <a href="{{.}}">
+  {{ . }}
+  </a>
+  {{/job.urls}}
+</p>
+
+<div class="btn-group right">
+  <a href="/view/{{ job.name }}/run" class="btn btn-default" role="button">Run</a>
+</div>

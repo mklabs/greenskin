@@ -7,20 +7,9 @@
 {{/extend}}
 
 {{#edit}}
-  <p class="description">
-    {{ job.description }}
-  </p>
+  {{> job_header }}
 
-  <p class="description">
-    {{#job.urls}}
-    <a href="{{.}}">
-    {{ . }}
-    </a>
-    {{/job.urls}}
-  </p>
-
-  {{#tabs tabs job}}
-  {{/tabs}}
+  {{#tabs tabs job}}{{/tabs}}
 {{/edit}}
 
 {{^edit}}

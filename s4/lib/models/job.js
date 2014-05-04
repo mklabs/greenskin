@@ -24,8 +24,10 @@ function Job() {
     type: ''
   });
 
-  if (this.get('xml')) this.getCron();
-  if (this.get('xml')) this.getURLs();
+  var xml = this.get('xml');
+  if (xml) this.getCron();
+  if (xml) this.getURLs();
+  if (xml) this.namespace();
 }
 
 util.inherits(Job, Model);
@@ -67,9 +69,7 @@ Job.prototype.fetch = function fetch(done) {
     me.set(results.job);
     me.set('xml', results.xml);
 
-    var type = me.jobType(results.xml);
-    me.set('type', type);
-    me.set('namespace', type);
+    me.namespace();
     me.getCron();
     me.getURLs();
     me.script();
@@ -141,7 +141,30 @@ Job.prototype.jobType = function jobType(xml) {
   return type;
 };
 
+// Namespace handling, getter / setter
+Job.prototype.namespace = function(value, xml) {
+  if (value) {
+    this.set('namespace', value);
+    this.set('type', value);
+    return this;
+  }
+
+  xml = xml || this.get('xml');
+  if (!xml) return;
+
+  var type = this.jobType(xml);
+  if (!type) return;
+
+  this.set('type', type);
+  this.set('namespace', type);
+
+
+  return type;
+};
+
 // Config helpers, specific to backend ..
+//
+// TODO: Load mixin based on configured backend, below is Jenkins definitions
 
 // Cron getter / setter
 
@@ -202,6 +225,7 @@ Job.prototype.setURLs = function setURLs(urls) {
 Job.prototype.script = function script(value) {
   if (value) {
     this.setScript(value);
+    this.set('script', value);
     return this;
   }
 

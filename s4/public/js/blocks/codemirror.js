@@ -13,6 +13,10 @@
     this.textarea();
 
     this.on('click', '.js-codemirror-show', this.toggleTextarea.bind(this));
+    this.on('click', '.js-fullscreen', function(e) {
+      var el = $(e.target).closest('.js-fullscreen-target');
+      screenfull.toggle(el[0]);
+    });
   }
 
   CodeMirrorView.prototype.textarea = function() {
@@ -29,12 +33,21 @@
     cm.addClass('form-control');
     if (data.hidden) cm.addClass('is-hidden');
 
+    // Adding in screenful button
+    cm
+      .addClass('js-fullscreen-target graph')
+      .append(this.createFullscreenButton());
+
     this.$el.data('editor', editor);
   };
 
   CodeMirrorView.prototype.toggleTextarea = function toggleTextarea(e) {
     e.preventDefault();
     if (this.cm) this.cm.toggleClass('is-hidden');
+  };
+
+  CodeMirrorView.prototype.createFullscreenButton = function createFullscreenButton() {
+    return $('<div class="graph-btn-group"><a href="#" class="codemirror-full js-fullscreen btn btn-default"><span class="glyphicon glyphicon-fullscreen"></span></a></div>');
   };
 
   var mappings = {

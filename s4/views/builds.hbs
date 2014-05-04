@@ -1,18 +1,7 @@
 
-<p class="description">
-  {{ job.description }}
-</p>
+{{> job_header }}
 
-<p class="description">
-  {{#job.urls}}
-  <a href="{{.}}">
-  {{ . }}
-  </a>
-  {{/job.urls}}
-</p>
-
-{{#tabs tab job}}
-{{/tabs}}
+{{#tabs tab job}}{{/tabs}}
 
 
 <table class="table table-striped">

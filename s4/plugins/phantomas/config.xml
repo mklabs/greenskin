@@ -49,7 +49,38 @@
     <hudson.tasks.Shell>
       <command><![CDATA[#!/bin/bash
 
+URLS="$PERF_URLS"
+
+RESULT_DIR="results/$BUILD_NUMBER"
+
 ./node_modules/.bin/phantomas --help
+
+for url in $URLS; do
+
+  # Define URL key for I/O and Metric keys §
+  URL_KEY=$(node -pe "process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, '').replace(/(\/|\?|-|&amp;|=|\.)/g, '_')" $url);
+  URL_DIR=$RESULT_DIR/$URL_KEY
+
+  echo """
+
+  URL - $url
+  Key - $URL_KEY
+  Dir - $URL_DIR
+
+  """
+
+  mkdir -p $URL_DIR
+  ./node_modules/.bin/phantomas $url \
+    --reporter json \
+    --screenshot $URL_DIR/screenshot.png \
+    --screenshot $URL_DIR/screenshot.png \
+    --har $URL_DIR/har.json \
+    --film-strip --film-strip-dir $URL_DIR/filmstrip \
+    > $URL_DIR/build.json
+
+  cat $URL_DIR/build.json
+  echo ""
+done
 
 ]]></command>
     </hudson.tasks.Shell>
