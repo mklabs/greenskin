@@ -23,12 +23,17 @@ Build.prototype.fetch = function fetch(done) {
 
   async.parallel({
     job: this.client.get.bind(this.client, name),
-    build: this.client.build.bind(this.client, name, number)
+    xml: this.client.config.bind(this.client, name),
+    build: this.client.build.bind(this.client, name, number),
+    log: this.log.bind(this)
   }, function(err, results) {
     if (err) return me.error(err, results);
     var data = results.build;
     me.set(data);
+
     me.set('job', results.job);
+    me.set('xml', results.xml);
+    me.set('log', results.log);
 
     me.set('color', me.color());
     var m = moment(data.timestamp);
@@ -51,4 +56,11 @@ Build.prototype.color = function color() {
     result === 'FAILURE' ? 'red' :
     result === 'WARNING' ? 'yellow' :
     '';
+};
+
+// Generic request wrapper to get console output from Jenkins
+Build.prototype.log = function log(done) {
+  var name = this.get('name');
+  var number = this.get('number');
+  request(this.client.host + '/job/' + name + '/' + number + '/consoleText', done);
 };

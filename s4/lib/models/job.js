@@ -9,6 +9,11 @@ var Build = require('./build');
 
 module.exports = Job;
 
+// TODO: Flesh out relationship between Job & Build.
+//
+// WHen initing a job, should init a collection of builds, and init / parse
+// props like lastBuild, lastSuccessfulBuild, etc.
+
 function Job() {
   Model.apply(this, arguments);
 

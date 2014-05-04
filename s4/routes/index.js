@@ -46,6 +46,8 @@ router.get('/view/:name', function(req, res, next) {
     name: req.params.name
   });
 
+  var pending = typeof req.query.pending !== 'undefined';
+
   job.fetch().on('error', next);
 
   job.on('sync', function() {
@@ -62,12 +64,41 @@ router.get('/view/:name', function(req, res, next) {
       res.render('view', {
         title: job.name,
         tab: { current: true },
-        last: true,
+        summary: true,
         job: data,
         build: build.toJSON()
       });
     });
+  });
+});
 
+router.get('/view/:name/:number', function(req, res, next) {
+  var num = parseInt(req.params.number, 10);
+  var name = req.params.name;
+  if (isNaN(num)) return next();
+
+  var build = new Build({
+    name: name,
+    number: num
+  });
+
+  build.fetch().on('error', next);
+  build.on('sync', function() {
+    var data = build.get('job');
+
+    // Ensure URLs props populated (TODO: Shouldn't be there, have to review
+    // Job / Build interractions, initing a job should be enough)
+    var xml = build.get('xml');
+    data.xml = xml;
+    var job = new Job(data);
+
+    res.render('view', {
+      title: name,
+      number: num,
+      summary: true,
+      job: job.toJSON(),
+      build: build.toJSON()
+    });
   });
 });
 

@@ -14,12 +14,11 @@
   {{/job.urls}}
 </p>
 
-
 <!-- Nav tabs -->
 {{#tabs tab job}}
   {{#number}}
   <li class="active">
-    <a href="#">Build {{ number }}</a>
+    <a href="#">Build {{ . }}</a>
   </li>
   {{/number}}
 {{/tabs}}
@@ -27,79 +26,11 @@
 
 <div class="js-build" data-animated="{{ animated }}" data-number="{{ job.lastBuild.number }}" data-last="{{ last }}" data-pending="{{ pending }}">
 
-  {{#last}}
-  <div class="build-summary row">
-    <div class="col-xs-4">
-      <p class="clearfix">
-        <span class="build-label">Build</span>
-        <span class="build-value">
-          <span class="doony-circle doony-circle-{{ job.color }}{{#animated}} bounceIn animated infinite{{/animated}}" style="display: inline-block; margin: 0; width: 1em; height: 1em;"></span>
-          <a href="/{{ job.namespace }}/view/{{ job.name }}/{{ job.lastBuild.number }}" class="js-number">{{ job.lastBuild.number }}</a>
-        </span>
-      </p>
-
-      <p class="clearfix">
-        <span class="build-label">Finished</span>
-        <span class="build-value js-timestamp" data-timestamp="{{ build.timestamp }}">{{ build.finished }}</span>
-      </p>
-
-    </div>
-
-    <div class="col-xs-4">
-      <p class="clearfix">
-        <span class="build-label">State</span>
-        <span class="build-value js-state">
-          {{ build.result }}
-          {{#animated}}Running{{/animated}}
-        </span>
-      </p>
-
-
-      <p class="clearfix">
-        <span class="build-label">Duration</span>
-        <span class="build-value js-duration" data-duration="{{ build.duration }}">{{ build._duration }}</span>
-      </p>
-
-    </div>
-
-    <div class="col-xs-4">
-      <p>
-        <a href="{{ config.jenkinsUI }}job/{{ job.name }}/ws" class="label label-default">
-          Workspace
-        </a>
-
-        <a href="{{ config.jenkinsUI }}job/{{ job.name }}/{{ build.number }}/tapResults/" class="label label-default">
-          TAP Results
-        </a>
-
-        <a href="{{ build.url }}" class="label label-default">
-          Build URL
-        </a>
-      </p>
-
-      <p>
-        {{#build.actions}}
-          {{#causes}}
-            {{#pending}}
-            ...
-            {{/pending}}
-
-            {{^pending}}
-            {{ shortDescription }}
-            {{/pending}}
-          {{/causes}}
-        {{/build.actions}}
-      </p>
-    </div>
-
-    <div class="btn-group right">
-      <a href="/view/{{ job.name }}/run" class="btn btn-default" role="button">Run</a>
-    </div>
-  </div>
-
-  {{/last}}
+  {{#summary}}
+    {{> job_summary }}
+  {{/summary}}
 
   <div class="log-container">
-    <pre class="js-log log ansi" style="margin-top: 35px;">{{ job.log }}</pre>
+    <pre class="js-log log ansi" style="margin-top: 35px;">{{ build.log }}</pre>
   </div>
 </div>
