@@ -74,11 +74,11 @@
   <div class="form-group row">
     <fieldset class="col-sm-12">
       <legend>Job Script</legend>
-      {{#codemirror "script"}}
+      {{#codemirror '{ "name": "script" }'}}
       {{ job.script }}
       {{/codemirror}}
 
-      {{#codemirror "xml"}}
+      {{#codemirror '{ "name": "xml" }'}}
       {{ job.xml }}
       {{/codemirror}}
 

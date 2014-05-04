@@ -35,7 +35,8 @@ router.get('/:name/edit', function(req, res, next) {
   job.once('sync', function() {
     res.render('form', {
       job: job.toJSON(),
-        tabs: { edit: true },
+      tabs: { edit: true },
+      title: job.name,
       edit: true
     });
   });
@@ -64,6 +65,7 @@ router.post('/:name/edit', function(req, res, next) {
       res.render('form', {
         saved: true,
         tabs: { edit: true },
+        title: job.name,
         job: data
       });
     });
@@ -73,6 +75,7 @@ router.post('/create', function(req, res, next) {
   var params = req.body;
   var name = params.name;
   var xml = params.xml;
+  debug('Create', params);
   if (!name) return next(new Error('Missing name'));
   if (!xml) return next(new Error('Missing xml'));
 

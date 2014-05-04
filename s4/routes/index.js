@@ -60,6 +60,7 @@ router.get('/view/:name', function(req, res, next) {
     build.fetch().on('error', next);
     build.on('sync', function() {
       res.render('view', {
+        title: job.name,
         tab: { current: true },
         last: true,
         job: data,
@@ -94,6 +95,7 @@ router.get('/view/:name/builds', function(req, res, next) {
       if (err) return next(err);
       res.render('builds', {
         builds: builds,
+        title: job.name,
         tab: { builds: true },
         job: job.toJSON()
       });

@@ -54,6 +54,11 @@ fs.readdirSync(blocksDir).forEach(function(file) {
     var args = [].slice.call(arguments);
     var ctx = args.pop();
     var data = args[0] || {};
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data)
+      } catch(e) {}
+    }
 
     var context = {};
     context.body = ctx.fn(this).trim();
