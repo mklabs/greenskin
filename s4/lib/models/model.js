@@ -68,6 +68,11 @@ Model.prototype.error = function error(err) {
   this.emit('error', err);
 };
 
+Model.prototype.warn = function warn(err) {
+  err = err || new Error('Model ' + this.cid + ' raised an error');
+  debug('Model error: %s', err.message, err);
+};
+
 Model.prototype.parse = function parse(res) {
   return res;
 };

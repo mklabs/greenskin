@@ -24,10 +24,15 @@ Jobs.prototype.fetch = function fetch() {
   this.client.list(function(err, jobs) {
     if (err) return me.error(err);
     me.emit('jobs', jobs);
-    // jobs = me.parse(jobs);
 
     function done(err, results) {
       if (err) return me.error(err);
+
+      // Filter out jobs without a proper structure (now, just checking namespace / type)
+      results = results.filter(function(res) {
+        return res.type;
+      });
+
       me.emit('render', { jobs: results });
     }
 
@@ -36,7 +41,7 @@ Jobs.prototype.fetch = function fetch() {
       var job = new Job(data);
 
       job.fetch()
-        .on('error', next)
+        .once('error', next)
         .once('sync', function(jobdata) {
           next(null, job.toJSON());
         });

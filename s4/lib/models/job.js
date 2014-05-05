@@ -187,7 +187,7 @@ Job.prototype.getCron = function getCron() {
   var lines = xml.split(/\r?\n/);
   var line = this.line(lines, /<hudson.triggers.TimerTrigger>/);
   var value = (lines[line].match(/<spec>(.+)<\/spec>/) || [])[1];
-  if (!value) return this.error(new Error('Cannot get cron value from XML'));
+  if (!value) return this.warn(new Error('Cannot get cron value from XML'));
 
   this.set('cron', value);
 
@@ -296,13 +296,13 @@ Job.prototype.jsonConfig = function jsonConfig(value) {
   }
 
   var json = this.param('JSON_CONFIG');
-  if (!json) return this.error(new Error('Cannot get JSON_CONFIG from xml'));
+  if (!json) return this.warn(new Error('Cannot get JSON_CONFIG from xml'));
 
   var data = {};
   try {
     data = JSON.parse(json);
   } catch(e) {
-    return this.error(new Error('Error parsing JSON from XML:\n' + json));
+    return this.warn(new Error('Error parsing JSON from XML:\n' + json));
   }
 
   this.set('json', JSON.stringify(data, null, 2));
@@ -312,8 +312,6 @@ Job.prototype.jsonConfig = function jsonConfig(value) {
 };
 
 Job.prototype.setJSON = function setJSON(value, xml) {
-  var value;
-
   try {
     // Force output to single line
     value = JSON.stringify(JSON.parse(value));
@@ -341,7 +339,7 @@ Job.prototype.param = function(name, value, xml) {
     if (val) val = _.unescape(val);
   }
 
-  if (!val) return this.error(new Error('Cannot get ' + name + ' param value from XML'));
+  if (!val) return this.warn(new Error('Cannot get ' + name + ' param value from XML'));
 
   // getter
   if (!value) return val;

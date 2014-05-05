@@ -1,15 +1,11 @@
-
-
 var fs         = require('fs');
 var path       = require('path');
 var express    = require('express');
 var logger     = require('morgan');
 var bodyParser = require('body-parser');
 var hbs        = require('./lib/express/hbs');
-var stylus     = require('./lib/express/stylus');
 var debug      = require('debug')('gs');
 var config     = require('./package').config;
-
 
 var app = module.exports = express();
 app.Jobs = require('./lib/models/jobs');
@@ -33,9 +29,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 
 // Stylus middleware
-app.use('/styl', stylus({
-  src: path.join(__dirname, 'public/styl')
-}));
+// var stylus     = require('./lib/express/stylus');
+// app.use('/styl', stylus({
+//   src: path.join(__dirname, 'public/styl')
+// }));
 
 // GS routes
 app.use('/', require('./routes'));
@@ -47,6 +44,8 @@ fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
   debug('Register %s on /%s', dir, dir);
   var subapp = require('./plugins/' + dir);
   subapp.locals.baseURL = '/' + dir;
+
+  // TODO: Requires a patch in hbs. See if we can workaround that by monkey patching.
   subapp.locals.layout = app.layout;
   subapp.locals.classname = 'gs-' + dir;
   subapp.set('view engine', app.get('view engine'));

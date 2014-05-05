@@ -75,6 +75,7 @@ router.post('/create', function(req, res, next) {
   var params = req.body;
   var name = params.name;
   var xml = params.xml;
+
   debug('Create', params);
   if (!name) return next(new Error('Missing name'));
   if (!xml) return next(new Error('Missing xml'));
