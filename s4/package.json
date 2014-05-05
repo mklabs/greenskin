@@ -25,13 +25,10 @@
     "body-parser": "^1.0.2",
     "serve-index": "^1.0.2",
     "express": "^4.1.1",
-    "stylus": "^0.44.0",
-    "nib": "^1.0.2",
     "hbs": "^2.6.0",
     "morgan": "^1.0.0",
     "underscore": "^1.6.0",
     "jenkins": "^0.2.1",
-    "gulp-stylus": "^1.0.0",
     "async": "^0.8.0",
     "request": "^2.34.0",
     "moment": "^2.6.0"
