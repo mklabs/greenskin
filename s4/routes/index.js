@@ -36,8 +36,7 @@ router.get('/view/:name/run', function(req, res, next) {
     .on('error', next)
     .on('run', function() {
       var data = job.toJSON();
-      debug('dt', data);
-      res.redirect('/view/' + job.name);
+      res.redirect('/view/' + job.name + '/builds');
     });
 });
 

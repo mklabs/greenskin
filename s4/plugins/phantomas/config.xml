@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
   <description>Testing out phantomas metrics</description>
@@ -15,12 +15,12 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue><![CDATA[http://example.com http://example.com/2]]></defaultValue>
+          <defaultValue>http://example.com http://example.com/2</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue><![CDATA[{"no-externals":true,"allow-domain":".kk-data.com","asserts":{}}]]></defaultValue>
+          <defaultValue>{&quot;no-externals&quot;:false,&quot;allow-domain&quot;:&quot;.kk-data.com&quot;,&quot;asserts&quot;:{}}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>
@@ -47,13 +47,15 @@
 [ -e node_modules ] || npm install phantomas</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command><![CDATA[#!/bin/bash
+      <command>#!/bin/bash
 
-URLS="$PERF_URLS"
+URLS=&quot;$PERF_URLS&quot;
 
-RESULT_DIR="results/$BUILD_NUMBER"
+RESULT_DIR=&quot;results/$BUILD_NUMBER&quot;
 
-echo """
+
+
+echo &quot;&quot;&quot;
 
 URLs: $URLS
 
@@ -61,25 +63,25 @@ JSON Configuration:
 
 $JSON_CONFIG
 
-"""
+&quot;&quot;&quot;
 
 ./node_modules/.bin/phantomas --help
 
-echo "$JSON_CONFIG" > config.json
+echo &quot;$JSON_CONFIG&quot; &gt; config.json
 
 for url in $URLS; do
 
-  # Define URL key for I/O and Metric keys §
-  URL_KEY=$(node -pe "process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, '').replace(/(\/|\?|-|&amp;|=|\.)/g, '_')" $url);
+  # Define URL key for I/O and Metric keys
+  URL_KEY=$(node -pe &quot;process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, '').replace(/(\/|\?|-|&|=|\.)/g, '_')&quot; $url);
   URL_DIR=$RESULT_DIR/$URL_KEY
 
-  echo """
+  echo &quot;&quot;&quot;
 
   URL - $url
   Key - $URL_KEY
   Dir - $URL_DIR
 
-  """
+  &quot;&quot;&quot;
 
   mkdir -p $URL_DIR
 
@@ -92,7 +94,7 @@ for url in $URLS; do
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
     --verbose
 
-  echo ""
+  echo &quot;&quot;
 
   # actual run
   ./node_modules/.bin/phantomas $url \
@@ -102,22 +104,68 @@ for url in $URLS; do
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
     --verbose \
-    > $URL_DIR/build.json
+    &gt; $URL_DIR/build.json
 
   cat $URL_DIR/build.json
-  echo ""
-
-  # Transform to TAP for publishing
+  echo &quot;&quot;
 done
 
 rm config.json
 
-]]></command>
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/env node
+
+var env = process.env;
+
+var fs = require(&apos;fs&apos;);
+var path = require(&apos;path&apos;);
+var exists = fs.existsSync;
+
+var phantomas = requireWS(&apos;phantomas&apos;);
+var phantomasResults = requireWS(&apos;phantomas/core/results&apos;);
+var loadReporter = requireWS(&apos;phantomas/core/reporter&apos;);
+
+
+var buildNumber = env.BUILD_NUMBER || env.TRAVIS_BUILD_NUMBER || &apos;last&apos;;
+var dirname = path.resolve(env.WORKSPACE || &apos;&apos;, &apos;results&apos;, buildNumber);
+
+console.log('Result dir:', dirname);
+
+fs.readdirSync(dirname).forEach(function(dir) {
+  if (fs.statSync(path.join(dirname, dir)).isFile()) return;
+  console.log(&apos;Dealing with results %s dir&apos;, dir);
+  var data = require(path.join(dirname, dir, &apos;build.json&apos;));
+  console.log(data);
+
+  var results = phantomasResults(data);
+  var reporter = loadReporter(results, {
+    reporter: &apos;tap&apos;
+  });
+
+  // pass a function that reporter should call once done
+  var res = reporter.render(function() {});
+
+  // Both in result dir
+  var filename = path.resolve(dirname, dir, &apos;build.tap&apos;);
+  console.log(&apos;Writing TAP results to %s file&apos;, filename);
+
+  // And root workspace for tap publish
+  filename = path.resolve(env.WORKSPACE || &apos;&apos;, dir + &apos;.tap&apos;);
+  console.log(&apos;Writing TAP results to %s file&apos;, filename);
+  fs.writeFileSync(filename, res);
+});
+
+
+function requireWS(file) {
+  return require(env.WORKSPACE ? path.join(env.WORKSPACE, &apos;node_modules&apos;, file) : file);
+}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <org.tap4j.plugin.TapPublisher plugin="tap@1.18">
-      <testResults>results/latest/*.tap</testResults>
+      <testResults>*.tap</testResults>
       <failIfNoResults>false</failIfNoResults>
       <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
       <outputTapToConsole>false</outputTapToConsole>
