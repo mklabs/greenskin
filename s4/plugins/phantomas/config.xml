@@ -53,8 +53,6 @@ URLS="$PERF_URLS"
 
 RESULT_DIR="results/$BUILD_NUMBER"
 
-
-
 echo """
 
 URLs: $URLS
@@ -90,7 +88,6 @@ for url in $URLS; do
     --reporter json \
     --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
-    --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
     --verbose
@@ -102,7 +99,6 @@ for url in $URLS; do
     --reporter json \
     --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
-    --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
     --verbose \
@@ -110,6 +106,8 @@ for url in $URLS; do
 
   cat $URL_DIR/build.json
   echo ""
+
+  # Transform to TAP for publishing
 done
 
 rm config.json

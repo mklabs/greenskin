@@ -14,6 +14,10 @@ This directory holds the express application.
 
     DEBUG=gs* node bin/www
 
+**Note** If using Jenkins, make sure to update the package.json file and
+its `config` prop, or ensure you have started the vagrant
+`jenkins-master` VM.
+
 ## API
 
 app.js is the main entry point

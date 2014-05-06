@@ -40,6 +40,8 @@ router.get('/:name/edit', function(req, res, next) {
   });
 });
 
+// TODO: Dry out post action for edit / create. Really similar.
+
 router.post('/:name/edit', function(req, res, next) {
   var params = req.body;
   var name = params.name;
@@ -52,6 +54,7 @@ router.post('/:name/edit', function(req, res, next) {
     xml: xml
   });
 
+  debug('Edit', params.json);
   job.setCron(params.cron);
   job.setURLs(params.urls);
   job.script(params.script);
@@ -76,7 +79,6 @@ router.post('/create', function(req, res, next) {
   var name = params.name;
   var xml = params.xml;
 
-  debug('Create', params);
   if (!name) return next(new Error('Missing name'));
   if (!xml) return next(new Error('Missing xml'));
 
@@ -88,6 +90,7 @@ router.post('/create', function(req, res, next) {
   if (params.cron) job.setCron(params.cron);
   if (params.urls) job.setURLs(params.urls);
   if (params.script) job.script(params.script);
+  if (params.json) job.setJSON(params.json);
 
   job.save()
     .on('error', next)

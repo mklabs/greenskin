@@ -26,6 +26,7 @@ function Job() {
   });
 
   var xml = this.get('xml');
+  if (xml) this.script();
   if (xml) this.getCron();
   if (xml) this.getURLs();
   if (xml) this.namespace();
@@ -170,6 +171,7 @@ Job.prototype.namespace = function(value, xml) {
 // Cron getter / setter
 
 Job.prototype.setCron = function setCron(value) {
+  /*jshint eqnull: true*/
   if (value == null) return this.get('cron');
 
   var xml = this.get('xml');
@@ -223,6 +225,10 @@ Job.prototype.setURLs = function setURLs(urls) {
 // Script getter / setter
 //
 // Returns the very first hudson.tasks.Shell with a shebang
+//
+// TODO: Better regexp matching, cache regex etc. for scripts
+// TODO: Abstract away from CDATA, is it really needed ?
+// TODO: Mixin external file for script handling
 Job.prototype.script = function script(value) {
   if (value) {
     this.setScript(value);
@@ -247,11 +253,11 @@ Job.prototype.getScript = function getScript(xml) {
     }
   }
 
-  var end = this.line(lines.slice(line), /^\]\]>/, 0);
+  var end = this.line(lines.slice(line), /^\]\]><\/command>/, 0);
   if (!end) {
-    end = this.line(lines.slice(line), /<\/command>/, 0);
+    end = this.line(lines.slice(line), /^<\/command>/, 0);
     if (!end) {
-      debug('Err', new Error('Cannot get script end shell'));
+      debug('err', new Error('cannot get script end shell'));
       return;
     }
   }
@@ -262,27 +268,36 @@ Job.prototype.getScript = function getScript(xml) {
   body = body
     .replace(/<command><!\[CDATA\[/, '')
     .replace(/<command>/, '')
-    .replace(/<\/command>/, '');
+    .replace(/<\/command>/, '')
+    .replace(/\]\]>$/, '');
 
   return _.unescape(body.trim());
 };
 
 Job.prototype.setScript = function setScript(code, xml) {
   xml = xml || this.get('xml');
+
   var lines = xml.split(/\r?\n/);
-  var line = this.line(lines, /<command><!\[CDATA\[#!/, 0);
+  var line = this.line(lines, /<command>(<!\[CDATA\[)?#!/, 0);
   if (!line) return;
 
-  var end = this.line(lines.slice(line), /^\]\]>/, 0) + line;
-  if (!end) return;
+  var end = this.line(lines.slice(line), /^\]\]><\/command>/, 0);
+  if (!end) {
+    end = this.line(lines.slice(line), /^<\/command>/, 0);
+    if (!end) {
+      debug('err', new Error('Cannot get script end shell for saving'));
+      return;
+    }
+  }
+
+  end = end + line;
 
   var body = lines.slice(0, line);
-  code = '<command><![CDATA[' + code.trim();
+  code = '<command><![CDATA[' + code.trim() + '\n]]>';
   body = body.concat(code.split(/\r?\n/));
   body = body.concat(lines.slice(end));
 
   xml = body.join('\n');
-
   this.set('xml', xml);
 
   return xml;
@@ -312,12 +327,10 @@ Job.prototype.jsonConfig = function jsonConfig(value) {
 };
 
 Job.prototype.setJSON = function setJSON(value, xml) {
-  try {
-    // Force output to single line
-    value = JSON.stringify(JSON.parse(value));
-  } catch(e) {}
-
-  this.param('JSON_CONFIG', value);
+  // Force output to single line
+  var stored = JSON.stringify(JSON.parse(value));
+  debug('Setting json value', stored);
+  this.param('JSON_CONFIG', stored);
   this.set('json', value);
   return this;
 };
@@ -331,21 +344,25 @@ Job.prototype.param = function(name, value, xml) {
   var line = this.line(lines, new RegExp('<name>' + name + '</name>'), 2);
   if (!line) return;
 
-  var reg = /<defaultValue><!\[CDATA\[(.+)\]\]><\/defaultValue>/;
+  var regCdata = /<defaultValue><!\[CDATA\[(.+)\]\]><\/defaultValue>/;
+  var reg = /<defaultValue>(.+)<\/defaultValue>/;
   var replace = '<defaultValue><![CDATA[$value]]></defaultValue>';
-  var val = (lines[line].match(reg) || [])[1];
+  var val = (lines[line].match(regCdata) || [])[1];
   if (!val) {
-    val = (lines[line].match(/<defaultValue>(.+)<\/defaultValue>/) || [])[1];
+    val = (lines[line].match(reg) || [])[1];
     if (val) val = _.unescape(val);
   }
 
+  debug('Param', name, val);
   if (!val) return this.warn(new Error('Cannot get ' + name + ' param value from XML'));
 
   // getter
   if (!value) return val;
 
+  debug('Setting', value);
   // setter
   lines[line] = lines[line].replace(reg, replace.replace(/\$value/, value));
+  debug('lines', lines[line]);
   xml = lines.join('\n');
   this.set('xml', xml);
 };
@@ -355,6 +372,7 @@ Job.prototype.line = function line(lines, query, offset) {
   var ln = 0;
   offset = typeof offset === 'undefined' ? 1 : offset;
   lines.forEach(function(line, i) {
+    if (ln) return;
     if (!query.test(line)) return;
     ln = i + offset;
   });
