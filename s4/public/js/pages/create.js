@@ -264,6 +264,14 @@
       $(el).on('change', '.js-select-metrics', $.proxy(this.metricChanged, this));
       $(el).on('keyup', '.js-metric-value', $.proxy(this.metricChanged, this));
 
+      // Invoked on enter or blur event
+      function blurInput(target, link, hidden) {
+        target.classList.add('is-hidden');
+        link.classList.remove('is-hidden');
+        link.innerText = target.value;
+        hidden.value = target.value;
+      }
+
       // Link for add button
       urlAdd.addEventListener('click', function(e) {
         e.preventDefault();
@@ -324,16 +332,23 @@
         if (!target.value) return;
 
         if (target.classList.contains('js-input')) {
-          console.log('Blured!', e);
-          console.log('Target', target);
-
-          target.classList.add('is-hidden');
-          link.classList.remove('is-hidden');
-          link.innerText = target.value;
-          hidden.value = target.value;
+          blurInput(target, link, hidden);
         }
-
       }, true);
+
+      // Enter
+      el.addEventListener('keypress', function(e) {
+        if (!e.target) return;
+
+        var keycode = (e.keyCode ? e.keyCode : e.which) + '';
+        if (keycode !== '13') return;
+
+        e.preventDefault();
+
+        var link = e.target.parentElement.querySelector('.js-link');
+        var hidden = e.target.parentElement.querySelector('.js-hidden');
+        blurInput(e.target, link, hidden);
+      });
     }
   });
 
