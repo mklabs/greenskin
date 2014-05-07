@@ -39,6 +39,6 @@
   },
   "config": {
     "jenkins": "http://192.168.33.12/jenkins/",
-    "jenkinsUI": "http://192.168.33.12/jenkins/"
+    "jenkinsUI": "http://192.168.33.12:8080/jenkins/"
   }
 }

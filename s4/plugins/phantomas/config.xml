@@ -65,8 +65,6 @@ $JSON_CONFIG
 
 &quot;&quot;&quot;
 
-./node_modules/.bin/phantomas --help
-
 echo &quot;$JSON_CONFIG&quot; &gt; config.json
 
 for url in $URLS; do
@@ -106,8 +104,12 @@ for url in $URLS; do
     --verbose \
     &gt; $URL_DIR/build.json
 
+
   cat $URL_DIR/build.json
   echo &quot;&quot;
+
+  cd $RESULT_DIR &amp;&amp; find -type f  &gt; files.txt
+  cd $WORKSPACE
 done
 
 rm config.json
@@ -136,7 +138,15 @@ console.log('Result dir:', dirname);
 fs.readdirSync(dirname).forEach(function(dir) {
   if (fs.statSync(path.join(dirname, dir)).isFile()) return;
   console.log(&apos;Dealing with results %s dir&apos;, dir);
-  var data = require(path.join(dirname, dir, &apos;build.json&apos;));
+  var data = {};
+
+  try {
+    data = require(path.join(dirname, dir, &apos;build.json&apos;));
+  } catch(e) {
+    console.error('Error loading build.json', dirname, dir);
+    return;
+  }
+
   console.log(data);
 
   var results = phantomasResults(data);

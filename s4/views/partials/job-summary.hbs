@@ -4,7 +4,7 @@
       <span class="build-label">Build</span>
       <span class="build-value">
         <span class="doony-circle doony-circle-{{ job.color }}{{#animated}} bounceIn animated infinite{{/animated}}" style="display: inline-block; margin: 0; width: 1em; height: 1em;"></span>
-        <a href="/view/{{ job.name }}/{{ job.lastBuild.number }}" class="js-number">{{ job.lastBuild.number }}</a>
+        <a href="/{{ job.namespace }}/{{ job.name }}/{{ job.lastBuild.number }}" class="js-number">{{ job.lastBuild.number }}</a>
       </span>
     </p>
 

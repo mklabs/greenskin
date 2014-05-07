@@ -3,13 +3,15 @@
   {{ job.description }}
 </p>
 
-<p class="description">
+<ul class="list-unstyled">
   {{#job.urls}}
-  <a href="{{.}}">
-  {{ . }}
-  </a>
+  <li>
+    <a href="{{.}}">
+    {{ . }}
+    </a>
+  </li>
   {{/job.urls}}
-</p>
+</ul>
 
 <div class="btn-group right">
   <a href="/view/{{ job.name }}/run" class="btn btn-default" role="button">Run</a>

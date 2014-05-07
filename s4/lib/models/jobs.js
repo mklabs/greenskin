@@ -1,7 +1,7 @@
 
 // Job API
 //
-// INnterface to backend CI like Jenkins
+// Interface to backend CI like Jenkins
 
 var util = require('util');
 var Model = require('./model');

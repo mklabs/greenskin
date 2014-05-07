@@ -8,11 +8,23 @@ var debug      = require('debug')('gs');
 var config     = require('./package').config;
 
 var app = module.exports = express();
-app.Jobs = require('./lib/models/jobs');
+
+// Main config options
+app.config = config;
+
+// Attach ref to hbs for subapps to register their own partials / blocks
+app.hbs = hbs;
+
+// Models
+app.Job   = require('./lib/models/job');
+app.Jobs  = require('./lib/models/jobs');
 app.Model = require('./lib/models/model');
-app.Job = require('./lib/models/job');
 app.Build = require('./lib/models/build');
 
+// Pages
+app.BuildPage = require('./lib/pages/build');
+
+// Application locals (Made available to every template)
 app.locals.buttons = [];
 app.locals.config = config;
 
@@ -27,12 +39,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(logger('dev'));
-
-// Stylus middleware
-// var stylus     = require('./lib/express/stylus');
-// app.use('/styl', stylus({
-//   src: path.join(__dirname, 'public/styl')
-// }));
 
 // GS routes
 app.use('/', require('./routes'));

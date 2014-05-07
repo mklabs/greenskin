@@ -7,6 +7,8 @@ var Jobs = require('..').Jobs;
 var Job = require('..').Job;
 var Build = require('..').Build;
 
+var BuildPage = require('..').BuildPage;
+
 router.get('/', function(req, res, next) {
   var jobs = new Jobs();
 
@@ -76,29 +78,13 @@ router.get('/view/:name/:number', function(req, res, next) {
   var name = req.params.name;
   if (isNaN(num)) return next();
 
-  var build = new Build({
+  var page = new BuildPage({
     name: name,
     number: num
   });
 
-  build.fetch().on('error', next);
-  build.on('sync', function() {
-    var data = build.get('job');
-
-    // Ensure URLs props populated (TODO: Shouldn't be there, have to review
-    // Job / Build interractions, initing a job should be enough)
-    var xml = build.get('xml');
-    data.xml = xml;
-    var job = new Job(data);
-
-    res.render('view', {
-      title: name,
-      number: num,
-      summary: true,
-      job: job.toJSON(),
-      build: build.toJSON()
-    });
-  });
+  page.on('error', next);
+  page.on('end', res.render.bind(res, 'view'));
 });
 
 router.get('/view/:name/builds', function(req, res, next) {
@@ -109,7 +95,6 @@ router.get('/view/:name/builds', function(req, res, next) {
   job.fetch().on('error', next);
 
   job.on('sync', function() {
-    debug('Data builds', job.get('builds'));
     async.map(job.get('builds'), function(data, done) {
       var build = new Build({
         name: job.name,
@@ -123,6 +108,7 @@ router.get('/view/:name/builds', function(req, res, next) {
       });
     }, function(err, builds) {
       if (err) return next(err);
+      debug('job:', job.toJSON().type);
       res.render('builds', {
         builds: builds,
         title: job.name,

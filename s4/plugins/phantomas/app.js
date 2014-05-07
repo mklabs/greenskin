@@ -18,6 +18,9 @@ app.on('mount', function(gs) {
     name: 'Create Job (simple metrics)',
     url: '/phantomas/create'
   });
+
+  debug('Initing partial dir');
+  gs.hbs.registerPartials(path.join(__dirname, 'views/partials'));
 });
 
 // view engine setup
