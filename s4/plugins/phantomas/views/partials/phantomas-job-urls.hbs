@@ -12,7 +12,7 @@
     </a>
   </h4>
 
-  <div class="build-url-timeline" style="display: none;">
+  <div class="build-url-timeline">
     <table>
       <tr>
       {{#screenshots}}
@@ -26,7 +26,7 @@
       {{#screenshots}}
         <td>
           <a href="{{ url }}" class="thumbnail">
-            <img src="{{ url }}" width="200" height="120">
+            <img src="{{ thumbnail }}" width="200" height="120">
           </a>
         </td>
       {{/screenshots}}
@@ -35,8 +35,7 @@
   </div>
 
 
-  <div class="har" data-har="{{ localHar }}" validate="false"
-    height="600px"></div>
+  <div class="har" data-har="{{ localHar }}" validate="false" height="600px"></div>
 
 
 

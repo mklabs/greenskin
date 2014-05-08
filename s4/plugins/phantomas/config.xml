@@ -85,6 +85,7 @@ for url in $URLS; do
 
   # echoing to user
   echo ./node_modules/.bin/phantomas $url \
+    --skip-modules=staticAssets \
     --reporter json \
     --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
@@ -96,6 +97,7 @@ for url in $URLS; do
 
   # actual run
   ./node_modules/.bin/phantomas $url \
+    --skip-modules=staticAssets \
     --reporter json \
     --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \

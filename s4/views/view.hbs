@@ -2,7 +2,9 @@
 <script src="/js/pages/build.js"></script>
 {{/extend}}
 
-{{> job_header }}
+{{#summary}}
+  {{> job_summary }}
+{{/summary}}
 
 <!-- Nav tabs -->
 {{#tabs tab job}}
@@ -16,9 +18,6 @@
 
 <div class="js-build" data-animated="{{ animated }}" data-number="{{ job.lastBuild.number }}" data-last="{{ last }}" data-pending="{{ pending }}">
 
-  {{#summary}}
-    {{> job_summary }}
-  {{/summary}}
 
   <div class="log-container">
     <pre class="js-log log ansi" style="margin-top: 35px;">{{ build.log }}</pre>

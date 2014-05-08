@@ -4,7 +4,9 @@
 <script id="har" src="/vendor/harviewer-2.0-15/har.js"></script>
 {{/extend}}
 
-{{> job_header }}
+{{#summary}}
+  {{> job_summary }}
+{{/summary}}
 
 <!-- Nav tabs -->
 {{#tabs tab job}}
@@ -18,11 +20,6 @@
 
 <div class="js-build" data-animated="{{ animated }}" data-number="{{ job.lastBuild.number }}" data-last="{{ last }}" data-pending="{{ pending }}">
 
-  {{#summary}}
-    {{> job_summary }}
-  {{/summary}}
-
-
   {{#job._urls}}
     {{> phantomas_job_urls }}
   {{/job._urls}}
@@ -31,5 +28,3 @@
     <pre class="js-log log ansi" style="margin-top: 35px;">{{ build.log }}</pre>
   </div>
 </div>
-
-

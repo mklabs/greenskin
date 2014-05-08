@@ -39,7 +39,7 @@ app.set('view engine', 'hbs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(directory(path.join(__dirname, 'public')));
+app.use('/public', directory(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 
 // GS routes
