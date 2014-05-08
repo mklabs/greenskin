@@ -1,6 +1,7 @@
 
 {{#extend "scripts"}}
 <script src="/js/pages/build.js"></script>
+<script id="har" src="/vendor/harviewer-2.0-15/har.js"></script>
 {{/extend}}
 
 {{> job_header }}
@@ -21,6 +22,7 @@
     {{> job_summary }}
   {{/summary}}
 
+
   {{#job._urls}}
     {{> phantomas_job_urls }}
   {{/job._urls}}
@@ -29,3 +31,5 @@
     <pre class="js-log log ansi" style="margin-top: 35px;">{{ build.log }}</pre>
   </div>
 </div>
+
+

@@ -3,6 +3,7 @@ var path       = require('path');
 var express    = require('express');
 var logger     = require('morgan');
 var bodyParser = require('body-parser');
+var directory  = require('serve-index');
 var hbs        = require('./lib/express/hbs');
 var debug      = require('debug')('gs');
 var config     = require('./package').config;
@@ -38,6 +39,7 @@ app.set('view engine', 'hbs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(directory(path.join(__dirname, 'public')));
 app.use(logger('dev'));
 
 // GS routes
