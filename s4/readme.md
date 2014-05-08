@@ -10,6 +10,15 @@ This directory holds the express application.
 - routes/: Routes definitions
 - views/: Handlebars templates
 
+## Sub-apps
+
+The `plugins/` directory holds a series of express webapp, providing job
+specialization views / actions for specific job like:
+
+- `[plugins/phantomas](./plugins/phantomas)`
+
+These plugins should eventually be packaged in an external repository.
+
 ## Run
 
     DEBUG=gs* node bin/www

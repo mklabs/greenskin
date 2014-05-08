@@ -34,14 +34,14 @@ Build.prototype.fetch = function fetch(done) {
     me.set('job', results.job);
     me.set('xml', results.xml);
     me.set('log', results.log);
-
     me.set('color', me.color());
+
     var m = moment(data.timestamp);
     me.set('moment', m.format('llll'));
     me.set('fromNow', m.fromNow());
     me.set('duration', moment.duration(data.duration).humanize());
 
-    me.set('animated', /anime/i.test(data.result));
+    me.set('animated', /anime/i.test(me.get('color')));
 
     me.emit('sync');
     done();
@@ -50,12 +50,18 @@ Build.prototype.fetch = function fetch(done) {
   return this;
 };
 
-Build.prototype.color = function color() {
+Build.prototype.color = function _color() {
   var result = this.get('result');
-  return result === 'SUCCESS' ? 'blue' :
+  var color = result === 'SUCCESS' ? 'blue' :
     result === 'FAILURE' ? 'red' :
     result === 'WARNING' ? 'yellow' :
-    '';
+    'notbuilt';
+
+  if (this.get('building')) {
+    color += '_anime';
+  }
+
+  return color;
 };
 
 // Generic request wrapper to get console output from Jenkins
