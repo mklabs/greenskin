@@ -1,18 +1,19 @@
-<div class="build-url build-box">
-  <h4 class="build-box-header">
-    <a class="label label-default" href="{{ url }}">{{ url }}</a> -
-    <a class="build-box-header-link js-timeline-toggle" href="#"" title="Click to toggle">Timeline</a>
-    <a class="build-box-header-link small" href="{{ jenkinsFilmstripDir }}" title="{{ jenkinsFilmstripDir }}">
-      (link)
-    </a>
-    /
-    <a class="build-box-header-link js-har-toggle" href="#"" title="Click to toggle">HAR</a>
-    <a class="build-box-header-link small" href="{{ jenkinsHar }}" title="{{ jenkinsHar }}">
-      (link)
-    </a>
-  </h4>
+<style>.panel iframe { border: none !important; border-top: 1px solid #ccc; }</style>
 
-  <div class="build-url-timeline">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a class="label label-default" href="{{ url }}">{{ url }}</a> -
+      <a class="build-box-header-link small" href="{{ jenkinsFilmstripDir }}" title="{{ jenkinsFilmstripDir }}">
+        Filmstrip directory
+      </a>
+      /
+      <a class="build-box-header-link small" href="{{ jenkinsHar }}" title="{{ jenkinsHar }}">
+        Har
+      </a>
+    </h4>
+  </div>
+  <div class="panel-body">
     <table>
       <tr>
       {{#screenshots}}
@@ -34,9 +35,5 @@
     </table>
   </div>
 
-
   <div class="har" data-har="{{ localHar }}" validate="false" height="600px"></div>
-
-
-
 </div>

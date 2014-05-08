@@ -1,12 +1,59 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <meta charset="utf-8">
     <title>HTTP Archive Preview 2.0.15</title>
+    <link rel="stylesheet" href="css/harViewer.css" type="text/css"/>
+    <style>
+    .gs .tabViewCol {
+      background-image: none;
+      vertical-align: top;
+    }
+
+    .gs .tab {
+      padding: 15px 10px;
+    }
+
+    .gs .harViewBodies {
+      top: 54px;
+    }
+
+    .gs .selected {
+      color: #555;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-bottom-color: transparent;
+      cursor: default;
+    }
+
+    </style>
 </head>
-<body style="margin:0">
-    <div id="content" version="2.0.15"></div>
-    <script src="scripts/jquery.js"></script>
-    <script data-main="scripts/harPreview" src="scripts/require.js"></script>
-    <link rel="stylesheet" href="css/harPreview.css" type="text/css"/>
+<body style="margin:0" class="gs">
+  <div id="content" version="2.0.15"></div>
+
+  <script src="scripts/jquery.js"></script>
+  <script data-main="scripts/harViewer" src="scripts/require.js"></script>
+  <script>
+  $(function() {
+    var c = $('#content');
+    c.bind('onViewerPreInit', function(event) {
+      // Get application object
+      var viewer = event.target.repObject;
+
+      // Remove unnecessary tabs
+      viewer.removeTab('About');
+      viewer.removeTab('Schema');
+      viewer.removeTab('Home');
+
+      // Make sure stats and timeline is visible
+      // to the user by default
+      var preview = viewer.getTab('Preview');
+      window.viewer = viewer;
+      window.preview = preview;
+
+      preview.showStats(true);
+    });
+  });
+  </script>
 </body>
 </html>

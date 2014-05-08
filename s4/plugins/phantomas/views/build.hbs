@@ -24,7 +24,9 @@
     {{> phantomas_job_urls }}
   {{/job._urls}}
 
-  <div class="log-container">
-    <pre class="js-log log ansi" style="margin-top: 35px;">{{ build.log }}</pre>
-  </div>
+
+  {{#log build}}
+    {{ build.log }}
+  {{/log}}
+
 </div>

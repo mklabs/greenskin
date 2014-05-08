@@ -97,7 +97,7 @@ HarPage.prototype.buildData = function buildData(key) {
 
   var urlData = {
     id: url,
-    url: url,
+    url: [workspace, data.number, key].join('/'),
     jenkinsHar: [workspace, data.number, url, 'har.json'].join('/'),
     localHar: '/phantomas/har/' + data.job.name + '/' + data.number + '/' + url + '.json',
     jenkinsFilmstripDir: [workspace, data.number, url, 'filmstrip'].join('/')

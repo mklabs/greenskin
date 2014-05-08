@@ -188,6 +188,26 @@ function requireWS(file) {
       <validateNumberOfTests>false</validateNumberOfTests>
       <planRequired>true</planRequired>
     </org.tap4j.plugin.TapPublisher>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.24">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+            <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+              <properties>
+UPSTREAM_BUILD_ID=$BUILD_ID
+UPSTREAM_BUILD_NUMBER=$BUILD_NUMBER
+UPSTREAM_BUILD_URL=$BUILD_URL
+UPSTREAM_JOB_NAME=$BUILD_JOB_NAME
+UPSTREAM_WORKSPACE=$BUILD_WORKSPACE</properties>
+            </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+          </configs>
+          <projects>postbuild, </projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
   </publishers>
   <buildWrappers/>
 </project>
