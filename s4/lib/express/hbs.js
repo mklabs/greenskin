@@ -44,7 +44,37 @@ hbs.registerHelper('tabs', function(name, context) {
 // Create a bunch of block helper for the blocks dir
 fs.readdirSync(blocksDir).forEach(function(file) {
   var filename = path.join(blocksDir, file);
-  var ext = path.extname(file);
+  var isDir = fs.statSync(filename).isDirectory();
+  registerComponent(filename, isDir);
+});
+
+
+// Requires and register component package
+function registerComponent(filename, isDir) {
+  if (!isDir) return registerComponentFile(filename);
+
+  var name = path.basename(filename);
+  debug('Require component package', name);
+  var component = require(filename);
+  var body = component.body;
+
+  // Validate and normalize to string
+  if (!body) throw new Error('Component must provide body template string');
+  if (Buffer.isBuffer(body)) body += '';
+
+  var template = hbs.compile(body);
+
+  var handler = component(template);
+  debug('Register %s name helper');
+  hbs.registerHelper(name, handler);
+}
+
+// Single file load, lookup the raw .hbs template, an optional
+// associated CommonJS module to wrap things up, or defaults to the
+// standard helper.
+function registerComponentFile(filename) {
+  var ext = path.extname(filename);
+  var file = path.basename(filename);
   if (ext != '.hbs') return;
 
   var name = file.replace(ext, '');
@@ -74,4 +104,4 @@ fs.readdirSync(blocksDir).forEach(function(file) {
   };
 
   hbs.registerHelper(name, handler);
- });
+}

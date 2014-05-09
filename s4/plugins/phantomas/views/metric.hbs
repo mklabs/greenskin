@@ -24,10 +24,15 @@
 
 {{^metrics}}
 
-{{#markdown}}
+{{#markdown '{ "inlineCSS": true }'}}
 The {{ job.name }} job has no metrics associated just yet.
 
 Try running the build once.
+
+```js
+var yep = 'true';
+
+```
 {{/markdown}}
 
 {{/metrics}}
