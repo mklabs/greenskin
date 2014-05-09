@@ -30,6 +30,7 @@ router.get('/:name', function(req, res, next) {
   var page = new app.gs.LastBuildPage(req.params);
 
   page.on('error', next);
+  page.on('next', next);
   page.on('end', function(data) {
     data.job.tabs = [{
       url: '/phantomas/' + req.params.name + '/metrics',

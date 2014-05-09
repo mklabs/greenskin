@@ -21,8 +21,6 @@ function MetricPage(config, data) {
   this.fromNum = parseFloat((this.from.match(/\d+/) || [])[0]);
   this.fromUnit = (this.from.match(/[a-z]+/) || [])[0];
 
-  console.log(this.fromNum, this.from, this.from.match(/\d+/));
-
   if (isNaN(this.fromNum)) throw new Error(this.from + ' wrong syntax');
 
   this.from = moment().subtract(this.fromUnit, this.fromNum);
@@ -47,7 +45,7 @@ MetricPage.prototype.build = function build(done) {
   var data = this.data;
   this.buildMetrics(function(err, metrics) {
     if (err) return done(err);
-    data.metrics = metrics;
+    if (metrics) data.metrics = metrics;
     done(null, data);
   });
 };
@@ -67,7 +65,7 @@ MetricPage.prototype.buildMetrics = function buildMetrics(done) {
   request({ url: buildfile, json: true }, function(err, res, buildData) {
     if (err) return done(err);
 
-    if (!Array.isArray(buildData)) return done(new Error('data not an array'));
+    if (!Array.isArray(buildData)) return done();
 
     var data = {};
 

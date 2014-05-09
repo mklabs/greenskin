@@ -2,6 +2,7 @@
 
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
+var debug = require('debug')('gs:pages:last-build');
 
 var Job = require('../models/job');
 var Build = require('../models/build');
@@ -25,6 +26,7 @@ function LastBuildPage(options) {
 util.inherits(LastBuildPage, EventEmitter);
 
 LastBuildPage.prototype.fetch = function fetch() {
+  debug('Fetchig %s name', this.job.name);
   this.job.fetch()
     .on('error', this.error.bind(this))
     .on('sync', this.synced.bind(this));
@@ -36,7 +38,14 @@ LastBuildPage.prototype.synced = function synced(err) {
   var last = data.lastBuild && data.lastBuild.number;
   var self = this;
 
-  if (!last) return this.emit('Cannot get last build. ' + job.name);
+  debug('Getting last build %s', last);
+  if (!last) return this.emit('end', {
+    title: job.name,
+    tab: { current: false },
+    summary: true,
+    job: data
+  });
+
 
   var build = new Build({
     name: job.name,
