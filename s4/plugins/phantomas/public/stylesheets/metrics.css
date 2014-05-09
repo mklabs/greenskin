@@ -1,0 +1,14 @@
+
+.metrics-toolbar {
+  padding-bottom: 1em;
+  margin-bottom: 2em;
+}
+
+.metrics-toolbar .metrics-toolbar-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.gs-phantomas .job-tabs {
+  margin-bottom: 8px;
+}
