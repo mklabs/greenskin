@@ -10,6 +10,9 @@
 
 <!-- Nav tabs -->
 {{#tabs tab job}}
+  <li>
+    <a href="/{{ job.namespace }}/{{ job.name }}/metrics">Metrics</a>
+  </li>
   {{#number}}
   <li class="active">
     <a href="#">Build {{ . }}</a>

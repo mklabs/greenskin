@@ -1,0 +1,23 @@
+
+{{> job_summary }}
+
+{{#tabs tabs job}}
+  <li class="active">
+    <a href="/{{ job.namespace }}/{{ job.name }}/metrics">Metrics</a>
+  </li>
+{{/tabs}}
+
+{{#metrics}}
+<div class="col-sm-4">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4>
+        {{ name }}
+      </h4>
+    </div>
+    {{#graph .}}
+    {{ json }}
+    {{/graph}}
+  </div>
+</div>
+{{/metrics}}

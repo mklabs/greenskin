@@ -10,6 +10,10 @@
       this.highchart = this.$el.find('.js-highchart');
       this.data = $.extend({}, this.$el.data(), config || {});
       this.config = this.data.config || {};
+      if (!this.config) {
+        this.config = this.$el.find('.js-graph-data').html().trim();
+        console.log('?', this.config);
+      }
 
       setTimeout(this.render.bind(this), 25);
 
@@ -206,13 +210,6 @@
 
     $('.js-graph').each(function() {
       HView.create(this);
-    });
-
-    $('.js-graphs').each(function() {
-        var graph = Object.create(Graphs);
-        graph.init(this);
-
-        $(this).data('graph', graph);
     });
 
     $('.js-fullscreen-graph').click(function(e) {

@@ -12,6 +12,7 @@ var partials = path.join(__dirname, '../../views/partials');
 var blocksDir = path.join(__dirname, '../../views/blocks');
 
 hbs.registerPartials(partials);
+hbs.registerPartials(path.join(__dirname, '../../views'));
 
 hbs.registerHelper('extend', function(name, context) {
   var block = blocks[name];

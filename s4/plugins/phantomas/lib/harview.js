@@ -103,6 +103,9 @@ HarPage.prototype.buildData = function buildData(key) {
     jenkinsFilmstripDir: [workspace, data.number, url, 'filmstrip'].join('/')
   };
 
+  if (!this.results[key]) return urlData;
+  if (!this.results[key].screenshots) return urlData;
+
   urlData.screenshots = this.results[key].screenshots.map(function(entry) {
     return {
       url: workspace + '/' + data.number + '/' + url + '/' + entry,

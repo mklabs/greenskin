@@ -3,15 +3,29 @@ var path = require('path');
 var express = require('express');
 var router = express.Router();
 var debug = require('debug')('gs:phantomas:routes');
+var gm = require('gm');
 
 var request = require('request');
 var HarPage = require('../lib/harview');
+var MetricPage = require('../lib/pages/metrics');
 
 var xml = fs.readFileSync(path.join(__dirname, '../config.xml'), 'utf8');
 
 var app = require('..');
 
-// Build page - Untill more customized version is rebuilt here
+router.get('/:name', function(req, res, next) {
+  var page = new app.gs.LastBuildPage(req.params);
+
+  page.on('error', next);
+  page.on('end', function(data) {
+    data.job.tabs = [{
+      url: '/phantomas/' + req.params.name + '/metrics',
+      text: 'Metrics'
+    }];
+    res.render('view', data);
+  });
+});
+
 router.get('/:name/:number', function(req, res, next) {
   var name = req.params.name;
   var num = req.params.number;
@@ -29,12 +43,42 @@ router.get('/:name/:number', function(req, res, next) {
 
     var harPage = new HarPage(app.gs.config, data);
     harPage.build(function(err, page) {
-      console.log('err?', err);
       if (err) return next(err);
       res.render('build', page);
     });
 
   });
+});
+
+router.get('/:name/metrics', function(req, res, next) {
+  var name = req.params.name;
+  debug('Building metrics view for %s job', name);
+  var from = req.query.from;
+
+  var page = new app.gs.BuildsPage({
+    name: name
+  });
+
+  page.on('error', next);
+  page.on('end', function(data) {
+    data.from = req.query.from;
+    var metricPage = new MetricPage(app.gs.config, data);
+    metricPage.build(function(err, page) {
+      if (err) return next(err);
+      res.render('metric', page);
+    });
+  });
+});
+
+router.get('/:name/builds', function(req, res, next) {
+  var name = req.params.name;
+
+  var page = new app.gs.BuildsPage({
+    name: name
+  });
+
+  page.on('error', next);
+  page.on('end', res.render.bind(res, 'builds'));
 });
 
 // Local proxy to XHR the build hars (or setup cors for Jenkins &
@@ -57,8 +101,6 @@ router.get('/har/:name/:number/:url.json', function(req, res, next) {
   debug('HAR file', harfile);
   req.pipe(request(harfile)).pipe(res);
 });
-
-var gm = require('gm');
 
 router.get(/^\/thumbnail\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/, function(req, res, next) {
   var name = req.params[0];

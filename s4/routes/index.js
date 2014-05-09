@@ -8,6 +8,8 @@ var Job = require('..').Job;
 var Build = require('..').Build;
 
 var BuildPage = require('..').BuildPage;
+var BuildsPage = require('..').BuildsPage;
+var LastBuildPage = require('..').LastBuildPage;
 
 router.get('/', function(req, res, next) {
   var jobs = new Jobs();
@@ -43,33 +45,11 @@ router.get('/view/:name/run', function(req, res, next) {
 });
 
 router.get('/view/:name', function(req, res, next) {
-  var job = new Job({
-    name: req.params.name
-  });
+  var page = new LastBuildPage(req.params);
 
-  var pending = typeof req.query.pending !== 'undefined';
-
-  job.fetch().on('error', next);
-
-  job.on('sync', function() {
-    var data = job.toJSON();
-    var last = data.lastBuild && data.lastBuild.number;
-
-    var build = new Build({
-      name: job.name,
-      number: last
-    });
-
-    build.fetch().on('error', next);
-    build.on('sync', function() {
-      res.render('view', {
-        title: job.name,
-        tab: { current: true },
-        summary: true,
-        job: data,
-        build: build.toJSON()
-      });
-    });
+  page.on('error', next);
+  page.on('end', function(data) {
+    res.render('view', data);
   });
 });
 
@@ -88,33 +68,12 @@ router.get('/view/:name/:number', function(req, res, next) {
 });
 
 router.get('/view/:name/builds', function(req, res, next) {
-  var job = new Job({
-    name: req.params.name
+  var name = req.params.name;
+
+  var page = new BuildsPage({
+    name: name
   });
 
-  job.fetch().on('error', next);
-
-  job.on('sync', function() {
-    async.map(job.get('builds'), function(data, done) {
-      var build = new Build({
-        name: job.name,
-        number: data.number
-      });
-
-      build.fetch().on('error', next);
-      build.on('sync', function() {
-        var data = build.toJSON();
-        done(null, data);
-      });
-    }, function(err, builds) {
-      if (err) return next(err);
-      debug('job:', job.toJSON().type);
-      res.render('builds', {
-        builds: builds,
-        title: job.name,
-        tab: { builds: true },
-        job: job.toJSON()
-      });
-    });
-  });
+  page.on('error', next);
+  page.on('end', res.render.bind(res, 'builds'));
 });

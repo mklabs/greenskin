@@ -1,0 +1,50 @@
+{{> job_summary }}
+
+{{#tabs tab job}}
+  <li>
+    <a href="/{{job.namespace}}/{{job.name}}/metrics">
+      Metrics
+    </a>
+  </li>
+{{/tabs}}
+
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>Date</th>
+      <th>Duration</th>
+      <th>Jenkins URL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#builds}}
+    <tr>
+      <td>
+        <a href="/{{ ../job.type }}/{{ name }}/{{number}}">
+          <div class="doony-circle doony-circle-{{ color }}{{#animated}} bounceIn animated infinite{{/animated}}" style="display: inline-block; margin-top: 4px; margin-left: 4px; width: 24px; height: 24px;"></div>
+        </a>
+      </td>
+      <td>
+        <a href="/{{ ../job.namespace }}/{{ name }}/{{number}}">
+          #{{ number }}
+        </a>
+      </td>
+      <td>
+        {{ moment }}
+        <span class="small">({{ fromNow }})</small>
+      </td>
+      <td>
+        <a href="/{{ ../job.namespace }}/{{ name }}/{{number}}">
+        {{ duration }}
+        </a>
+      </td>
+      <td>
+        <a href="{{ url }}">{{ url }}</a>
+      </td>
+    </tr>
+    {{/builds}}
+  </tbody>
+</table>

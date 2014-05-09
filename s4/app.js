@@ -8,6 +8,8 @@ var hbs        = require('./lib/express/hbs');
 var debug      = require('debug')('gs');
 var config     = require('./package').config;
 
+var StatsD = require('./lib/statsd');
+
 var app = module.exports = express();
 
 // Main config options
@@ -24,6 +26,8 @@ app.Build = require('./lib/models/build');
 
 // Pages
 app.BuildPage = require('./lib/pages/build');
+app.BuildsPage = require('./lib/pages/builds');
+app.LastBuildPage = require('./lib/pages/last-build');
 
 // Application locals (Made available to every template)
 app.locals.buttons = [];
@@ -40,6 +44,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public', directory(path.join(__dirname, 'public')));
+app.use('/tmp', express.static(path.join(__dirname, 'tmp')));
+app.use('/tmp', directory(path.join(__dirname, 'tmp')));
+
 app.use(logger('dev'));
 
 // GS routes
@@ -58,6 +65,20 @@ fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
   subapp.locals.classname = 'gs-' + dir;
   subapp.set('view engine', app.get('view engine'));
   app.use('/' + dir, subapp);
+});
+
+// External forked process
+app.on('listen', function() {
+  debug('Listening');
+  var statsd = new StatsD();
+
+  statsd.on('exit', debug.bind('StatsD exit'));
+  statsd.on('error', debug.bind('StatsD error'));
+  statsd.on('close', debug.bind('StatsD close'));
+
+  statsd.run();
+
+  debug('StatsD listening. Args: ', statsd.args);
 });
 
 /// catch 404 and forwarding to error handler

@@ -9,7 +9,11 @@
 {{#edit}}
   {{> job_summary }}
 
-  {{#tabs tabs job}}{{/tabs}}
+  {{#tabs tabs job}}
+    <li>
+      <a href="/{{ job.namespace }}/{{ job.name }}/metrics">Metrics</a>
+    </li>
+  {{/tabs}}
 {{/edit}}
 
 {{^edit}}

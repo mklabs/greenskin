@@ -293,7 +293,7 @@ Job.prototype.setScript = function setScript(code, xml) {
   end = end + line;
 
   var body = lines.slice(0, line);
-  code = '<command><![CDATA[' + code.trim() + '\n]]>';
+  code = '<command><![CDATA[' + _.unescape(code.trim()) + '\n]]>';
   body = body.concat(code.split(/\r?\n/));
   body = body.concat(lines.slice(end));
 
