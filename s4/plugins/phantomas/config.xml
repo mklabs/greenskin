@@ -198,11 +198,12 @@ function requireWS(file) {
 UPSTREAM_BUILD_ID=$BUILD_ID
 UPSTREAM_BUILD_NUMBER=$BUILD_NUMBER
 UPSTREAM_BUILD_URL=$BUILD_URL
-UPSTREAM_JOB_NAME=$BUILD_JOB_NAME
-UPSTREAM_WORKSPACE=$BUILD_WORKSPACE</properties>
+UPSTREAM_JOB_NAME=$JOB_NAME
+UPSTREAM_DATA=$WORKSPACE/build.json
+UPSTREAM_WORKSPACE=$WORKSPACE</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>postbuild, </projects>
+          <projects>statsd_send, </projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
         </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>

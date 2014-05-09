@@ -2,6 +2,10 @@
 
 // Sadly, statsd doest provide an API or entry point to require, so we
 // rely on a spawned provess instead
+//
+// This is also where we ensure statsd is using our special backend to
+// store the results back to file storage:  /tmp/metrics by default.
+
 var statsd = require.resolve('statsd/stats');
 var events = require('events');
 var spawn  = require('child_process').spawn;

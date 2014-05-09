@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>3</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>STATSD_HOST</name>
+          <description></description>
+          <defaultValue>localhost</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>UPSTREAM_DATA</name>
+          <description>For testing, passed through from upstream job</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>UPSTREAM_JOB_NAME</name>
+          <description>For testing, passed through from upstream job</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>
+echo &quot;{}&quot; &gt; package.json
+[ -e node_modules ] || npm install lynx --save</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/env node
+
+var env = process.env;
+
+var fs = require(&apos;fs&apos;);
+var path = require(&apos;path&apos;);
+var exists = fs.existsSync;
+
+if (!env.UPSTREAM_DATA) throw new Error(&apos;Cant find upstream job data env variable&apos;);
+if (!exists(env.UPSTREAM_DATA)) throw new Error(&apos;Cant load upstream job data&apos;);
+
+var buildData = require(env.UPSTREAM_DATA);
+var host = process.env.STATSD_HOST || &apos;localhost&apos;;
+var port = process.env.STATSD_PORT || 8125;
+
+
+var Lynx = requireWS(&apos;lynx&apos;);
+console.log(&apos;Init connection on &apos;, host, port);
+var statsd = new Lynx(host, port, {
+  on_error: function(err) {
+    console.error(err);
+    process.exit(1);
+  }
+});
+
+var prefix = env.STATSD_PREFIX || (env.UPSTREAM_JOB_NAME + &apos;.&apos;);
+
+
+buildData.forEach(function(data) {
+  console.log(data.url);
+  console.log(data.prefix);
+
+  var metrics = Object.keys(data.metrics).map(function(metric) {
+    return {
+      name: prefix + (data.prefix || &apos;&apos;) + &apos;.&apos; + metric,
+      value: data.metrics[metric],
+      gauge: data.metrics[metric] + &apos;|s&apos;
+    };
+  }).reduce(function(a, b) {
+    a[b.name] = b.gauge;
+    return a;
+  }, {});
+
+  console.log(&apos;Sending metrics&apos;, metrics);
+  statsd.send(metrics);
+
+});
+
+function requireWS(file) {
+  return require(env.WORKSPACE ? path.join(env.WORKSPACE, &apos;node_modules&apos;, file) : file);
+}</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

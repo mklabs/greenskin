@@ -102,5 +102,5 @@ TODO: Package backends as external package
 */
 {
   port: 8125,
-  backends: [ '../../lib/statsd-backend' ]
+  backends: [ '../../lib/statsd/statsd-backend' ]
 }

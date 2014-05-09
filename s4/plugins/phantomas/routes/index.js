@@ -13,6 +13,19 @@ var xml = fs.readFileSync(path.join(__dirname, '../config.xml'), 'utf8');
 
 var app = require('..');
 
+router.get('/create', function(req, res) {
+  var job = new app.gs.Job({
+    xml: xml.trim()
+  });
+
+  job.script();
+
+  res.render('form', {
+    job: job.toJSON()
+  });
+});
+
+
 router.get('/:name', function(req, res, next) {
   var page = new app.gs.LastBuildPage(req.params);
 
@@ -126,18 +139,6 @@ router.get(/^\/thumbnail\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/, function(req, res
     .resize(200, 120)
     .stream()
     .pipe(res);
-});
-
-router.get('/create', function(req, res) {
-  var job = new app.gs.Job({
-    xml: xml.trim()
-  });
-
-  job.script();
-
-  res.render('form', {
-    job: job.toJSON()
-  });
 });
 
 router.get('/:name/edit', function(req, res, next) {

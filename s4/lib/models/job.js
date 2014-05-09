@@ -1,12 +1,13 @@
 
 var _    = require('underscore');
 var util = require('util');
-var debug = require('debug')('gs:job');
+var debug = require('debug')('gs:models:job');
 var async = require('async');
 var request = require('request');
 
-var Model = require('./model');
 var Build = require('./build');
+var Base = require('./jobs/base');
+var StatsD = require('./jobs/statsd');
 
 module.exports = Job;
 
@@ -16,123 +17,18 @@ module.exports = Job;
 // props like lastBuild, lastSuccessfulBuild, etc.
 
 function Job() {
-  Model.apply(this, arguments);
+  Base.apply(this, arguments);
 
-  this.defaults({
-    name: '',
-    url: '',
-    color: '',
-    type: ''
-  });
-
-  var xml = this.get('xml');
-  if (xml) this.script();
-  if (xml) this.getCron();
-  if (xml) this.getURLs();
-  if (xml) this.namespace();
-  if (xml) this.jsonConfig();
+  // Every job created gets two downstreams project to handle statsd
+  // sending & asserts handling / alerting
+  this.downstreams = [];
+  this.downstreams.push(new StatsD());
 }
 
-util.inherits(Job, Model);
-
-Job.prototype.save = function save(name, xml, done) {
-  var me = this;
-  done = done || function() {};
-
-  var data = this.toJSON();
-
-  name = name || data.name;
-  xml = (xml || data.xml).trim();
-
-  debug('Saving %s job', name);
-  var client = this.client;
-  client.exists(name, function(err, exists) {
-    if (err) return me.error(err);
-    client[exists ? 'config' : 'create'](name, xml, function(err) {
-      if (err) return me.error(err);
-      me.emit('saved');
-      done();
-    });
-  });
-
-  return this;
-};
-
-Job.prototype.fetch = function fetch(done) {
-  var me = this;
-  done = done || function() {};
-
-  var name = this.get('name');
-
-  async.parallel({
-    job: this.client.get.bind(this.client, name),
-    xml: this.client.config.bind(this.client, name)
-  }, function(err, results) {
-    if (err) return me.error(err, results);
-    me.set(results.job);
-    me.set('xml', results.xml);
-
-    me.namespace();
-    me.getCron();
-    me.getURLs();
-    me.script();
-    me.jsonConfig();
-
-    // Request build infos ? Configurable through opts ?
-    var props = ['lastBuild', 'lastFailedBuild', 'lastCompletedBuild', 'lastUnstableBuild', 'lastUnsuccessfulBuild', 'lastSuccessfulBuild'];
-
-    async.each(props, function(prop, done) {
-      var info = me.get(prop);
-      if (!info) return done();
-
-      var build = new Build({
-        name: me.name,
-        number: info.number
-      });
-
-      build.on('error', done);
-      build.on('sync', function() {
-        me.set(prop, build.toJSON());
-        done();
-      });
-
-      build.fetch();
-    }, function(err) {
-      if (err) return me.error(err, results);
-      me.emit('sync');
-      done();
-    });
-  });
-
-  return this;
-};
-
-Job.prototype.destroy = function destroy() {
-  var name = this.name;
-  var me = this;
-  this.client.delete(name, function(err) {
-    if (err) return me.error(err);
-    me.emit('destroyed');
-  });
-  return this;
-};
-
-Job.prototype.run = function run() {
-  if (!this.name) return;
-  var me = this;
-
-  var url = this.client.host + '/job/' + this.name + '/buildWithParameters';
-  debug('Run url:', url);
-  request(url, function(err) {
-    if (err) return next(err);
-    me.emit('run');
-  });
-
-  return this;
-};
+util.inherits(Job, Base);
 
 Job.prototype.toJSON = function() {
-  var data = Model.prototype.toJSON.apply(this, arguments);
+  var data = Base.prototype.toJSON.apply(this, arguments);
   return data;
 };
 
@@ -159,7 +55,6 @@ Job.prototype.namespace = function(value, xml) {
 
   this.set('type', type);
   this.set('namespace', type);
-
 
   return type;
 };
@@ -393,3 +288,4 @@ Job.prototype.replaceXML = function replaceXML(xml, value, search, replace, repl
   // Join back
   return lines.join('\n');
 };
+
