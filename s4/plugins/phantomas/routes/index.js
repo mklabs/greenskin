@@ -25,7 +25,6 @@ router.get('/create', function(req, res) {
   });
 });
 
-
 router.get('/:name', function(req, res, next) {
   var page = new app.gs.LastBuildPage(req.params);
 

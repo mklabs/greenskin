@@ -2,6 +2,7 @@
 var fs = require('fs');
 var path = require('path');
 var debug = require('debug')('gs:hbs');
+var exists = fs.existsSync;
 
 var hbs = module.exports = require('hbs');
 
@@ -51,7 +52,11 @@ fs.readdirSync(blocksDir).forEach(function(file) {
   var template = hbs.compile(body);
 
   debug('Create block helper', name);
-  hbs.registerHelper(name, function() {
+
+  // If the block as an associated helper, load and use it, otherwise
+  // fallback to default block helper
+  var helper = path.join(path.dirname(filename), name + '.js');
+  var handler = exists(helper) ? require(helper)(template) : function () {
     var args = [].slice.call(arguments);
     var ctx = args.pop();
     var data = args[0] || {};
@@ -66,6 +71,7 @@ fs.readdirSync(blocksDir).forEach(function(file) {
     context[name] = data;
     context.job = args[1] || {};
     return new hbs.handlebars.SafeString(template(context));
-  });
+  };
 
-});
+  hbs.registerHelper(name, handler);
+ });
