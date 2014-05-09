@@ -15,6 +15,13 @@ var blocksDir = path.join(__dirname, '../../views/blocks');
 hbs.registerPartials(partials);
 hbs.registerPartials(path.join(__dirname, '../../views'));
 
+hbs.registerHelper('cleanUrl', function(url) {
+  return url
+    .replace(/^https?:\/\//, '')
+    .replace(/\/$/g, '')
+    .replace(/(\/|\?|-|&|=|\.)/g, '_');
+});
+
 hbs.registerHelper('extend', function(name, context) {
   var block = blocks[name];
   if (!block) {

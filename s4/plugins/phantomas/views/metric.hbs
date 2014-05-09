@@ -1,3 +1,6 @@
+{{#extend 'stylesheets'}}
+<link rel="stylesheet" href="/phantomas/stylesheets/metrics.css">
+{{/extend}}
 
 {{> job_summary }}
 
@@ -7,32 +10,58 @@
   </li>
 {{/tabs}}
 
-{{#metrics}}
-<div class="col-sm-4">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h4>
-        {{ name }}
-      </h4>
+<div class="metrics-toolbar">
+ <div class="btn-toolbar metrics-toolbar-item" role="toolbar">
+    <div class="btn-group">
+      {{#job.urls}}
+      <a href="/{{ ../job.namespace }}/{{ ../job.name }}/metrics?query={{cleanUrl .}}.*"
+        class="btn btn-default">
+        {{ . }}
+      </a>
+      {{/job.urls}}
     </div>
-    {{#graph .}}
-    {{ json }}
-    {{/graph}}
+    <div class="btn-group">...</div>
+    <div class="btn-group">...</div>
   </div>
+
+  <form class="form metrics-form metrics-toolbar-item" action="/{{job.namespace}}/{{job.name}}/metrics" style="min-width: 250px">
+    <input
+      name="query"
+      value="{{ query }}"
+      placeholder="Metric key (Ex. **, *.*, url.*, *.key, url.key)"
+      class="form-control"
+    />
+  </form>
 </div>
-{{/metrics}}
+
+<div class="phantomas-metrics row">
+  {{#metrics}}
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h4>
+          {{ target }}
+        </h4>
+        {{#highcharts .}}
+        {{ json }}
+        {{/highcharts}}
+      </div>
+    </div>
+  </div>
+  {{/metrics}}
+</div>
 
 {{^metrics}}
 
-{{#markdown '{ "inlineCSS": true }'}}
-The {{ job.name }} job has no metrics associated just yet.
+  {{#markdown '{ "inlineCSS": true }'}}
+    The {{ job.name }} job has no metrics associated just yet.
 
-Try running the build once.
+    Try running the build once.
 
-```js
-var yep = 'true';
+    ```js
+    var yep = 'true';
 
-```
-{{/markdown}}
+    ```
+  {{/markdown}}
 
 {{/metrics}}

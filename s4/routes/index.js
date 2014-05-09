@@ -36,12 +36,13 @@ router.get('/view/:name/run', function(req, res, next) {
     name: req.params.name
   });
 
-  job.run()
-    .on('error', next)
-    .on('run', function() {
-      var data = job.toJSON();
-      res.redirect('/view/' + job.name + '/builds');
-    });
+  job.on('error', next)
+  job.fetch().on('sync', job.run.bind(job));
+  job.on('run', function() {
+    var data = job.toJSON();
+    var ns = job.namespace() || 'view';
+    res.redirect('/'+ ns +'/' + job.name + '/builds');
+  });
 });
 
 router.get('/view/:name', function(req, res, next) {

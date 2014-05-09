@@ -90,8 +90,7 @@ for url in $URLS; do
     --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
-    --film-strip --film-strip-dir $URL_DIR/filmstrip \
-    --verbose
+    --film-strip --film-strip-dir $URL_DIR/filmstrip
 
   echo &quot;&quot;
 
@@ -103,7 +102,6 @@ for url in $URLS; do
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
-    --verbose \
     &gt; $URL_DIR/build.json
 
 
@@ -136,8 +134,7 @@ var buildNumber = env.BUILD_NUMBER || env.TRAVIS_BUILD_NUMBER || &apos;last&apos
 var dirname = path.resolve(env.WORKSPACE || &apos;&apos;, &apos;results&apos;, buildNumber);
 
 console.log('Result dir:', dirname);
-
-fs.readdirSync(dirname).forEach(function(dir) {
+var results = fs.readdirSync(dirname).map(function(dir) {
   if (fs.statSync(path.join(dirname, dir)).isFile()) return;
   console.log(&apos;Dealing with results %s dir&apos;, dir);
   var data = {};
@@ -145,7 +142,7 @@ fs.readdirSync(dirname).forEach(function(dir) {
   try {
     data = require(path.join(dirname, dir, &apos;build.json&apos;));
   } catch(e) {
-    console.error('Error loading build.json', dirname, dir);
+    console.error(&apos;Error loading build.json&apos;, dirname, dir);
     return;
   }
 
@@ -167,7 +164,17 @@ fs.readdirSync(dirname).forEach(function(dir) {
   filename = path.resolve(env.WORKSPACE || &apos;&apos;, dir + &apos;.tap&apos;);
   console.log(&apos;Writing TAP results to %s file&apos;, filename);
   fs.writeFileSync(filename, res);
+
+  // Used by statsd-send to build the metric key
+  data.prefix = dir;
+
+  return data;
 });
+
+// All build info, to pass along downstream jobs
+var filename = path.resolve(env.WORKSPACE || &apos;&apos;, &apos;build.json&apos;);
+console.log(&apos;Writing build JSON results to %s file&apos;, filename);
+fs.writeFileSync(filename, JSON.stringify(results));
 
 
 function requireWS(file) {

@@ -9,6 +9,10 @@ var util    = require('util');
 var events  = require('events');
 var moment = require('moment');
 
+// For the tme being, thing of another way to inject this deps, probably
+// on instantiation
+var Sets = require('../../../../lib/statsd/app/sets');
+
 module.exports = MetricPage;
 
 function MetricPage(config, data) {
@@ -16,36 +20,46 @@ function MetricPage(config, data) {
   this.data = data || {};
   this.results = {};
   this.dirname = this.config.storage || path.resolve('tmp/metrics');
-  this.from = this.data.from || '7d';
 
-  this.fromNum = parseFloat((this.from.match(/\d+/) || [])[0]);
-  this.fromUnit = (this.from.match(/[a-z]+/) || [])[0];
-
-  if (isNaN(this.fromNum)) throw new Error(this.from + ' wrong syntax');
-
-  this.from = moment().subtract(this.fromUnit, this.fromNum);
-
-  debug('From, ', this.data.from, this.fromNum, this.fromUnit);
-  debug('from', this.from);
-
+  // Some validation
   if (!(config.jenkinsUI)) throw new Error('Missing Jenkins UI config');
   if (!(data.job && data.job.name)) throw new Error('Data not proper structure, job not defined');
 
-  this.workspace = config.jenkinsUI + [
-    'job',
-    data.job.name,
-    'ws'
-  ].join('/').replace(/\/\/+/, '/');
+  // Handle from parameter, restricting metrics returned based on
+  // timestamps
+  this.from = this.data.from || '7d';
+  this.prefix = data.job.name;
+  this._query = '**';
+
+  this.sets = new Sets(path.join(this.dirname, 'sets', this.prefix), {
+    from: this.from
+  });
 }
 
 util.inherits(MetricPage, events.EventEmitter);
+
+MetricPage.prototype.query = function query(value) {
+  if (!value) return this._query;
+  this._query = value;
+  return this;
+}
 
 // Page helper for har view
 MetricPage.prototype.build = function build(done) {
   var data = this.data;
   this.buildMetrics(function(err, metrics) {
     if (err) return done(err);
-    if (metrics) data.metrics = metrics;
+
+    if (metrics) {
+      data.metrics = metrics.map(function(metric) {
+        metric.json = JSON.stringify({
+          xaxis: metric.xaxis,
+          series: metric.series
+        });
+        return metric;
+      });
+    }
+
     done(null, data);
   });
 };
@@ -56,94 +70,61 @@ MetricPage.prototype.getAsserts = function getAsserts() {
   return this.data.job && this.data.job.jsonConfig && this.data.job.jsonConfig.asserts;
 };
 
+// Returns an array of metrics object, like so
 MetricPage.prototype.buildMetrics = function buildMetrics(done) {
-  var dirname = path.join(this.dirname, 'sets', this.data.job.name);
-  var buildfile = this.workspace + '/build.json';
-  var from = this.from;
-  var asserts = this.getAsserts();
+  var query = {};
+  query.from = this.from;
+  query.key = this.query();
 
-  request({ url: buildfile, json: true }, function(err, res, buildData) {
+  var me = this;
+  this.sets.load(query.key, function(err, results) {
     if (err) return done(err);
-
-    if (!Array.isArray(buildData)) return done();
-
-    var data = {};
-
-    async.map(buildData, function(build, done) {
-      var metrics = build.metrics;
-
-      var keys = Object.keys(metrics);
-
-      async.each(keys, function(key, next) {
-        var filepath = path.join(dirname, build.prefix, key + '.json');
-
-        fs.readFile(filepath, 'utf8', function(err, body) {
-          if (err) return next(err);
-          var json = {};
-          try {
-            json = JSON.parse(body);
-          } catch(e) {
-            return next(err);
-          }
-
-          var series = data[key] = (data[key] || {});
-
-          json.metrics = json.metrics.map(parseFloat);
-
-          var serie = series.series ? series.series.filter(function(serie) {
-            return serie.name === build.url;
-          })[0] : null;
-
-          if (!serie) {
-            serie = {};
-            serie.name = build.url;
-            series.series = (series.series || []).concat(serie);
-          }
-
-
-          var raw = json.raw.filter(function(raw) {
-            var m = moment(raw[0] * 1000);
-            return !m.isBefore(from);
-          });
-
-          series.timestamps = raw.map(function(raw) {
-            return raw[0] * 1000;
-          });
-
-          serie.data = raw.map(function(raw) {
-            return raw[1];
-          }).reduce(function(a, b) {
-            return a.concat(b);
-          }, []).map(parseFloat);
-
-          next();
-        });
-      }, done);
-    }, function(err) {
-      if (err) return done(err);
-      data = Object.keys(data).reduce(function(arr, key) {
-        var series = data[key];
-
-        arr = arr.concat({
-          name: key,
-          series: series.series,
-          timestamps: series.timestamps,
-          assert: asserts[key],
-          json: JSON.stringify({
-            xaxis: series.timestamps.map(function(t) {
-              return moment(t).format('LLL');
-            }),
-            series: series.series
-          })
-        });
-        return arr;
-      }, []);
-
-      data = data.sort(function(a, b) {
-        return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
-      });
-
-      done(null, data);
-    });
+    var data = me.group(results);
+    var series = me.series(data);
+    done(null, series);
   });
+};
+
+MetricPage.prototype.group = function group(results) {
+  var data = {};
+
+  results.forEach(function(result) {
+    var target = result.target;
+    var parts = target.split(/\./);
+    var url = parts[0];
+    var metric = parts[1];
+
+    var entry = data[metric] || {};
+    // entry[url] = (entry[url] || []).concat(result.data);
+    entry[url] = result;
+    data[metric] = entry;
+  });
+
+  return data;
+};
+
+// Returns an array of array of Series object from grouped data
+MetricPage.prototype.series = function _series(data) {
+  var results = [];
+  results = Object.keys(data).map(function(metric) {
+    var metricSeries = data[metric];
+    var series = Object.keys(metricSeries).map(function(url) {
+      var result = metricSeries[url];
+      var data = result.data;
+
+      return {
+        name: url,
+        xaxis: result.categories,
+        data: data
+      };
+    });
+
+    return {
+      target: metric,
+      xaxis: series[0].xaxis,
+      series: series
+    };
+  });
+
+  return results;
 };

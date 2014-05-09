@@ -76,8 +76,13 @@ router.get('/:name/metrics', function(req, res, next) {
   page.on('end', function(data) {
     data.from = req.query.from;
     var metricPage = new MetricPage(app.gs.config, data);
+
+    var query = req.query.query ? req.query.query : '**';
+    metricPage.query(query);
+
     metricPage.build(function(err, page) {
       if (err) return next(err);
+      page.query = query;
       res.render('metric', page);
     });
   });

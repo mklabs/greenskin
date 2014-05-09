@@ -8,8 +8,11 @@ var exists = fs.existsSync;
 
 var util = require('util');
 var debug = require('debug')('gs:statsd:backend');
+var async = require('async');
 
-function ConsoleBackend(startupTime, config, emitter){
+function isNotNaN(num) { return !isNaN(num); }
+
+function FSBackend(startupTime, config, emitter){
   var self = this;
   this.lastFlush = startupTime;
   this.lastException = startupTime;
@@ -22,13 +25,14 @@ function ConsoleBackend(startupTime, config, emitter){
     mkdirp.sync(path.join(this.storage, 'gauges'));
   }
 
+  this.timestamp = Date.now();
+
   // attach
   emitter.on('flush', function(timestamp, metrics) { self.flush(timestamp, metrics); });
   emitter.on('status', function(callback) { self.status(callback); });
 }
 
-ConsoleBackend.prototype.flush = function(timestamp, metrics) {
-
+FSBackend.prototype.flush = function(timestamp, metrics) {
   var out = {
     counters: metrics.counters,
     timers: metrics.timers,
@@ -48,67 +52,80 @@ ConsoleBackend.prototype.flush = function(timestamp, metrics) {
   this.write(timestamp, out);
 };
 
-ConsoleBackend.prototype.write = function write(timestamp, metrics) {
-  var sets = metrics.sets;
+FSBackend.prototype.write = function write(timestamp, metrics) {
+  var sets = this.sets = metrics.sets;
 
-  var keys = Object.keys(sets);
-  //.slice(0, 10);
+  var keys = this.keys = Object.keys(sets);
 
-  keys.forEach(function(metric) {
-    var values = sets[metric];
+  this.timestamp = timestamp;
 
-    if (!values) return;
-    if (!values.length) return;
-
-    debug('Writing metrics %s:%s to file system', metric, values);
-
-    var file = metric.replace(/\./g, '/');
-    var filepath = path.join(this.storage, 'sets', file + '.json');
-
-    mkdirp(path.dirname(filepath), function(err) {
-      if (err) {
-        // debug('Error Creating directory', err);
-        return;
-      }
-
-      fs.readFile(filepath, function(err, body) {
-        if (err) {
-          debug('Creating file %s', err, filepath);
-        }
-
-        var data = {};
-
-        try {
-          data = body ? JSON.parse(body) : {};
-        } catch(e) {
-          debug(e);
-        }
-
-        data.name = data.name || path.basename(file);
-        data.timestamps = (data.timestamps || []).concat(timestamp);
-        data.metrics = (data.metrics || []).concat(values);
-
-        data.raw = (data.raw || []);
-        data.raw.push([timestamp, values]);
-
-        fs.writeFile(filepath, JSON.stringify(data), function(err) {
-          if (err) {
-            debug('ERR', err);
-          }
-        });
-      });
-
-    });
-  }, this);
+  var done = function() {}
+  async.each(keys, this.writeKey.bind(this), function(err) {
+    if (err) {
+      debug('Error flushing data to FS', err);
+      process.exit(1);
+    }
+  });
 };
 
-ConsoleBackend.prototype.status = function(write) {
+FSBackend.prototype.writeKey = function writeKey(metric, done) {
+  var values = this.sets[metric];
+
+  if (!values) return;
+  if (!values.length) return;
+
+  // debug('Writing metrics %s:%s to file system', metric, values);
+
+  var file = metric.replace(/\./g, '/');
+  var filepath = path.join(this.storage, 'sets', file + '.json');
+  var timestamp = this.timestamp;
+
+  this.read(filepath, function(err, data) {
+    if (err) return done(err);
+
+    values = values.map(parseFloat).filter(isNotNaN);
+
+    data.name = data.name || path.basename(file);
+    data.timestamps = (data.timestamps || []).concat(timestamp);
+    data.metrics = (data.metrics || []).concat(values);
+
+    data.raw = (data.raw || []);
+    data.raw.push([timestamp].concat(values));
+
+    mkdirp(path.dirname(filepath), function(err) {
+      if (err) return done(err);
+      fs.writeFile(filepath, JSON.stringify(data), done);
+    });
+  });
+};
+
+FSBackend.prototype.read = function(file, done) {
+  fs.readFile(file, 'utf8', function(err, body) {
+    if (err) {
+      debug('Creating file %s', err, file);
+    }
+
+    var data = {};
+
+    try {
+      data = body ? JSON.parse(body) : {};
+    } catch(e) {
+      debug(e);
+    }
+
+    done(null, data);
+  });
+};
+
+FSBackend.prototype.status = function status(write) {
   ['lastFlush', 'lastException'].forEach(function(key) {
     write(null, 'console', key, this[key]);
   }, this);
 };
 
 exports.init = function(startupTime, config, events) {
-  var instance = new ConsoleBackend(startupTime, config, events);
+  var instance = new FSBackend(startupTime, config, events);
   return true;
 };
+
+exports.FSBackend = FSBackend;

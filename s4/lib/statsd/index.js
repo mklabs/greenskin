@@ -16,6 +16,7 @@ var Lynx   = require('lynx');
 
 module.exports = StatsD;
 StatsD.path = statsd;
+StatsD.app = require('./app');
 
 function StatsD(options) {
   options = options || {};

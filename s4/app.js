@@ -52,20 +52,34 @@ app.use(logger('dev'));
 // GS routes
 app.use('/', require('./routes'));
 
+var statsd = requireApp('./lib/statsd/app', { name: 'statsd' });
+
+app.use('/statsd', statsd.middleware({
+  base: './tmp/metrics'
+}));
+
 // Subapps
 fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
   if (fs.statSync(path.join(__dirname, 'plugins', dir)).isFile()) return;
 
   debug('Register %s on /%s', dir, dir);
-  var subapp = require('./plugins/' + dir);
-  subapp.locals.baseURL = '/' + dir;
+  app.use('/' + dir, requireApp('./plugins/' + dir));
+});
+
+function requireApp(dir, options) {
+  options = options || {};
+  var name = options.name || path.basename(dir);
+  var subapp = require(dir);
+
+  subapp.locals.baseURL = '/' + name;
 
   // TODO: Requires a patch in hbs. See if we can workaround that by monkey patching.
   subapp.locals.layout = app.layout;
-  subapp.locals.classname = 'gs-' + dir;
+  subapp.locals.classname = 'gs-' + name;
   subapp.set('view engine', app.get('view engine'));
-  app.use('/' + dir, subapp);
-});
+  return subapp;
+}
+
 
 // External forked process
 app.on('listen', function() {
