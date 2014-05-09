@@ -6,24 +6,29 @@ How they translate into the UI (ex. `PERF_URLS`, available as `job.urls` and can
 Think of web components, but built with handlebars block, and a naive
 CSS / JS sandboxing to the snippet of HTML.
 
-## Jobs
+## Downstream Jobs
 
-Those are downstream jobs executed after monitoring jobs. They perform
-post build actions, without very limited knowledge about the upstream
-job.
+On creation, the system should init downstream jobs used by any Jobs
+generating metrics and asserts.
 
-Process the results for stats aggregation, or alerting, etc.
+- statsd_send: Uses a single `build.json` file at the root of upstream
+  job, parsing the array of results and `data.metrics`. The metrics hash
+  is used to send metrics packet to a remote StatsD instance.
 
-- statsd_send: Downstream job, uses a single `build.json` file from the
-  UPSTREAM root.
+- asserts_check: Uses a single `build.json` file at the root of upstream
+  job, parsing the array of results and `data.asserts`. Failing asserts
+  generates an alert notification.
 
 ### Parameters
 
 - UPSTREAM_DATA - This is the absolute path of the build.json file
 
-`build.json` is an array of Phantomas formatted results. They have:
+
+### Build.json
+
+`build.json` is an array of Phantomas formatted results. with:
 
 - generator: Description of the system generating the metric.
 - metrics: Hash of key value metrics pair. Key is the metric name, value
   is the value.
-- asserts: Any failed asserts here
+- asserts: Any failed asserts here.
