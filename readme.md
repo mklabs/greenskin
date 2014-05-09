@@ -21,15 +21,15 @@ The webapp is only one part of the system, we provide ansible playbooks & basic 
 
 In [docs/](docs/) directory
 
-- [Install "prod"](./docs/install) - Documentation on provisioning a
+- [Install "prod"](./docs/install.md) - Documentation on provisioning a
   production server
-- [Vagrant](./docs/vagrant) - Documentation on setting up a local
+- [Vagrant](./docs/vagrant.md) - Documentation on setting up a local
   environment using Vagrant.
-- [Jenkins Job XML Config](docs/jenkins-config) - A description of Job
+- [Jenkins Job XML Config](docs/jenkins-config.md) - A description of Job
   XML config, and shared parameters accross Jobs.
-- [Jenkins Job Wokspace](docs/jenkins-workspace) - A description of
+- [Jenkins Job Wokspace](docs/jenkins-workspace.md) - A description of
   generated workspace, and shared files accross builds.
-- [Subapps](docs/plugins) - Extension points and plugin / subapps system.
+- [Subapps](docs/plugins.md) - Extension points and plugin / subapps system.
 
 ## How it looks
 
