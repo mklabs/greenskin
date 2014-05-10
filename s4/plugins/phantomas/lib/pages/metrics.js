@@ -30,7 +30,6 @@ function MetricPage(config, data) {
   this.from = this.data.from || '7d';
   this.prefix = data.job.name;
   this._query = '**';
-
   this.sets = new Sets(path.join(this.dirname, 'sets', this.prefix), {
     from: this.from
   });
@@ -51,13 +50,22 @@ MetricPage.prototype.build = function build(done) {
     if (err) return done(err);
 
     if (metrics) {
-      data.metrics = metrics.map(function(metric) {
+      data.metrics = metrics.map(function(metric, i, arr) {
         metric.json = JSON.stringify({
           xaxis: metric.xaxis,
           series: metric.series
         });
+
+        var job = data.job;
+        metric.action = '/' + job.type + '/' + job.name + '/metrics';
+        metric.name = metric.target;
+
+        metric.colsize = arr.length <= 3 ? 12 : 4;
+        metric.expand = arr.length <= 3;
+
         return metric;
       });
+
     }
 
     done(null, data);
@@ -106,6 +114,7 @@ MetricPage.prototype.group = function group(results) {
 // Returns an array of array of Series object from grouped data
 MetricPage.prototype.series = function _series(data) {
   var results = [];
+  var asserts = this.getAsserts();
   results = Object.keys(data).map(function(metric) {
     var metricSeries = data[metric];
     var series = Object.keys(metricSeries).map(function(url) {
@@ -121,6 +130,7 @@ MetricPage.prototype.series = function _series(data) {
 
     return {
       target: metric,
+      assert: asserts[metric],
       xaxis: series[0].xaxis,
       series: series
     };

@@ -190,29 +190,6 @@ a {
   border-bottom: 1px solid rgb(225, 225, 232);
 }
 
-.graph {
-  position: relative;
-}
-
-.graph:hover .graph-btn-group {
-  display: block;
-}
-
-.graph .graph-btn-group {
-  position: absolute;
-  z-index: 1002;
-  right: 0px;
-  top: 0px;
-  display: none;
-}
-
-.graph .graph-btn-group .btn {
-  font-size: 0.9em;
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
 .edit-form label {
   display: none;
 }

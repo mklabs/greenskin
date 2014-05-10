@@ -13,6 +13,31 @@ var xml = fs.readFileSync(path.join(__dirname, '../config.xml'), 'utf8');
 
 var app = require('..');
 
+router.post('/:name/metrics', function(req, res, next) {
+  var assert = req.body.assert;
+  var target = req.body.target;
+  var job = new app.gs.Job(req.params);
+
+  job.on('error', next);
+
+  job.on('saved', function() {
+    res.redirect('/' + job.type + '/' + job.name + '/metrics/*.' + target);
+  });
+
+  job.on('sync', function(data) {
+    var json = job.get('json');
+    var conf = job.get('jsonConfig');
+    console.log(conf, conf[target]);
+    conf.asserts = conf.asserts || {};
+    conf.asserts[target] = parseFloat(assert);
+
+    job.jsonConfig(JSON.stringify(conf));
+    job.save();
+  });
+
+  job.fetch();
+});
+
 router.get('/create', function(req, res) {
   var job = new app.gs.Job({
     xml: xml.trim()
@@ -34,6 +59,9 @@ router.get('/:name', function(req, res, next) {
     data.job.tabs = [{
       url: '/phantomas/' + req.params.name + '/metrics',
       text: 'Metrics'
+    }, {
+      url: '/phantomas/' + req.params.name + '/assets',
+      text: 'Asserts'
     }];
     res.render('view', data);
   });
@@ -65,7 +93,6 @@ router.get('/:name/:number', function(req, res, next) {
 
 router.get('/:name/metrics', function(req, res, next) {
   var name = req.params.name;
-  debug('Building metrics view for %s job', name);
   var from = req.query.from;
 
   var page = new app.gs.BuildsPage({
@@ -80,6 +107,57 @@ router.get('/:name/metrics', function(req, res, next) {
     var query = req.query.query ? req.query.query : '**';
     metricPage.query(query);
 
+    metricPage.build(function(err, page) {
+      if (err) return next(err);
+      page.query = query;
+      res.render('metric', page);
+    });
+  });
+});
+
+router.get('/:name/asserts', function(req, res, next) {
+  var name = req.params.name;
+  var from = req.query.from;
+
+  var page = new app.gs.BuildsPage({
+    name: name
+  });
+
+  page.on('error', next);
+  page.on('end', function(data) {
+    data.from = req.query.from;
+    var metricPage = new MetricPage(app.gs.config, data);
+
+    var query = req.query.query ? req.query.query : '**';
+    metricPage.query(query);
+
+    metricPage.build(function(err, page) {
+      if (err) return next(err);
+      page.query = query;
+
+      page.metrics = page.metrics.filter(function(metric) {
+        return metric.assert;
+      });
+
+      res.render('asserts', page);
+    });
+  });
+});
+
+router.get('/:name/metrics/:target', function(req, res, next) {
+  var name = req.params.name;
+  var query = req.params.target || '**';
+  var from = req.query.from;
+
+  var page = new app.gs.BuildsPage({
+    name: name
+  });
+
+  page.on('error', next);
+  page.on('end', function(data) {
+    data.from = from;
+    var metricPage = new MetricPage(app.gs.config, data);
+    metricPage.query(query);
     metricPage.build(function(err, page) {
       if (err) return next(err);
       page.query = query;

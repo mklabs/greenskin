@@ -12,3 +12,15 @@
 .gs-phantomas .job-tabs {
   margin-bottom: 8px;
 }
+
+.graph-edit .form {
+  padding-bottom: 16px;
+}
+
+.graph-expand .js-highchart {
+  min-height: 650px;
+}
+
+.graph-expand .js-highchart .highcharts-container {
+  height: 600px !important;
+}

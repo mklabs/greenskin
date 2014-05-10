@@ -1,216 +1,187 @@
 (function(doc) {
 
-  var HView = {
-    init: function(el, config) {
-      this.el = el;
-      this.$el = $(this.el);
+  function HView(el, config) {
+    this.el = el;
+    this.$el = $(this.el);
+    this.$ = this.$el.find.bind(this.$el);
+    this.on = this.$el.on.bind(this.$el);
+    this.data = $.extend({}, this.$el.data(), config || {});
 
-      if (!this.$el.length) return;
+    this.highchart = this.$el.find('.js-highchart');
+    this.data = $.extend({}, this.data, this.highchart.data());
+    this.config = this.data.config || {};
+    this.config.expand = this.data.expand;
 
-      this.highchart = this.$el.find('.js-highchart');
-      this.data = $.extend({}, this.$el.data(), config || {});
-      this.config = this.data.config || {};
-      if (!this.config) {
-        this.config = this.$el.find('.js-graph-data').html().trim();
-        console.log('?', this.config);
-      }
 
-      setTimeout(this.render.bind(this), 25);
+    this.on('click', '.js-edit', this.edit.bind(this));
+    this.graph = new Graph(this.$('.js-highchart-graph')[0], this.config);
 
-      var self = this;
-      this.$el.on('dblclick', function(e) {
-        e.preventDefault();
-        if (screenfull.enabled) {
-          screenfull.request(self.el);
-        }
-      });
+    // setTimeout(this.render.bind(this), 25);
+    this.graph.render();
+    this.graph.drawAssertLine(this.data.assert);
+  }
 
-    },
+  HView.create = function create() {
+    var el = this;
+    $.data(el, 'hview', new HView(el));
+  };
 
-    render: function() {
-      this.chart = new Highcharts.Chart({
-        chart: {
-          renderTo: this.highchart[0],
-          events: {
-            redraw: this.drawAssertLine.bind(this)
-          }
-        },
-        title: {
-          text: this.data.name || ''
-        },
-        xAxis: {
-          categories: this.config.xaxis
-        },
-        series: this.config.series
-      });
+  // Edit
 
-      this.drawAssertLine(this.chart);
-    },
+  // TOOD: JST ...
+  HView.prototype.edit = function edit(e) {
+    e.preventDefault();
+    var el = this.$('.js-highchart');
+    var data = _.clone(this.config);
 
-    drawAssertLine: function(c) {
-        var chart = c instanceof Highcharts.Chart ? c : this.chart;
+    data.name = this.$('.js-target').text().trim();
+    data.assert = this.data.assert;
+    data.action = this.data.action;
+    this.dialog = new Dialog($('.js-modal'), data);
+    this.dialog.dialog();
+  };
 
-        var assert = this.data.assert;
-        if (!assert) return;
-        if (!chart) return;
+  // Dialog
+  function Dialog(el, options) {
+    this.options = options || {};
+    this.el = el;
+    this.$el = $(el);
+    this.$ = this.$el.find.bind(this.$el);
+    this.on = this.$el.on.bind(this.$el);
 
-        var y = chart.yAxis[0];
-        var pixel = y && y.toPixels(assert);
-        var off = chart.axisOffset[3];
+    this.on('click', '.js-save', this.save.bind(this));
+    this.on('submit', '.js-form', this.submit.bind(this));
+  }
 
-        // Draw horizontal line at assert level
-        if (this.line) this.line.destroy();
+  Dialog.prototype.open = function open() {
+    this.$el.modal();
+  };
 
-        var line = this.line = chart.renderer.path(['M', off, pixel, 'H', chart.chartWidth])
-          .attr({
-            'stroke-width': 1,
-            stroke: 'red',
-            zIndex: 1000
-          })
-          .add();
-    },
-
-    create: function(el, options) {
-      var me = Object.create(HView);
-      me.init(el);
-
-      $(el).data('graph', me);
+  Dialog.prototype.dialog = function dialog() {
+    this.$('.js-body').empty().append(this.render());
+    this.$el.modal();
+    if (this.graph) {
+      this.graph.render();
+      this.graph.drawAssertLine(this.options.assert);
     }
   };
 
-  var Graphs = {};
+  Dialog.prototype.render = function render() {
+    var div = $('<div class="graph-edit" />');
+    var form = this.form = $('<form class="form js-form" method="POST" />');
+    form.prop('action', this.options.action || '');
+    var graphEl = $('<div class="graph " />');
 
-  Graphs.init = function(el, config) {
-    this.el = el;
-    this.$el = $(this.el);
+    var assert = $('<input name="assert" class="js-assert form-control" required />');
+    assert.val(this.options.assert || '');
+    assert.prop('placeholder', 'Assert value');
 
-    if (!this.$el.length) return;
+    var target = $('<input name="target" class="js-target form-control" type="hidden" />')
+      .val(this.options.name)
+      .appendTo(form);
 
-    this.template = this.$el.find('.js-template');
-    this.buttons = this.$el.find('.js-buttonpane');
+    var p = $('<p class="form-group "/>')
+    var label = $('<label for="assert" class="form-label"/>').text('Assert');
 
-    this.data = $.extend({}, this.$el.data(), config || {});
+    var graph = this.graph = new Graph(graphEl[0], this.options);
 
-    this.$el.on('change', '.js-select-metrics', this.renderGraph.bind(this));
-    this.$el.on('keyup', '.js-value', _.debounce(this.renderGraph.bind(this), 250));
-    this.$el.on('click', '.js-save', _.debounce(this.save.bind(this), 250));
+    assert.on('keyup', function(e) {
+      var keycode = (e.keyCode ? e.keyCode : e.which) + '';
+      var val = assert.val();
+      var num = parseFloat(val);
 
-    this.$el.on('click', '.js-add', this.add.bind(this));
-    this.$el.on('click', '.js-edit', this.edit.bind(this));
-    this.$el.on('click', '.js-remove', this.remove.bind(this));
-
-    this.$el.on('submit', '.js-edit-form', this.save.bind(this));
-  };
-
-  Graphs.add = function(e) {
-      e.preventDefault();
-
-      var tpl = $(this.template.html());
-      var select = tpl.find('.js-select-metrics');
-      select.select2();
-      this.buttons.before(tpl);
-
-      this.renderGraph({ target: select });
-
-      $(e.target).remove();
-  };
-
-  Graphs.edit = function(e) {
-      e.preventDefault();
-
-      var group = $(e.target).closest('.js-graph');
-      if (group.find('.js-edit-form').length) {
-        return group.find('.js-edit-form').toggle();
+      if (isNaN(num)) {
+        p.addClass('has-error');
+        return;
       }
 
-      var tpl = $(this.template.html()).find('form').html();
-      var name = group.data('name');
+      p.removeClass('has-error');
 
-      tpl = $('<form />').html(tpl)
-        .addClass('form js-edit-form edit-form');
+      graph.options.assert = num;
+      graph.drawAssertLine();
+    });
 
-      group.addClass('js-row');
+    p.append(label).append(assert).appendTo(form);
 
-      var select = tpl.find('.js-select-metrics');
-      select.val(name).attr('disabled', 'disabled').addClass('form-control').hide();
-      tpl.find('.js-value-metrics').text(name);
+    div.append(form);
+    div.append(graphEl);
 
-      tpl.find('.js-value').val(group.data('assert'));
-
-      group.prepend(tpl);
+    return div;
   };
 
-  Graphs.remove = function(e) {
-    var tpl = $(this.template.html()).find('form').html();
-    var group = $(e.target).closest('.js-graph');
-    var name = group.data('name');
-
-    var req = $.ajax({
-      // DELETE ?
-      method: 'POST',
-      url: location.pathname + '/' + name + '/del'
-    });
-
-    req.success(function(data) {
-      var redirect = data.redirect;
-      if (!redirect) return;
-      location.replace(redirect);
-    });
-  };
-
-  Graphs.renderGraph = function(e) {
-    var target = $(e.target);
-    var group = target.closest('.js-row');
-    var graph = $(e.target).closest('.js-graph');
-    var metric = group.find('.js-select-metrics').select2('val');
-    if (typeof metric !== 'string') metric = graph.data('name');
-    var assert = group.find('.js-value').val();
-
-    var req = $.ajax({
-      url: location.pathname + '/' + metric
-    });
-
-    req.success(function(data) {
-      group.data('name', metric);
-      group.data('config', data);
-      group.data('assert', assert);
-      HView.create(group[0]);
-    });
-  };
-
-  Graphs.save = function(e) {
+  Dialog.prototype.save = function save(e) {
     e.preventDefault();
 
-    var target = $(e.target);
-    var group = target.closest('.js-row');
-    var graph = target.closest('.js-graph');
+    if (this.$('.has-error').length) {
+      e.preventDefault();
+      return;
+    }
 
-    var metric = group.find('.js-select-metrics').select2('val');
-    if (typeof metric !== 'string') metric = graph.data('name');
-    var assert = group.find('.js-value').val();
+    this.form.submit();
+  };
 
-    var req = $.ajax({
-      method: 'POST',
-      url: location.pathname + '/' + metric,
-      data: {
-        value: assert
-      }
+  Dialog.prototype.submit = function submit(e) {
+    if (this.$('.has-error').length) {
+      e && e.preventDefault();
+      return;
+    }
+  };
+
+  // Graph
+  function Graph(el, options) {
+    this.options = options || {};
+    this.el = el;
+    this.$el = $(el);
+  }
+
+  Graph.prototype.render = function render() {
+    this.chart = new Highcharts.Chart({
+      chart: {
+        renderTo: this.el,
+        events: {
+          redraw: this.drawAssertLine.bind(this)
+        }
+      },
+      title: {
+        text: this.options.name || ''
+      },
+      xAxis: {
+        categories: this.options.xaxis
+      },
+      series: this.options.series
     });
 
-    req.success(function(data) {
-      var redirect = data.redirect;
-      if (!redirect) return;
-      location.replace(redirect);
-    });
+    this.drawAssertLine(this.chart);
+  };
+
+  Graph.prototype.drawAssertLine = function drawAssertLine(num) {
+    var chart = this.chart;
+
+    var assert = isNaN(num) ? this.options.assert : num;
+    if (!assert) return;
+    if (!chart) return;
+
+    var y = chart.yAxis[0];
+    var pixel = y && y.toPixels(assert);
+    var off = chart.axisOffset[3];
+
+    // Draw horizontal line at assert level
+    if (this.line) this.line.destroy();
+
+    var line = this.line = chart.renderer.path(['M', off, pixel, 'H', chart.chartWidth])
+      .attr({
+        'stroke-width': 1,
+        stroke: 'red',
+        zIndex: 1000
+      })
+      .add();
   };
 
 
   $(function() {
     var charts = $('.js-graphs');
 
-    $('.js-graph').each(function() {
-      HView.create(this);
-    });
+    $('.js-graph').each(HView.create);
 
     $('.js-fullscreen-graph').click(function(e) {
       e.preventDefault();

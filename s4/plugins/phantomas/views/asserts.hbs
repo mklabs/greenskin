@@ -6,39 +6,14 @@
 {{> job_summary }}
 
 {{#tabs tabs job}}
-  <li class="active">
+  <li class="">
     <a href="/{{ job.namespace }}/{{ job.name }}/metrics">Metrics</a>
   </li>
 
-  <li class="">
+  <li class="active">
     <a href="/{{ job.namespace }}/{{ job.name }}/asserts">Asserts</a>
   </li>
 {{/tabs}}
-
-<div class="metrics-toolbar">
- <div class="btn-toolbar metrics-toolbar-item" role="toolbar">
-    <div class="btn-group">
-      {{#job.urls}}
-      <a href="/{{ ../job.namespace }}/{{ ../job.name }}/metrics?query={{cleanUrl .}}.*"
-        class="btn btn-default">
-        {{ . }}
-      </a>
-      {{/job.urls}}
-    </div>
-    <div class="btn-group">...</div>
-    <div class="btn-group">...</div>
-  </div>
-
-  <form class="form metrics-form metrics-toolbar-item"
-    action="/{{job.namespace}}/{{job.name}}/metrics" style="min-width: 250px">
-    <input
-      name="query"
-      value="{{ query }}"
-      placeholder="Metric key (Ex. **, *.*, url.*, *.key, url.key)"
-      class="form-control"
-    />
-  </form>
-</div>
 
 <div class="phantomas-metrics row">
   {{#metrics}}
