@@ -10,9 +10,8 @@ var statsd = require.resolve('statsd/stats');
 var events = require('events');
 var spawn  = require('child_process').spawn;
 var util   = require('util');
-var debug  = require('debug')('gs:statsd');
+var debug  = require('debug')('statsd-fs');
 var path   = require('path');
-var Lynx   = require('lynx');
 
 module.exports = StatsD;
 StatsD.path = statsd;
@@ -25,10 +24,6 @@ function StatsD(options) {
   this.stdout = options.stdout || process.stdout;
   this.stderr = options.stderr || process.stderr;
   this.config = options.config || path.resolve(__dirname, 'statsd-config.js');
-
-  this.metrics = new Lynx('localhost', 8125, {
-    on_error: this.emit.bind(this, 'error')
-  });
 }
 
 util.inherits(StatsD, events.EventEmitter);
@@ -51,11 +46,3 @@ StatsD.prototype.buildArgs = function buildArgs() {
   args.push(this.config);
   return args;
 };
-
-['increment', 'decrement', 'timing', 'gauge', 'set'].forEach(function(method) {
-  StatsD.prototype[method] = function() {
-    this.metrics.apply(this.metrics, arguments);
-  };
-});
-
-

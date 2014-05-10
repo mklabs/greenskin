@@ -1,6 +1,6 @@
 
 var path       = require('path');
-var debug      = require('debug')('gs:statsd');
+var debug      = require('debug')('statsd-fs:app');
 var express    = require('express');
 var bodyParser = require('body-parser');
 var directory  = require('serve-index');
@@ -20,6 +20,10 @@ app.middleware = function(options) {
 
   return app;
 };
+
+if (!app.get('view engine')) {
+  app.set('view engine', 'hbs');
+}
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

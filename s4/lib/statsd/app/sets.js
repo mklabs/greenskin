@@ -1,7 +1,7 @@
 
 var fs     = require('fs');
 var path   = require('path');
-var debug  = require('debug')('gs:sets');
+var debug  = require('debug')('statsd-fs:sets');
 var glob   = require('glob')
 var util   = require('util');
 var async  = require('async');
@@ -61,6 +61,7 @@ Sets.prototype.load = function load(query, done) {
       if (err) return done(err);
       me.data = data;
       var res = me.format(data);
+      me.emit('end', res);
       done(null, res);
     });
   });
