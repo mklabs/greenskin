@@ -42,14 +42,10 @@
 {{^metrics}}
 
   {{#markdown '{ "inlineCSS": true }'}}
-    The {{ job.name }} job has no metrics associated just yet.
+The {{ job.name }} job has no asserts associated just yet.
 
-    Try running the build once.
-
-    ```js
-    var yep = 'true';
-
-    ```
+Try editing [graphs](./metrics) to setup an assert threshold. Metrics with
+configured assert will show up here.
   {{/markdown}}
 
 {{/metrics}}

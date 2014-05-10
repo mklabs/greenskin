@@ -8,6 +8,7 @@ var request = require('request');
 var Build = require('./build');
 var Base = require('./jobs/base');
 var StatsD = require('./jobs/statsd');
+var Mailer = require('./jobs/mailer');
 
 module.exports = Job;
 
@@ -23,6 +24,7 @@ function Job() {
   // sending & asserts handling / alerting
   this.downstreams = [];
   this.downstreams.push(new StatsD());
+  this.downstreams.push(new Mailer());
 }
 
 util.inherits(Job, Base);

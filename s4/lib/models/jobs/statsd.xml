@@ -55,7 +55,7 @@ var exists = fs.existsSync;
 if (!env.UPSTREAM_DATA) throw new Error(&apos;Cant find upstream job data env variable&apos;);
 if (!exists(env.UPSTREAM_DATA)) throw new Error(&apos;Cant load upstream job data&apos;);
 
-var buildData = require(env.UPSTREAM_DATA);
+var buildData = require(env.UPSTREAM_DATA).filter(function(r) { return r; });
 var host = process.env.STATSD_HOST || &apos;localhost&apos;;
 var port = process.env.STATSD_PORT || 8125;
 

@@ -60,7 +60,7 @@ router.get('/:name', function(req, res, next) {
       url: '/phantomas/' + req.params.name + '/metrics',
       text: 'Metrics'
     }, {
-      url: '/phantomas/' + req.params.name + '/assets',
+      url: '/phantomas/' + req.params.name + '/asserts',
       text: 'Asserts'
     }];
     res.render('view', data);

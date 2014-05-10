@@ -146,7 +146,9 @@ var results = fs.readdirSync(dirname).map(function(dir) {
     return;
   }
 
-  console.log(data);
+
+  data._asserts = data.asserts;
+  data.asserts = data.asserts.rules;
 
   var results = phantomasResults(data);
   var reporter = loadReporter(results, {
@@ -210,7 +212,7 @@ UPSTREAM_DATA=$WORKSPACE/build.json
 UPSTREAM_WORKSPACE=$WORKSPACE</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>statsd_send, </projects>
+          <projects>statsd_send, mailer</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
         </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>

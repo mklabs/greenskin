@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Send alerts based on Upstream job results.</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>3</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>MAIL_USER</name>
+          <description></description>
+          <defaultValue>gs.greenskin@gmail.com</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MAIL_PASSWORD</name>
+          <description></description>
+          <defaultValue>greenskin2014</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MAIL_FROM</name>
+          <description></description>
+          <defaultValue>Greenskin Alert &lt;gs.greenskin@gmail.com&gt;</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>UPSTREAM_DATA</name>
+          <description>Just for test the default value. Passed from upstream.</description>
+          <defaultValue>/var/lib/jenkins/jobs/kk/workspace/build.json</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo &quot;{}&quot; &gt; package.json
+[ -e node_modules ] || npm install email-templates nodemailer -save
+[ -e templates ] || mkdir -p templates
+[ -e templates/pasta ] &amp;&amp; cd templates/pasta &amp;&amp; git pull &amp;&amp; cd ../..
+[ -e templates/pasta ] || git clone https://gist.github.com/eb28e58ac28a8d3ab845.git templates/pasta</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/env node
+
+var env = process.env;
+
+var fs = require(&apos;fs&apos;);
+var path = require(&apos;path&apos;);
+var exists = fs.existsSync;
+
+if (!env.UPSTREAM_DATA) throw new Error(&apos;Cant find upstream job data env variable&apos;);
+if (!exists(env.UPSTREAM_DATA)) throw new Error(&apos;Cant load upstream job data&apos;);
+
+var data = require(env.UPSTREAM_DATA);
+var user = process.env.MAIL_USER || &apos;&apos;;
+var password = process.env.MAIL_PASSWORD || &apos;&apos;;
+var from = process.env.MAIL_FROM || &apos;&apos;;
+var upstream = process.env.UPSTREAM_JOB_NAME || &apos;&apos;;
+
+if (!user) new Error(&apos;Cant send email without MAIL_USER&apos;);
+if (!password) new Error(&apos;Cant send email without MAIL_PASSWORD&apos;);
+
+
+function requireWS(file) {
+  return require(env.WORKSPACE ? path.join(env.WORKSPACE, &apos;node_modules&apos;, file) : file);
+}
+
+data = data.filter(function(r) { return r; });
+
+data = data.filter(function(result) {
+  return result._asserts &amp;&amp; result._asserts.failedCount;
+});
+
+if (!data.length) return;
+
+console.log(&apos;%s URLs in failures&apos;, data.length);
+
+// # node-email-templates
+
+// ## Example with [Nodemailer](https://github.com/andris9/Nodemailer)
+
+var templatesDir   = path.resolve(env.WORKSPACE, &apos;templates&apos;);
+var emailTemplates = requireWS(&apos;email-templates&apos;);
+var nodemailer     = requireWS(&apos;nodemailer&apos;);
+
+emailTemplates(templatesDir, function(err, template) {
+  if (err) throw err;
+
+  // ## Send a single email
+
+  // Prepare nodemailer transport object
+  var transport = nodemailer.createTransport(&quot;SMTP&quot;, {
+    service: &quot;Gmail&quot;,
+    auth: {
+      user: user,
+      pass: password
+    }
+  });
+
+  // TODO: Iterate over MAILS
+
+  // An example users object with formatted email function
+  var locals = {
+    email: &apos;daniel.mickael@gmail.com&apos;,
+    json: JSON.stringify(data, null, 2),
+    data: data,
+    name: upstream || &apos;Mailer&apos;,
+    metrics: data.map(function(result) {
+      result._metrics = Object.keys(result.metrics).map(function(metric) {
+        return {
+          name: metric,
+          value: result.metrics[metric]
+        };
+      });
+
+      result._asserts = Object.keys(result.asserts).map(function(assert) {
+        return {
+          name: assert,
+          assert: result.asserts[assert],
+          value: result.metrics[assert],
+          ok: result.metrics[assert] &lt;= result.asserts[assert]
+        };
+      });
+
+      return result;
+    })
+  };
+
+  // Send a single email
+  template(&apos;pasta&apos;, locals, function(err, html, text) {
+    if (err) throw err;
+
+    var opts = {
+      from: from,
+      to: locals.email,
+      subject: &apos;Greenskin alert - &apos; + locals.name,
+      html: html,
+      text: text
+    };
+
+    console.log(&apos;Sending email to&apos;, locals.email, opts.subject);
+    transport.sendMail(opts, function(err, res) {
+      if (err) throw err;
+      console.log(res);
+      process.exit(0);
+    });
+  });
+});
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
