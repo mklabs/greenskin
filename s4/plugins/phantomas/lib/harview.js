@@ -33,8 +33,8 @@ util.inherits(HarPage, events.EventEmitter);
 HarPage.prototype.build = function build(done) {
   var data = this.data;
 
-  console.log(data.job);
-  if (data.build.color !== 'blue') return done(null, data);
+  // console.log(data.build.color, data.build);
+  // if (data.build.color !== 'blue') return done(null, data);
 
   var results = this.results;
 
@@ -48,10 +48,7 @@ HarPage.prototype.build = function build(done) {
   var self = this;
   request(fileindex, function(err, response, body) {
     if (err) return done(err);
-    console.log(response.status, response.statusCode);
-    if (response.statusCode !== 200) {
-      return done(new Error('Status ' + response.statusCode +' for file ' + fileindex));
-    }
+    if (response.statusCode !== 200) return done(null, data);
 
     var files = body.split(/\r?\n/);
     debug('Files', files);
