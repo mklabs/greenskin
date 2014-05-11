@@ -31,6 +31,19 @@ In [docs/](docs/) directory
   generated workspace, and shared files accross builds.
 - [Subapps](docs/plugins.md) - Extension points and plugin / subapps system.
 
+## Relates projects
+
+Projects / packages created for Greenskin
+
+- https://github.com/mklabs/propo
+- https://github.com/mklabs/jobb
+- https://github.com/mklabs/gistmailer
+- https://github.com/mklabs/statsd-fs
+- https://github.com/mklabs/wd-gherkin
+- https://github.com/mklabs/saucelabs-browsertime
+
+All in alpha state, though some have comprehensive test suites.
+
 ## How it looks
 
 **Homepage**

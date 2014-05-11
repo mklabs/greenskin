@@ -1,0 +1,17 @@
+{
+  "params": [{
+    "name": "PERF_URLS",
+    "description": "List of space separated URLs to test",
+    "value": "http://example.com http://example.com/2"
+  }, {
+    "name": "SAUCE_USERNAME",
+    "description": "Saucelabs username"
+  }, {
+    "name": "SAUCE_ACCESSKEY",
+    "description": "Saucelabs accesskey"
+  }, {
+    "name": "BROWSERS",
+    "description": "Value for the 'desired' browser attribute",
+    "value": "firefox, internet-explorer"
+  }]
+}

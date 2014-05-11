@@ -64,7 +64,11 @@ fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
   if (fs.statSync(path.join(__dirname, 'plugins', dir)).isFile()) return;
 
   debug('Register %s on /%s', dir, dir);
-  app.use('/' + dir, requireApp('./plugins/' + dir));
+  try {
+    app.use('/' + dir, requireApp('./plugins/' + dir));
+  } catch(e) {
+    console.error('Cant load %s app', dir, e.message);
+  }
 });
 
 function requireApp(dir, options) {

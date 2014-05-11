@@ -22,6 +22,7 @@ Is an express 4.x application, with:
 
 ### Basic example
 
+**app.js**
 
 ```js
 var path = require('path');
@@ -29,7 +30,7 @@ var express = require('express');
 
 var app = module.exports = express();
 
-var routes = require('./routes/index');
+var routes = require('./routes');
 
 app.on('mount', function(gs) {
   // Attach here any initialization logic
@@ -54,8 +55,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+```
 
-module.exports = app;
+**routes.js**
+
+```js
+
 ```
 
 ### Known routes

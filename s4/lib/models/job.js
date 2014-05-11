@@ -29,8 +29,21 @@ function Job() {
 
 util.inherits(Job, Base);
 
+// Type chekers
+Job.prototype.checks = [];
+
+// Static type checker register
+Job.type = function type(name, fn) {
+  debug('New job type', name);
+  Job.prototype.checks.push({
+    name: name,
+    test: fn
+  });
+};
+
 Job.prototype.toJSON = function() {
   var data = Base.prototype.toJSON.apply(this, arguments);
+  // data.script = _.unescape(data.script);
   return data;
 };
 
@@ -41,9 +54,14 @@ Job.prototype.toJSON = function() {
 // Simpler alternative would be to always generate Jobs with a GS_TYPE
 // param
 Job.prototype.jobType = function jobType(xml) {
-  var type = this.isPhantomas(xml) ? 'phantomas' : '';
+  if (this.isPhantomas(xml)) return 'phantomas';
 
-  return type;
+  var type = this.checks.filter(function(check) {
+    // debug('Check', check.name);
+    return check.test && check.test(xml);
+  })[0];
+
+  return type ? type.name : '';
 };
 
 Job.prototype.isPhantomas = function(xml) {
@@ -179,7 +197,7 @@ Job.prototype.getScript = function getScript(xml) {
     .replace(/<\/command>/, '')
     .replace(/\]\]>$/, '');
 
-  return _.unescape(body.trim());
+  return body.trim();
 };
 
 Job.prototype.setScript = function setScript(code, xml) {
@@ -219,6 +237,7 @@ Job.prototype.jsonConfig = function jsonConfig(value) {
   }
 
   var json = this.param('JSON_CONFIG');
+
   if (!json) return this.warn(new Error('Cannot get JSON_CONFIG from xml'));
 
   var data = {};

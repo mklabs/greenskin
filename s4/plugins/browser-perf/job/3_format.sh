@@ -1,0 +1,1 @@
+curl https://gist.githubusercontent.com/mklabs/3a9de545ba1448b7cc9b/raw/format.js | FILE=browserperf.json node > build.json
