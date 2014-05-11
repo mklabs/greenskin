@@ -8,7 +8,7 @@ var hbs        = require('./lib/express/hbs');
 var debug      = require('debug')('gs');
 var config     = require('./package').config;
 
-var StatsD = require('./lib/statsd');
+var StatsD = require('../../statsd-fs');
 
 var app = module.exports = express();
 
@@ -17,6 +17,9 @@ app.config = config;
 
 // Attach ref to hbs for subapps to register their own partials / blocks
 app.hbs = hbs;
+
+// And StatsD
+app.StatsD = StatsD;
 
 // Models
 app.Job   = require('./lib/models/job');
@@ -52,9 +55,7 @@ app.use(logger('dev'));
 // GS routes
 app.use('/', require('./routes'));
 
-var statsd = requireApp('./lib/statsd/app', { name: 'statsd' });
-
-app.use('/statsd', statsd.middleware({
+app.use('/statsd', StatsD.app.middleware({
   base: './tmp/metrics'
 }));
 
@@ -84,7 +85,10 @@ function requireApp(dir, options) {
 // External forked process
 app.on('listen', function() {
   debug('Listening');
-  var statsd = new StatsD();
+  var statsd = new StatsD({
+    path: require.resolve('statsd/stats'),
+    config: path.join(__dirname, 'statsd-config.js')
+  });
 
   statsd.on('exit', debug.bind('StatsD exit'));
   statsd.on('error', debug.bind('StatsD error'));

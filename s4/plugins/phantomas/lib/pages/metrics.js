@@ -9,9 +9,7 @@ var util    = require('util');
 var events  = require('events');
 var moment = require('moment');
 
-// For the tme being, thing of another way to inject this deps, probably
-// on instantiation
-var Sets = require('../../../../lib/statsd/app/sets');
+var app = require('../../app');
 
 module.exports = MetricPage;
 
@@ -30,7 +28,7 @@ function MetricPage(config, data) {
   this.from = this.data.from || '7d';
   this.prefix = data.job.name;
   this._query = '**';
-  this.sets = new Sets(path.join(this.dirname, 'sets', this.prefix), {
+  this.sets = new app.gs.StatsD.Sets(path.join(this.dirname, 'sets', this.prefix), {
     from: this.from
   });
 }
