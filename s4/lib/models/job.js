@@ -35,10 +35,21 @@ Job.prototype.toJSON = function() {
 };
 
 // Figure out the "type" of job from XML config
+//
+// Have to register something from subapps for that
+//
+// Simpler alternative would be to always generate Jobs with a GS_TYPE
+// param
 Job.prototype.jobType = function jobType(xml) {
-  var type = /phantomas/.test(xml) ? 'phantomas' :
-    '';
+  var type = this.isPhantomas(xml) ? 'phantomas' : '';
+
   return type;
+};
+
+Job.prototype.isPhantomas = function(xml) {
+  if (!/PERF_URLS/.test(xml)) return;
+  if (!/Phantomas JSON config/.test(xml)) return;
+  return true;
 };
 
 // Namespace handling, getter / setter
