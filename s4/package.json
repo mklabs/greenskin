@@ -38,7 +38,8 @@
     "mkdirp": "^0.5.0",
     "marked": "^0.3.2",
     "rework": "^0.20.3",
-    "glob": "^3.2.9"
+    "glob": "^3.2.9",
+    "gistmailer": "0.0.4"
   },
   "devDependencies": {
     "express-generator": "^4.0.0",
