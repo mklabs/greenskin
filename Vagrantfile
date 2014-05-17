@@ -6,6 +6,36 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  config.vm.provider :virtualbox do |vb, override|
+   vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+   vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+   # Uncomment for smaller machine, and if launching several VM (graphite & jenkins for instance)
+   # vb.customize ["modifyvm", :id, "--memory", 512]
+   # vb.customize ["modifyvm", :id, "--cpus", 1]
+  end
+
+  # Using docker containers.
+  #
+  # TODO: Use / test vagrant builtin providers or provisioners for docker.
+  #
+  # Had issue with setting it up (but need further testing, prob my env).
+  # Below, we rely on a shell script to provision the machine with docker (yum
+  # install from EPEL)
+  config.vm.define "gs-master" do |gs|
+    gs.vm.box = "chef/centos-6.5"
+    gs.vm.hostname = "gsmaster.dev"
+
+    # to be able to run the playbook locally from the VM
+    gs.vm.synced_folder "s4", "/opt/kookel/greenskin"
+    gs.vm.synced_folder "vms/gs-master", "/opt/kookel/provisioning"
+    gs.vm.network :private_network, ip: "192.168.33.12"
+
+    # This will install docker, and hipache (with nodejs, npm, redis <=
+    # hipache dependencies). Apart from that, everything is then run within a
+    # docker container.
+    gs.vm.provision "shell", path: "vms/gs-master/install.sh"
+  end
+
   # Legacy stuff!
   #
   # Graphite: VM spawning graphite / statsd (not used)
@@ -16,14 +46,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
   # Jenkins-master: VM with both Jenkins master & node frontend
 
-
-  config.vm.provider :virtualbox do |vb, override|
-   vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-   vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
-   # Uncomment for smaller machine, and if launching several VM (graphite & jenkins for instance)
-   # vb.customize ["modifyvm", :id, "--memory", 512]
-   # vb.customize ["modifyvm", :id, "--cpus", 1]
-  end
 
   config.vm.define "jenkins-master" do |jenkins|
     jenkins.vm.box = "centos63.minimal"

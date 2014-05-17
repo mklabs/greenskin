@@ -1,13 +1,12 @@
 {
   "name": "gs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A set of monitoring tools, with a focus on frontend metrics, aiming to provide a\r simple and fun way to monitor Frontend Performance and do functional testing.",
   "main": "app.js",
   "scripts": {
     "test": "mocha --reporter spec",
     "start": "node bin/www"
   },
-  "author": "",
   "license": "BSD",
   "directories": {
     "doc": "docs"
@@ -21,6 +20,7 @@
   },
   "homepage": "https://github.com/mklabs/wip",
   "dependencies": {
+    "statsd-fs": "mklabs/statsd-fs",
     "debug": "^0.8.1",
     "body-parser": "^1.0.2",
     "serve-index": "^1.0.2",

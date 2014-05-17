@@ -8,7 +8,7 @@ var hbs        = require('./lib/express/hbs');
 var debug      = require('debug')('gs');
 var config     = require('./package').config;
 
-var StatsD = require('../../statsd-fs');
+var StatsD = require('statsd-fs');
 
 var app = module.exports = express();
 
