@@ -1,4 +1,3 @@
-
 var fs = require('fs');
 var path = require('path');
 var debug = require('debug')('gs:hbs');

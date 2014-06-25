@@ -33,7 +33,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # This will install docker, and hipache (with nodejs, npm, redis <=
     # hipache dependencies). Apart from that, everything is then run within a
     # docker container.
-    gs.vm.provision "shell", path: "vms/gs-master/install.sh"
+    # gs.vm.provision "shell", path: "vms/gs-master/install.sh"
   end
 
   # Legacy stuff!

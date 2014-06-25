@@ -37,7 +37,7 @@ app.locals.buttons = [];
 app.locals.config = config;
 
 // For subapps to pass around the layout filepath
-app.layout = path.join(__dirname, 'views/layout.hbs');
+app.layout = '../../../views/layout.hbs';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
