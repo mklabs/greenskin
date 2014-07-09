@@ -8,18 +8,27 @@ rpm -Uvh epel-release-6*.rpm
 
 cd
 
-yum install docker-io -y
+# Install docker
 
+yum install docker-io -y
 service docker start
-chkconfig docker on
+
+# Dockerized Jenkins
+docker run --name jenkins -d -p 8080:8080 aespinosa/jenkins
+
+# Install node / npm (for running jobs on master, without slaves)
+
+yum install nodejs npm -y
 
 # https://github.com/crosbymichael/dockerui
-docker build -t crosbymichael/dockerui github.com/crosbymichael/dockerui
-docker run -d -p 9000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
+# docker build -t crosbymichael/dockerui github.com/crosbymichael/dockerui
+# docker run -d -p 9000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
 
-# greenskin node
-docker build -t gs/gs-node /opt/kookel/greenskin
-docker run -v /opt/kookel/greenskin:/opt/kookel/greenskin --name="gs-node" -d -p 3000:3000 -p 8125:8125 gs/gs-node
+
+# # Dockerized nodeapp
+# docker build --rm -t greenskin/nodeapp /opt/kookel/greenskin
+# docker run -v /opt/kookel/greenskin:/opt/kookel/greenskin \
+#   --name nodeapp -d -p 3000:3000 -p 8125:8125 greenskin/nodeapp
 
 # Setup base path to /jenkins, maps our reverse proxy setup
 #

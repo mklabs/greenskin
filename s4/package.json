@@ -43,11 +43,10 @@
     "jobb": "0.0.1"
   },
   "devDependencies": {
-    "express-generator": "^4.0.0",
     "mocha": "^1.18.2"
   },
   "config": {
-    "jenkins": "http://localhost:49153",
-    "jenkinsUI": "http://localhost:49153"
+    "jenkins": "http://192.168.33.12:8080",
+    "jenkinsUI": "http://192.168.33.12:8080"
   }
 }

@@ -9,13 +9,12 @@ RUN     yum install -y nodejs npm git
 RUN     yum install -y ImageMagick GraphicsMagick
 
 # Bundle app source
-# ADD . /opt/kookel/greenskin
-
+ADD . /opt/kookel/greenskin
 VOLUME ["/opt/kookel/greenskin"]
 
 # Install app dependencies (second one should go away, by publishing to npm)
-RUN cd /opt/kookel/greenskin; npm install
-RUN cd /opt/kookel/greenskin/plugins/phantomas; npm install
+RUN cd /opt/kookel/greenskin && ls -la && npm install
+RUN cd /opt/kookel/greenskin/plugins/phantomas && npm install
 
 EXPOSE  3000
 EXPOSE  8125
