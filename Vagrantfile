@@ -33,15 +33,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # This will install docker, and hipache (with nodejs, npm, redis <=
     # hipache dependencies). Apart from that, everything is then run within a
     # docker container.
-    gs.vm.provision "shell", path: "vms/gs-master/install.sh"
-  end
-
-  config.vm.define "jenkins-slave" do |slave|
-    slave.vm.box = "chef/centos-6.5"
-    slave.vm.hostname = "jenkins-slave.dev"
-    slave.vm.network :private_network, ip: '192.168.33.30'
-
-    slave.vm.provision "shell", path: "vms/jenkins-slave/install_jenkins_slave.sh"
+    gs.vm.provision "shell", path: "vms/jenkins-master/install.sh"
   end
 
   # Legacy stuff!
