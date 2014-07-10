@@ -1,5 +1,5 @@
 # Cannot get ansible running (hang out, but Im on windows), Fallback on shell provisioning
-# 
+#
 # yum install ansible python-setuptools -y
 # echo localhost > /etc/ansible/hosts
 # ansible-playbook /ansible/jenkins.yml --connection=local --verbose
@@ -35,13 +35,6 @@ service iptables save
 service iptables stop
 chkconfig iptables off
 
-# Setup node app
-cat /ansible/templates/node-init.d > /etc/init.d/r8_perf
-chmod +x /etc/init.d/r8_perf
-
-service r8_perf start
-chkconfig r8_perf on
-
 # Phantom
 
 cd /tmp
@@ -57,5 +50,5 @@ sleep 30 # hopefully enough to let jenkins start things up
 wget http://localhost:8080/jenkins/jnlpJars/jenkins-cli.jar
 
 echo "Installing simple-theme plugin"
-java -jar jenkins-cli.jar -s http://localhost:8080/jenkins install-plugin simple-theme-plugin jquery tap -restart
+java -jar jenkins-cli.jar -s http://localhost:8080/jenkins install-plugin simple-theme-plugin jquery tap parameterized-trigger -restart
 echo "Should be installed"

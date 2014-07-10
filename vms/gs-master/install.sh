@@ -14,7 +14,7 @@ yum install docker-io -y
 service docker start
 
 # Dockerized Jenkins
-docker run --name jenkins -d -p 8080:8080 aespinosa/jenkins
+# docker run --name jenkins -d -p 8080:8080 aespinosa/jenkins
 
 # Install node / npm (for running jobs on master, without slaves)
 
