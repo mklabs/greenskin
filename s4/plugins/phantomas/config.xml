@@ -22,11 +22,6 @@
           <description>Phantomas JSON config.</description>
           <defaultValue>{&quot;no-externals&quot;:false,&quot;allow-domain&quot;:&quot;.kk-data.com&quot;,&quot;asserts&quot;:{}}</defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>DEBUG</name>
-          <description>Log debug option</description>
-          <defaultValue>phantomas phantomas:progress</defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
