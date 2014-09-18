@@ -41,7 +41,9 @@
     "glob": "^3.2.9",
     "gistmailer": "0.0.4",
     "jobb": "0.0.1",
-    "which": "~1.0.5"
+    "which": "~1.0.5",
+    "xml2js": "~0.4.4",
+    "socket.io": "~1.1.0"
   },
   "devDependencies": {
     "mocha": "^1.18.2"

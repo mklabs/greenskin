@@ -2,12 +2,12 @@
 var fs = require('fs');
 var path = require('path');
 var debug = require('debug')('server:routes:api');
-var jenkins = require('../lib/jenkins');
+var jenkins = require('../../../lib/backends/jenkins');
 
 var config = require('../package.json').config;
-var jobReg = new RegExp('^' + config.job_prefix);
+var jobReg = new RegExp('^r8');
 
-var Job = require('../lib/job');
+var Job = require('../../../lib/models/job');
 
 // Phantomjs scripts
 var mochaRunner = fs.readFileSync(path.join(__dirname, '../test/mocha-test.js'), 'utf8');

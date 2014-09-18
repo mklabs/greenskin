@@ -4,13 +4,17 @@ var express    = require('express');
 var logger     = require('morgan');
 var bodyParser = require('body-parser');
 var directory  = require('serve-index');
-var hbs        = require('./lib/express/hbs');
 var debug      = require('debug')('gs');
+var hbs        = require('./lib/express/hbs');
 var config     = require('./package').config;
 
 var StatsD = require('statsd-fs');
 
-var app = module.exports = express();
+var app = express();
+var server = module.exports = require('http').Server(app);
+
+// Socket.io
+app.ws = require('socket.io')(server);
 
 // Main config options
 app.config = config;
@@ -67,7 +71,7 @@ fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
   try {
     app.use('/' + dir, requireApp('./plugins/' + dir));
   } catch(e) {
-    console.error('Cant load %s app', dir, e.message);
+    console.error('Cant load %s app', dir, e.message, e.stack);
   }
 });
 

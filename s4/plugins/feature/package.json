@@ -1,0 +1,18 @@
+{
+  "name": "feature",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD",
+  "dependencies": {
+    "rimraf": "~2.2.8",
+    "phantomjs": "~1.9.9",
+    "gherkin-mocha": "git://github.com/mklabs/wd-gherkin",
+    "serve-index": "~1.2.1",
+    "phantomas": "~1.6.0"
+  }
+}

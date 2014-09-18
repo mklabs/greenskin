@@ -7,9 +7,9 @@ var moment = require('moment');
 
 var async = require('async');
 
-var Job = require('../lib/job');
+var Job = require('../../../lib/models/job');
 
-var helpers = require('../lib/helpers');
+var helpers = require('../../../lib/helpers');
 var cleanUrl = helpers.cleanUrl;
 var requestJobLog = helpers.requestJobLog;
 
