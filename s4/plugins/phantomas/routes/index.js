@@ -1,9 +1,10 @@
-var fs = require('fs');
-var path = require('path');
+var fs      = require('fs');
+var path    = require('path');
 var express = require('express');
-var router = express.Router();
-var debug = require('debug')('gs:phantomas:routes');
-var gm = require('gm');
+var router  = express.Router();
+var debug   = require('debug')('gs:phantomas:routes');
+var gm      = require('gm');
+var which   = require('which');
 
 var request = require('request');
 var HarPage = require('../lib/harview');
@@ -185,7 +186,7 @@ router.get('/har/:name/:number/:url.json', function(req, res, next) {
   var url = req.params.url;
 
   var harfile = app.gs.config.jenkinsUI + [
-    'job',
+    '/job',
     name,
     'ws/results',
     number,
@@ -206,7 +207,7 @@ router.get(/^\/thumbnail\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/, function(req, res
   var filename = path.basename(file);
 
   var screenshot = app.gs.config.jenkinsUI + [
-    'job',
+    '/job',
     name,
     'ws/results',
     number,
@@ -215,13 +216,30 @@ router.get(/^\/thumbnail\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)/, function(req, res
   ].join('/').replace(/\/\/+/, '/');
 
   debug('Screenshot request', screenshot, filename);
-  var stream = req.pipe(request(screenshot));
 
-  // Resize and pipe the response back
-  gm(stream, filename)
-    .resize(200, 120)
-    .stream()
-    .pipe(res);
+  // Failsafe check on both imagemagick and graphicsmagick to not throw
+  // errors with gm when resizing
+  which('imagemagick', function(err) {
+    if (err) {
+      console.error('imagemagick is not available on this platform, can\'t resize to thumbnail. Please install it to get rid of this log (and restart the server)');
+      return request(screenshot).pipe(res);
+    }
+
+    which('graphicsmagick', function(err) {
+      if (err) {
+        console.error('graphicsmagick is not available on this platform, can\'t resize to thumbnail. Please install it to get rid of this log (and restart the server)');
+        return request(screenshot).pipe(res);
+      }
+
+    });
+
+    // Resize and pipe the response back
+    var stream = req.pipe(request(screenshot));
+    gm(stream, filename)
+      .resize(200, 120)
+      .stream()
+      .pipe(res);
+  });
 });
 
 router.get('/:name/edit', function(req, res, next) {

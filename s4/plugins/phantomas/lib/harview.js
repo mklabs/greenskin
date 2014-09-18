@@ -21,7 +21,7 @@ function HarPage(config, data) {
   if (!(data.job && data.job.name)) throw new Error('Data not proper structure, job not defined');
 
   this.workspace = config.jenkinsUI + [
-    'job',
+    '/job',
     data.job.name,
     'ws/results'
   ].join('/').replace(/\/\/+/, '/');
