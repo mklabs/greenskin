@@ -34,7 +34,7 @@
       screenfull.toggle(el[0]);
     });
 
-    var socket = this.socket = io.connect('//' + location.hostname + ':3000');
+    var socket = this.socket = io.connect('http://' + location.hostname + ':3000');
   };
 
   CreateFeaturePage.submit = function submit() {
@@ -120,7 +120,6 @@
     log.html('Job workspace: <a class="grey" href="/' + this.data.ns + '/tmp/' + timestamp + '">/' + this.data.ns +'/tmp/' + timestamp + '</a>\n');
     log.closest('.row').find('.js-imgs').empty();
 
-    console.log(data);
     var req = $.ajax({
       method: 'POST',
       url: runUrl,
@@ -315,6 +314,7 @@
   };
 
   CreateFeaturePage.addLog = function addLog(log, data) {
+    console.log('add log', data);
     var ansiparsed = ansiparse(data.line);
     var tokens = ansiparsed.map(function(token) {
       var klass = token.foreground || '';

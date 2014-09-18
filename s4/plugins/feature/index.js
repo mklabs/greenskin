@@ -57,7 +57,11 @@ app.get('/create', function(req, res, next) {
   data.title = 'Create job';
   data.action = '/api/create';
   data.runUrl = '/feature/create/run-feature/';
-  // data.job.json = JSON.stringify(data.job.config);
+  data.job = {};
+  data.job.json = JSON.stringify({
+    steps: [{ name: 'stepfile.js', body: 'Given(/I browse URL "([^"]+)"/, function(url, done) {\n  done();\n});' }],
+    features: []
+  });
   res.render('create-feature', data);
 });
 
@@ -95,7 +99,7 @@ app.post('/create/run-feature', function(req, res, next) {
 
   debug('Creating job %s %d', jobdata.title, jobdata.timestamp);
 
-  return helpers.runFeature(app.ws, jobdata, function(err, data) {
+  return helpers.runWebdriverFeature(app.ws, jobdata, function(err, data) {
     if (err) return next(err);
     res.json(data);
   });
