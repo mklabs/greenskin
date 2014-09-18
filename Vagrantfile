@@ -36,6 +36,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     gs.vm.provision "shell", path: "vms/jenkins-master/install.sh"
   end
 
+  config.vm.define "gs-slave" do |gs|
+    gs.vm.box = "chef/centos-6.5"
+    gs.vm.hostname = "gsslave.dev"
+    gs.vm.network :private_network, ip: "192.168.33.13"
+
+    gs.vm.provision "shell", path: "vms/jenkins-slave/install_jenkins_slave.sh"
+  end
+
   # Legacy stuff!
   #
   # Graphite: VM spawning graphite / statsd (not used)
@@ -49,7 +57,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # config.vm.define "jenkins-master" do |jenkins|
   #   jenkins.vm.box = "centos63.minimal"
-  #   jenkins.vm.hostname = "jenkins.dev"
   #
   #   # For CentOS6.5 box
   #   # jenkins.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box"

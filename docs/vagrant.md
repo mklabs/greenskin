@@ -25,7 +25,7 @@ Forwarded ports:
 
 Using vagrant, and the `jenkins-master` VM.
 
-    vagrant up jenkins-master
+    vagrant up
 
 Check Jenkins: http://localhost:8082 or http://192.168.33.12:8082
 Check nodeapp: http://192.168.33.12 or http://192.168.33.12:3000
@@ -34,17 +34,13 @@ Services
 
     sudo service httpd {start|stop|status}
     sudo service jenkins {start|stop|status}
-    sudo service r8_perf {start|stop|status}
-
-Logs:
-
-    tail -f /opt/kookel/r8_perf
 
 Check that these plugins are installed at http://192.168.33.12/jenkins/pluginManager/
 
 - Simple Theme Plugin
 - jQuery Plugin
 - TAP Plugin
+- Parameterized Trigger Plugin
 
 #### Jenkins Slave
 
@@ -60,3 +56,28 @@ Then create and connect the node to Jenkins master: http://192.168.33.12/jenkins
 6. Host: 192.168.33.30
 7. Credentials: vagrant/vagrant
 8. Click save
+
+#### Node app
+
+cd into `s4/` and install dependencies.
+
+    cd s4/
+    npm i
+    cd plugins/phantomas
+    npm i
+
+Ensure the Jenkins config in package.json is correct and match the
+correct host:
+
+    "config": {
+      "jenkins": "http://192.168.33.12:8080/jenkins",
+      "jenkinsUI": "http://192.168.33.12:8080/jenkins"
+    }
+
+Run the app with the following command
+
+    DEBUG=gs* node bin/www
+
+#### First job
+
+Click on the "Create job (simple metrics)" button and fill the form.
