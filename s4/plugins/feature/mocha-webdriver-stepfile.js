@@ -44,8 +44,9 @@ Then(/I fill "([^"]+)" in "([^"]+)"/, function(value, name, done) {
 Then(/I wait for "([^"]+)" to be visible/, function(selector, done) {
   var driver = this.driver;
   (function check() {
-    driver.elementByCssSelector(selector, function(err, element) {
+    driver.elementByCssSelectorIfExists(selector, function(err, element) {
       if (err) return done(err);
+      if (!element) return setTimeout(check, 500);
       element.isDisplayed(function(err, visible) {
         if (err) return done(err);
         if (visible) return done();
@@ -54,6 +55,7 @@ Then(/I wait for "([^"]+)" to be visible/, function(selector, done) {
     });
   })();
 });
+
 
 Then(/I wait for (\d+)s/, function(delay, done) {
   delay = parseInt(delay, 10);

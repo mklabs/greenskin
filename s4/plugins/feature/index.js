@@ -27,6 +27,10 @@ app.on('mount', function(parent) {
     name: 'Create Job (Functional)',
     url: '/feature/create'
   });
+
+  app.parent.Job.type('feature', function(xml) {
+    return /mklabs\/wd-gherkin/.test(xml);
+  });
 });
 
 // view engine setup
