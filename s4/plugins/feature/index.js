@@ -41,7 +41,7 @@ app.get('/view/:name', routes.view);
 app.get('/view/:name/:number', routes.buildView);
 app.get('/edit/:name/steps.js', routes.serveStepfile);
 app.get('/create/steps.js', function(req, res, next) {
-  fs.createReadStream(path.join(__dirname, './test/mocha-stepfile.js')).pipe(res);
+  fs.createReadStream(path.join(__dirname, './mocha-webdriver-stepfile.js')).pipe(res);
 });
 
 // Main Routes
