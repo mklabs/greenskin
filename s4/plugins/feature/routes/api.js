@@ -91,7 +91,6 @@ exports.create = function create(req, res, next){
     if (err) return next(err);
 
     var name = params.name;
-    name = jobReg.test(name) ? name : config.job_prefix + name;
 
     xml = replaceUrlsXML(xml, params.urls);
     xml = replaceTimerXML(xml, params.cron);
@@ -118,7 +117,7 @@ exports.create = function create(req, res, next){
     xml = replaceJSONConfig(xml, params.json_config);
 
     debug('Jenkins creating %s job with %s template', name, params.template);
-    jenkins.job.create(name, xml, function(err) {
+    jenkins.create(name, xml, function(err) {
       if (err) return next(err);
       debug('Jenkins job creation OK');
       res.redirect('/');

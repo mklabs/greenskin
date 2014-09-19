@@ -90,23 +90,6 @@ function requireApp(dir, options) {
 }
 
 
-// External forked process
-app.on('listen', function() {
-  debug('Listening');
-  var statsd = new StatsD({
-    path: require.resolve('statsd/stats'),
-    config: path.join(__dirname, 'statsd-config.js')
-  });
-
-  statsd.on('exit', debug.bind('StatsD exit'));
-  statsd.on('error', debug.bind('StatsD error'));
-  statsd.on('close', debug.bind('StatsD close'));
-
-  statsd.run();
-
-  debug('StatsD listening. Args: ', statsd.args);
-});
-
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -130,3 +113,19 @@ app.use(function(err, req, res, next) {
     error: dev ? err : {}
   });
 });
+
+// External forked process
+
+// StatsD
+var statsd = new StatsD({
+  path: require.resolve('statsd/stats'),
+  config: path.join(__dirname, 'statsd-config.js')
+});
+
+statsd.on('exit', debug.bind('StatsD exit'));
+statsd.on('error', debug.bind('StatsD error'));
+statsd.on('close', debug.bind('StatsD close'));
+
+statsd.run();
+
+debug('StatsD listening. Args: ', statsd.args);

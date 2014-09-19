@@ -48,6 +48,46 @@ app.get('/create/steps.js', function(req, res, next) {
 //
 // TODO: Move functions definition into ./routes.js
 // Job creation
+var mochaSteps = [{ name: 'stepfile.js', body: '' }];
+mochaSteps[0].body = fs.readFileSync(path.join(__dirname, 'mocha-webdriver-stepfile.js'), 'utf8');
+
+app.post('/create', function(req, res, next) {
+  var params = req.body;
+  var name = params.name;
+  var xml = params.xml;
+  params.json = params.json_config || params.jsonconfig || params.config || '{}';
+
+  var json;
+  try {
+    json = JSON.parse(params.json);
+  } catch(e) {
+    return next(e);
+  }
+
+  if (!(json.features && json.features.length)) return next(new Error('Missing features. Please specifiy at least one feature file to run.'));
+  if (!name) return next(new Error('Missing name'));
+
+  // Get back XML file from job template param
+  fs.readFile(path.join(__dirname, './data', params.template + '.xml'), 'utf8', function(err, xml) {
+    if (err) return next(err);
+
+    var job = new app.parent.Job({
+      name: name,
+      xml: xml
+    });
+
+    if (params.cron) job.setCron(params.cron);
+    if (params.json) job.setJSON(params.json);
+
+    job.save()
+      .on('error', next)
+      .on('saved', function() {
+        res.redirect('/');
+      });
+  });
+
+});
+
 app.get('/create', function(req, res, next) {
   var job = new app.parent.Job('', next, {
     xmlTemplate: 'feature'
@@ -55,11 +95,11 @@ app.get('/create', function(req, res, next) {
 
   var data = {};
   data.title = 'Create job';
-  data.action = '/api/create';
+  data.action = '/feature/create';
   data.runUrl = '/feature/create/run-feature/';
   data.job = {};
   data.job.json = JSON.stringify({
-    steps: [{ name: 'stepfile.js', body: 'Given(/I browse URL "([^"]+)"/, function(url, done) {\n  done();\n});' }],
+    steps: mochaSteps,
     features: []
   });
   res.render('create-feature', data);
@@ -104,3 +144,14 @@ app.post('/create/run-feature', function(req, res, next) {
     res.json(data);
   });
 });
+
+// External process
+
+// PhantomJS webdriver
+var phantomjs = require('phantomjs').path;
+var spawn = require('child_process').spawn;
+
+var phantom = spawn(phantomjs, ['--webdriver=9134']);
+
+phantom.stdout.pipe(process.stdout);
+phantom.stderr.pipe(process.stderr);

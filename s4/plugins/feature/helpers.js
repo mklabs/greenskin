@@ -14,7 +14,7 @@ var ghmocha = require('gherkin-mocha');
 var mochaRunner = ghmocha.runner.phantom;
 var webdriverRunner = ghmocha.runner.node;
 var mochaSteps = [{ name: 'stepfile.js', body: '' }];
-mochaSteps[0].body = fs.readFileSync(path.join(__dirname, 'mocha-stepfile.js'), 'utf8');
+mochaSteps[0].body = fs.readFileSync(path.join(__dirname, 'mocha-webdriver-stepfile.js'), 'utf8');
 
 // Exports
 var helpers = module.exports;
@@ -36,8 +36,8 @@ function runWebdriverFeature(ws, job, next) {
     fs.writeFile(configfile, JSON.stringify(data, null, 2), function(err) {
       if (err) return next(err);
 
-      // var args = [webdriverRunner, '--config', configfile, '--tmpdir', path.dirname(configfile), '--screendir', screendir];
-      var args = [webdriverRunner, '--config', configfile, '--tmpdir', path.dirname(configfile)];
+      var args = [webdriverRunner, '--config', configfile, '--tmpdir', path.dirname(configfile), '--screendir', screendir];
+      // var args = [webdriverRunner, '--config', configfile, '--tmpdir', path.dirname(configfile)];
 
       var phantom = spawn('node', args, {
         cwd: runtmpdir
@@ -81,7 +81,7 @@ function runWebdriverFeature(ws, job, next) {
         if (job.data.job) job.data.job.log(chunk);
         if (endstep || failstep) {
           screencount++;
-          ws.emit('step.' + timestamp, { file: '/f/tmp/' + timestamp + '/step-screens/step-' + screencount + '.png' });
+          ws.emit('step.' + timestamp, { file: '/feature/tmp/' + timestamp + '/step-screens/step-' + screencount + '.png' });
         }
 
         if (ws) {

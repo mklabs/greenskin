@@ -9,6 +9,7 @@ var Build = require('./build');
 var Base = require('./jobs/base');
 var StatsD = require('./jobs/statsd');
 var Mailer = require('./jobs/mailer');
+var Webdriver = require('./jobs/webdriver');
 
 module.exports = Job;
 
@@ -25,6 +26,7 @@ function Job() {
   this.downstreams = [];
   this.downstreams.push(new StatsD());
   this.downstreams.push(new Mailer());
+  this.downstreams.push(new Webdriver());
 }
 
 util.inherits(Job, Base);

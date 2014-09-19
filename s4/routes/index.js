@@ -3,13 +3,13 @@ var router = module.exports = express.Router();
 var debug = require('debug')('gs:route');
 var async = require('async');
 
-var Jobs = require('..').Jobs;
-var Job = require('..').Job;
-var Build = require('..').Build;
+var Jobs = require('../lib/models/jobs');
+var Job = require('../lib/models/job');
+var Build = require('../lib/models/build');
 
-var BuildPage = require('..').BuildPage;
-var BuildsPage = require('..').BuildsPage;
-var LastBuildPage = require('..').LastBuildPage;
+var BuildPage = require('../lib/pages/build');
+var BuildsPage = require('../lib/pages/builds');
+var LastBuildPage = require('../lib/pages/last-build');
 
 router.get('/', function(req, res, next) {
   var jobs = new Jobs();
