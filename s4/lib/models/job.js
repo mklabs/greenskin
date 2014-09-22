@@ -239,10 +239,10 @@ Job.prototype.jsonConfig = function jsonConfig(value) {
   }
 
   var json = this.param('JSON_CONFIG');
+  if (!json) return this.warn(new Error('Cannot get JSON_CONFIG from xml'));
+
   // To avoid a bug with Jenkins always quoting objects
   if (json[0] === '"'  && json[json.length - 1] === '"') { json = json.slice(1, -1); };
-
-  if (!json) return this.warn(new Error('Cannot get JSON_CONFIG from xml'));
 
   var data = {};
   try {
