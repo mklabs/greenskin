@@ -50,18 +50,11 @@ URLS=&quot;$PERF_URLS&quot;
 RESULT_DIR=&quot;results/$BUILD_NUMBER&quot;
 
 
-
 echo &quot;&quot;&quot;
 
 URLs: $URLS
 
-JSON Configuration:
-
-$JSON_CONFIG
-
 &quot;&quot;&quot;
-
-echo &quot;$JSON_CONFIG&quot; &gt; config.json
 
 for url in $URLS; do
 
@@ -81,9 +74,8 @@ for url in $URLS; do
 
   # echoing to user
   echo ./node_modules/.bin/phantomas $url \
-    --skip-modules=staticAssets \
     --reporter json \
-    --config ./config.json \
+    --modules=windowPerformance  \
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip
@@ -92,9 +84,8 @@ for url in $URLS; do
 
   # actual run
   ./node_modules/.bin/phantomas $url \
-    --skip-modules=staticAssets \
     --reporter json \
-    --config ./config.json \
+    --modules=windowPerformance  \
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
