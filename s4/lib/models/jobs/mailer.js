@@ -4,8 +4,7 @@ var util = require('util');
 var debug = require('debug')('gs:jobs:base');
 var Base  = require('./base');
 
-var template = require.resolve('gistmailer/scripts/jenkins.xml');
-var xml = fs.readFileSync(template, 'utf8');
+var xml = fs.readFileSync(path.join(__dirname, 'mailer.xml'), 'utf8');
 
 module.exports = Mailer;
 
