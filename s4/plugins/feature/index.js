@@ -1,7 +1,7 @@
 var fs      = require('fs');
 var path    = require('path');
 var express = require('express');
-var debug   = require('debug')('server:feature');
+var debug   = require('debug')('gs:server:feature');
 var helpers = require('./helpers');
 var directory = require('serve-index');
 
@@ -28,6 +28,9 @@ app.on('mount', function(parent) {
     url: '/feature/create'
   });
 
+  debug('Initing partial dir');
+  parent.hbs.registerPartials(path.join(__dirname, 'views/partials'));
+
   app.parent.Job.type('feature', function(xml) {
     return /mklabs\/wd-gherkin/.test(xml);
   });
@@ -40,24 +43,59 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/tmp', express.static(tmpdir));
 app.use('/tmp', directory(tmpdir));
 
-app.get('/:name', routes.view);
-app.get('/view/:name/:number', routes.buildView);
 app.get('/edit/:name/steps.js', routes.serveStepfile);
 
-app.get('/edit/:name', function() {
+app.get('/:name/edit', function(req, res, next) {
   var job = new app.parent.Job({
     name: req.params.name
   });
 
   job.fetch().on('error', next);
   job.once('sync', function() {
-    res.render('form', {
+    res.render('create-feature', {
       job: job.toJSON(),
       tabs: { edit: true },
       title: job.name,
+      action: '/feature/' + req.params.name + '/edit',
+      runUrl: '/feature/create/run-feature',
       edit: true
     });
   });
+});
+
+app.post('/:name/edit', function(req, res, next) {
+  var params = req.body;
+  var name = params.name;
+  var xml = params.xml;
+
+  if (!name) return next(new Error('Missing name'));
+
+  var job = new app.parent.Job({
+    name: name
+  });
+
+  job.fetch().on('error', next);
+  job.once('sync', function() {
+    job.setCron(params.cron);
+    job.jsonConfig(params.json_config);
+
+    job.save()
+      .on('error', next)
+      .on('saved', function() {
+        // res.render('create-feature', {
+        //   saved: true,
+        //   job: job.toJSON(),
+        //   tabs: { edit: true },
+        //   title: job.name,
+        //   action: '/feature/' + req.params.name + '/edit',
+        //   runUrl: '/feature/create/run-feature',
+        //   edit: true
+        // });
+
+        res.redirect('/feature/' + req.params.name + '/edit');
+      });
+  });
+
 });
 
 app.get('/:name/builds', function(req, res, next) {
@@ -133,6 +171,7 @@ app.get('/create', function(req, res, next) {
     steps: mochaSteps,
     features: []
   });
+
   res.render('create-feature', data);
 });
 
@@ -175,6 +214,9 @@ app.post('/create/run-feature', function(req, res, next) {
     res.json(data);
   });
 });
+
+app.get('/:name', routes.view);
+app.get('/:name/:number', routes.buildView);
 
 // External process
 

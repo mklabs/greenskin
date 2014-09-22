@@ -173,57 +173,9 @@ exports.view = function view(req, res, next) {
   page.on('error', next);
   page.on('next', next);
   page.on('end', function(data) {
-    data.job.tabs = [{
-      url: '/phantomas/' + req.params.name + '/metrics',
-      text: 'Metrics'
-    }, {
-      url: '/phantomas/' + req.params.name + '/asserts',
-      text: 'Asserts'
-    }];
-
     res.render('view', data);
   });
 
-  return;
-
-  var name = req.params.name;
-  var job = new Job({
-    name: name
-  });
-  debug('View %s', name);
-  job.on('end', function(data) {
-    data.title = name;
-    data.edit = false;
-
-    debug('end', data);
-    async.map(data.job.builds, function(build, done) {
-      var number = build.number;
-      var key = name + ':' + number;
-      if (cache.builds[key]) return done(null, cache.builds[key]);
-      jenkins.build.get(name, number, function(err, data) {
-        if (err) return done(err);
-        data.color = data.result === 'SUCCESS' ? 'blue' :
-          data.result === 'FAILURE' ? 'red' :
-          data.result === 'WARNING' ? 'yellow' :
-          '';
-
-        data.name = name;
-        data.moment = moment(data.timestamp).format('llll');
-        data.fromNow = moment(data.timestamp).fromNow();
-        data.duration = moment.duration(data.duration).humanize();
-        data.animated = /anime/i.test(data.result);
-
-        cache.builds[key] = data;
-        done(null, data);
-      });
-    }, function(err, builds) {
-      if (err) return next(err);
-      data.builds = builds;
-      res.render('view', data);
-    });
-  });
-
-  job.fetch();
 };
 
 exports.metrics = function metrics(req, res, next) {

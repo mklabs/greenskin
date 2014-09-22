@@ -5,11 +5,11 @@
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs job-tabs">
-  <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
-  <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
+  <li {{#last}}class="active"{{/last}}><a href="/{{ job.namespace }}/{{ job.name }}">Current</a></li>
+  <li><a href="/{{ job.namespace }}/{{ job.name }}/builds">Build History</a></li>
 
   <li class="active">
-    <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
+    <a href="/{{ job.namespace }}/{{ job.name }}/edit">Edit</a>
   </li>
 
 </ul>
@@ -20,7 +20,7 @@
   action="{{ action }}"
   class="form-horizontal {{#edit}}form-edit{{/edit}} js-job-feature-form"
   method="post"
-  data-cron="{{ cron }}"
+  data-cron="{{ job.cron }}"
   data-run-url="{{ runUrl }}">
 
   <input type="hidden" name="template" value="feature">
@@ -28,9 +28,6 @@
 
   <pre class="js-jsonconfig is-hidden">{{{ job.json }}}</pre>
 
-  <div class="is-hidden">
-    <textarea class="form-control" rows="35" name="xml">{{ job.xml }}</textarea>
-  </div>
 
   <div class="form-group col-sm-12">
       <input
@@ -69,7 +66,6 @@
 
       <a class="btn btn-default right js-add" href="#" role="button">Create</a>
     </h3>
-
     <table class="table">
       <thead>
         <tr>
@@ -90,7 +86,6 @@
                 >
               </div>
             </div>
-
             <div class="row" style="margin-top: 1em;">
               <div class="js-feature-edit feature-edit col-sm-6">
                 <textarea name="gherkin" class="form-control">Feature: example
@@ -113,6 +108,7 @@
     Then I click on ".tl-flight-form-label-counter-plus"
     Then I submit the form "[name=flights_search]"
     Then I wait for ".tl-results-offer" to be visible
+                </textarea>
               </div>
 
               <div class="col-sm-6">
@@ -181,7 +177,6 @@
   <div class="form-submit col-sm-12">
     <button type="submit" class="btn btn-primary right">Save</button>
   </div>
-
 </form>
 
 <!-- Modal -->
@@ -208,7 +203,7 @@
 
 {{#extend "scripts"}}
   {{#edit}}
-  <script src="/feature/edit/{{ job.name}}/steps.js"></script>
+  <!-- <script src="/feature/edit/{{ job.name }}/steps.js"></script> -->
   {{/edit}}
 
   {{^edit}}
@@ -218,4 +213,3 @@
   <script src="/js/pages/create.js"></script>
   <script src="/js/pages/create-feature.js"></script>
 {{/extend}}
-
