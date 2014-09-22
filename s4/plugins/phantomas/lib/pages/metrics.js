@@ -112,7 +112,7 @@ MetricPage.prototype.group = function group(results) {
 // Returns an array of array of Series object from grouped data
 MetricPage.prototype.series = function _series(data) {
   var results = [];
-  var asserts = this.getAsserts();
+  var asserts = this.getAsserts() || {};
   results = Object.keys(data).map(function(metric) {
     var metricSeries = data[metric];
     var series = Object.keys(metricSeries).map(function(url) {
