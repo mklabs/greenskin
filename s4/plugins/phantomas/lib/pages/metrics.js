@@ -26,7 +26,7 @@ function MetricPage(config, data) {
   // Handle from parameter, restricting metrics returned based on
   // timestamps
   this.from = this.data.from || '7d';
-  this.prefix = data.job.name;
+  this.prefix = data.job.name.replace(/\./g, '/');
   this._query = '**';
   this.sets = new app.gs.StatsD.Sets(path.join(this.dirname, 'sets', this.prefix), {
     from: this.from
