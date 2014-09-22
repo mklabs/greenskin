@@ -17,7 +17,7 @@ function MetricPage(config, data) {
   this.config = config || {};
   this.data = data || {};
   this.results = {};
-  this.dirname = this.config.storage || path.resolve('tmp/metrics');
+  this.dirname = path.join(__dirname, '../../../../tmp/metrics');
 
   // Some validation
   if (!(config.jenkinsUI)) throw new Error('Missing Jenkins UI config');
