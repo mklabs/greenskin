@@ -69,7 +69,7 @@ sleep 1
       <command>./node_modules/.bin/gherkin-mocha --screendir ./tmp</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command></command>
+      <command>find ./tmp -type f &gt; files.txt</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

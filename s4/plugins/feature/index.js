@@ -3,6 +3,8 @@ var path    = require('path');
 var express = require('express');
 var debug   = require('debug')('gs:server:feature');
 var helpers = require('./helpers');
+var request = require('request');
+
 var directory = require('serve-index');
 
 // Untill routes for phantomas jobs are ported over here, and better
@@ -215,8 +217,53 @@ app.post('/create/run-feature', function(req, res, next) {
   });
 });
 
-app.get('/:name', routes.view);
-app.get('/:name/:number', routes.buildView);
+app.get('/:name', function(req, res, next) {
+  var page = new app.parent.LastBuildPage(req.params);
+
+  page.on('error', next);
+  page.on('next', next);
+  page.on('end', function(data) {
+    res.render('view', data);
+  });
+
+});
+
+app.get('/:name/:number', function(req, res, next) {
+  var name = req.params.name;
+  var num = req.params.number;
+  if (isNaN(num)) return next();
+
+  // Can extend that page, or do specialization here
+  var page = new app.parent.BuildPage({
+    name: name,
+    number: num
+  });
+
+  page.on('error', next);
+  page.on('end', function(data) {
+    debug('Building har view for %s job', data.job.name);
+    var fileurl = data.job.url + 'ws/files.txt';
+
+    request(fileurl, function(err, response, body) {
+      if (err) return done(err);
+      if (response.statusCode !== 200) return done(new Error('Cannot find files.txt in workspace'));
+
+      var screenshots = body.split(/\r?\n/).filter(function(file) {
+        return path.extname(file) === '.png';
+      }).sort().map(function(file) {
+        return {
+          url: data.job.url + 'ws/' + file.replace(/^\.\//, ''),
+          time: file.split('-').slice(-1)[0].replace(/\.png$/, '')
+        };
+      });
+
+
+      data.screenshots = screenshots;
+      res.render('view', data);
+    });
+  });
+
+});
 
 // External process
 
