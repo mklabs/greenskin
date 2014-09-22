@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<project>
+<?xml version="1.0" encoding="UTF-8"?><project>
   <actions/>
   <description>Testing out phantomas metrics</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -15,12 +14,12 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://example.com http://example.com/2</defaultValue>
+          <defaultValue>http://www.kelkoo.fr http://www.kelkoo.it</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue>{&quot;no-externals&quot;:false,&quot;allow-domain&quot;:&quot;.kk-data.com&quot;,&quot;asserts&quot;:{}}</defaultValue>
+          <defaultValue><![CDATA[{"no-externals":false,"allow-domain":".kk-data.com","asserts":{"requests":55}}]]></defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -39,40 +38,40 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo &quot;{}&quot; &gt; package.json
-[ -e node_modules ] || npm install phantomas</command>
+      <command>echo "{}" &gt; package.json
+[ -e node_modules ] || npm install phantomas glob hogan.js</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
-URLS=&quot;$PERF_URLS&quot;
+URLS="$PERF_URLS"
 
-RESULT_DIR=&quot;results/$BUILD_NUMBER&quot;
+RESULT_DIR="results/$BUILD_NUMBER"
 
 
-echo &quot;&quot;&quot;
+echo """
 
 URLs: $URLS
 
-&quot;&quot;&quot;
+"""
 
-node -e "var s = '$JSON_CONFIG'; if (s[0] === '\"'  && s[s.length - 1] === '\"') { s = s.slice(1, -1); } require('fs').writeFileSync('./config.json', s);"
+node -e "var s = '$JSON_CONFIG'; if (s[0] === '\"' &amp;&amp; s[s.length - 1] === '\"') { s = s.slice(1, -1); } require('fs').writeFileSync('./config.json', s);"
 
 cat config.json
 
 for url in $URLS; do
 
   # Define URL key for I/O and Metric keys
-  URL_KEY=$(node -pe &quot;process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, '').replace(/(\/|\?|-|&|=|\.)/g, '_')&quot; $url);
+  URL_KEY=$(node -pe "process.argv.slice(1)[0].replace(/(^https?:\/\/)|(\/$)/g, '').replace(/(\/|\?|-|&amp;|=|\.)/g, '_')" $url);
   URL_DIR=$RESULT_DIR/$URL_KEY
 
-  echo &quot;&quot;&quot;
+  echo """
 
   URL - $url
   Key - $URL_KEY
   Dir - $URL_DIR
 
-  &quot;&quot;&quot;
+  """
 
   mkdir -p $URL_DIR
 
@@ -85,7 +84,7 @@ for url in $URLS; do
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip
 
-  echo &quot;&quot;
+  echo ""
 
   # actual run
   ./node_modules/.bin/phantomas $url \
@@ -99,7 +98,7 @@ for url in $URLS; do
 
 
   cat $URL_DIR/build.json
-  echo &quot;&quot;
+  echo ""
 
   cd $RESULT_DIR &amp;&amp; find -type f  &gt; files.txt
   cd $WORKSPACE
@@ -114,28 +113,28 @@ rm config.json
 
 var env = process.env;
 
-var fs = require(&apos;fs&apos;);
-var path = require(&apos;path&apos;);
+var fs = require('fs');
+var path = require('path');
 var exists = fs.existsSync;
 
-var phantomas = requireWS(&apos;phantomas&apos;);
-var phantomasResults = requireWS(&apos;phantomas/core/results&apos;);
-var loadReporter = requireWS(&apos;phantomas/core/reporter&apos;);
+var phantomas = requireWS('phantomas');
+var phantomasResults = requireWS('phantomas/core/results');
+var loadReporter = requireWS('phantomas/core/reporter');
 
 
-var buildNumber = env.BUILD_NUMBER || env.TRAVIS_BUILD_NUMBER || &apos;last&apos;;
-var dirname = path.resolve(env.WORKSPACE || &apos;&apos;, &apos;results&apos;, buildNumber);
+var buildNumber = env.BUILD_NUMBER || env.TRAVIS_BUILD_NUMBER || 'last';
+var dirname = path.resolve(env.WORKSPACE || '', 'results', buildNumber);
 
 console.log('Result dir:', dirname);
 var results = fs.readdirSync(dirname).map(function(dir) {
   if (fs.statSync(path.join(dirname, dir)).isFile()) return;
-  console.log(&apos;Dealing with results %s dir&apos;, dir);
+  console.log('Dealing with results %s dir', dir);
   var data = {};
 
   try {
-    data = require(path.join(dirname, dir, &apos;build.json&apos;));
+    data = require(path.join(dirname, dir, 'build.json'));
   } catch(e) {
-    console.error(&apos;Error loading build.json&apos;, dirname, dir);
+    console.error('Error loading build.json', dirname, dir);
     return;
   }
 
@@ -145,19 +144,19 @@ var results = fs.readdirSync(dirname).map(function(dir) {
 
   var results = phantomasResults(data);
   var reporter = loadReporter(results, {
-    reporter: &apos;tap&apos;
+    reporter: 'tap'
   });
 
   // pass a function that reporter should call once done
   var res = reporter.render(function() {});
 
   // Both in result dir
-  var filename = path.resolve(dirname, dir, &apos;build.tap&apos;);
-  console.log(&apos;Writing TAP results to %s file&apos;, filename);
+  var filename = path.resolve(dirname, dir, 'build.tap');
+  console.log('Writing TAP results to %s file', filename);
 
   // And root workspace for tap publish
-  filename = path.resolve(env.WORKSPACE || &apos;&apos;, dir + &apos;.tap&apos;);
-  console.log(&apos;Writing TAP results to %s file&apos;, filename);
+  filename = path.resolve(env.WORKSPACE || '', dir + '.tap');
+  console.log('Writing TAP results to %s file', filename);
   fs.writeFileSync(filename, res);
 
   // Used by statsd-send to build the metric key
@@ -167,18 +166,101 @@ var results = fs.readdirSync(dirname).map(function(dir) {
 });
 
 // All build info, to pass along downstream jobs
-var filename = path.resolve(env.WORKSPACE || &apos;&apos;, &apos;build.json&apos;);
-console.log(&apos;Writing build JSON results to %s file&apos;, filename);
+var filename = path.resolve(env.WORKSPACE || '', 'build.json');
+console.log('Writing build JSON results to %s file', filename);
 fs.writeFileSync(filename, JSON.stringify(results));
 
 
 function requireWS(file) {
-  return require(env.WORKSPACE ? path.join(env.WORKSPACE, &apos;node_modules&apos;, file) : file);
+  return require(env.WORKSPACE ? path.join(env.WORKSPACE, 'node_modules', file) : file);
+}</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/usr/bin/env node
+
+// Script to generate metrics.json file for highcharts views
+
+var fs    = require('fs');
+var path  = require('path');
+var glob  = requireWS('glob');
+var path  = require('path');
+var hogan = requireWS('hogan.js');
+
+var read = fs.readFileSync;
+var exists = fs.existsSync;
+
+var args = process.argv.slice(2);
+var metricFile = args[0] || 'metrics.json';
+
+if (!exists('./build.json')) throw new Error('Missing build.json file. Please, run phantomas-format before');
+
+var buildMetrics = require(path.resolve('./build.json')).filter(function(metrics) {
+  // Filters out null data
+  return metrics;
+});
+
+var metrics = exists(metricFile) ? require(path.resolve(metricFile)) : {};
+
+var results = {};
+
+// Build xaxis &amp; series for each metrics in buildMetrics
+var keys = Object.keys(buildMetrics[0].metrics);
+
+keys.forEach(function(key) {
+  console.log('Build %s metric data', key);
+  var data = metrics[key] || {};
+  console.log('Existing data', data);
+
+  var xaxis = data.xaxis || [];
+  var series = data.series || [];
+
+  // Adds a new xaxis with timestamp
+  xaxis.push(Date.now());
+
+  // And metrics for each URL
+  buildMetrics.forEach(function(buildMetric) {
+    var url = buildMetric.url;
+
+    var serie = series.filter(function(serie) {
+      return serie.name === url;
+    })[0];
+
+    if (!serie) {
+      serie = {};
+      series.push(serie);
+    }
+
+    var serieData = serie.data || [];
+    var value = buildMetric.metrics[key];
+
+    if (typeof value === 'undefined') return;
+
+    // Push the new metric
+    serieData.push(value);
+    console.log('Pushing value %s for key %s in %s', value, key, serieData);
+
+    serie.data = serieData;
+    serie.name = url;
+    console.log(serie);
+  });
+
+
+  data.xaxis = xaxis;
+  data.series = series;
+  results[key] = data;
+});
+
+// Writes metric down to ./metrics.json
+console.log('Writing results to %s with', metricFile, results);
+fs.writeFileSync(metricFile, JSON.stringify(results));
+
+function requireWS(file) {
+  return require(process.env.WORKSPACE ? path.join(process.env.WORKSPACE, 'node_modules', file) : file);
 }</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <org.tap4j.plugin.TapPublisher plugin="tap@1.18">
+    <org.tap4j.plugin.TapPublisher plugin="tap@1.20">
       <testResults>*.tap</testResults>
       <failIfNoResults>false</failIfNoResults>
       <failedTestsMarkBuildAsFailure>false</failedTestsMarkBuildAsFailure>
@@ -189,15 +271,15 @@ function requireWS(file) {
       <includeCommentDiagnostics>false</includeCommentDiagnostics>
       <validateNumberOfTests>false</validateNumberOfTests>
       <planRequired>true</planRequired>
+      <verbose>true</verbose>
     </org.tap4j.plugin.TapPublisher>
-    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.24">
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.25">
       <configs>
         <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
           <configs>
             <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
             <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
-              <properties>
-UPSTREAM_BUILD_ID=$BUILD_ID
+              <properties>UPSTREAM_BUILD_ID=$BUILD_ID
 UPSTREAM_BUILD_NUMBER=$BUILD_NUMBER
 UPSTREAM_BUILD_URL=$BUILD_URL
 UPSTREAM_JOB_NAME=$JOB_NAME
@@ -205,7 +287,7 @@ UPSTREAM_DATA=$WORKSPACE/build.json
 UPSTREAM_WORKSPACE=$WORKSPACE</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>statsd_send, mailer</projects>
+          <projects>statsd_send,mailer</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
         </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>

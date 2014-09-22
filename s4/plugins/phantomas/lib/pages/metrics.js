@@ -83,12 +83,24 @@ MetricPage.prototype.buildMetrics = function buildMetrics(done) {
   query.key = this.query();
 
   var me = this;
-  this.sets.load(query.key, function(err, results) {
+
+  var fileurl = this.data.job.url + 'ws/metrics.json';
+  // http://192.168.33.12:8080/jenkins/job/kelkoo.fr/ws/metrics.json
+
+  console.log('Load file', fileurl);
+
+  request(fileurl, function(err, response, body) {
     if (err) return done(err);
-    var data = me.group(results);
+    console.log('body', body, typeof body);
+    var data = JSON.parse(body);
+    console.log('data', data);
+
     var series = me.series(data);
-    done(null, series);
+    console.log(series);
+
+    return done(null, series);
   });
+
 };
 
 MetricPage.prototype.group = function group(results) {
@@ -115,22 +127,23 @@ MetricPage.prototype.series = function _series(data) {
   var asserts = this.getAsserts() || {};
   results = Object.keys(data).map(function(metric) {
     var metricSeries = data[metric];
-    var series = Object.keys(metricSeries).map(function(url) {
-      var result = metricSeries[url];
-      var data = result.data;
-
-      return {
-        name: url,
-        xaxis: result.categories,
-        data: data
-      };
-    });
+    // var series = Object.keys(metricSeries).map(function(url) {
+    //   var result = metricSeries[url];
+    //   var data = result.data;
+    //
+    //   console.log('result', result);
+    //   return {
+    //     name: url,
+    //     xaxis: result.categories,
+    //     data: data
+    //   };
+    // });
 
     return {
       target: metric,
       assert: asserts[metric],
-      xaxis: series[0].xaxis,
-      series: series
+      xaxis: metricSeries.xaxis,
+      series: metricSeries.series
     };
   });
 

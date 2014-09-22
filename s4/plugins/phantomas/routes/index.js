@@ -104,7 +104,7 @@ router.get('/:name/metrics', function(req, res, next) {
   page.on('error', next);
   page.on('end', function(data) {
     data.from = req.query.from;
-    // console.log('data job', data.job, 'data job');
+    // console.log('data job', data, 'data job');
     var metricPage = new MetricPage(app.gs.config, data);
 
     var query = req.query.query ? req.query.query : '**';
