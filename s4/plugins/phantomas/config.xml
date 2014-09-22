@@ -56,6 +56,10 @@ URLs: $URLS
 
 &quot;&quot;&quot;
 
+node -e "var s = '$JSON_CONFIG'; if (s[0] === '\"'  && s[s.length - 1] === '\"') { s = s.slice(1, -1); } require('fs').writeFileSync('./config.json', s);"
+
+cat config.json
+
 for url in $URLS; do
 
   # Define URL key for I/O and Metric keys
@@ -76,6 +80,7 @@ for url in $URLS; do
   echo ./node_modules/.bin/phantomas $url \
     --reporter json \
     --modules=windowPerformance  \
+    --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip
@@ -86,6 +91,7 @@ for url in $URLS; do
   ./node_modules/.bin/phantomas $url \
     --reporter json \
     --modules=windowPerformance  \
+    --config ./config.json \
     --screenshot $URL_DIR/screenshot.png \
     --har $URL_DIR/har.json \
     --film-strip --film-strip-dir $URL_DIR/filmstrip \
