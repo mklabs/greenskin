@@ -1,6 +1,6 @@
 
 
-var debug = require('debug')('server:index');
+var debug = require('debug')('gs:server:index');
 var xml2js = require('xml2js');
 var request = require('request');
 var moment = require('moment');
@@ -8,6 +8,7 @@ var moment = require('moment');
 var async = require('async');
 
 var Job = require('../../../lib/models/job');
+var LastBuildPage = require('../../../lib/pages/last-build');
 
 var helpers = require('../../../lib/helpers');
 var cleanUrl = helpers.cleanUrl;
@@ -24,7 +25,7 @@ var metrics = Object.keys(metadata.metrics).sort().map(function(key) {
 var config = require('../package.json').config;
 var request = require('request');
 
-exports.api = require('./api');
+// exports.api = require('./api');
 
 /*
  * GET home page.
@@ -167,13 +168,34 @@ exports.serveStepfile = function serveStepfile(req, res, next) {
 };
 
 exports.view = function view(req, res, next) {
-  var name = req.params.name;
-  var job = new Job(name, next);
+  var page = new LastBuildPage(req.params);
 
+  page.on('error', next);
+  page.on('next', next);
+  page.on('end', function(data) {
+    data.job.tabs = [{
+      url: '/phantomas/' + req.params.name + '/metrics',
+      text: 'Metrics'
+    }, {
+      url: '/phantomas/' + req.params.name + '/asserts',
+      text: 'Asserts'
+    }];
+
+    res.render('view', data);
+  });
+
+  return;
+
+  var name = req.params.name;
+  var job = new Job({
+    name: name
+  });
+  debug('View %s', name);
   job.on('end', function(data) {
     data.title = name;
     data.edit = false;
 
+    debug('end', data);
     async.map(data.job.builds, function(build, done) {
       var number = build.number;
       var key = name + ':' + number;
@@ -200,6 +222,8 @@ exports.view = function view(req, res, next) {
       res.render('view', data);
     });
   });
+
+  job.fetch();
 };
 
 exports.metrics = function metrics(req, res, next) {

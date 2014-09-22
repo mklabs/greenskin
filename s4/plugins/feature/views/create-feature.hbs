@@ -8,9 +8,6 @@
   <li {{#last}}class="active"{{/last}}><a href="/view/{{ job.name }}/last">Current</a></li>
   <li><a href="/{{ job.namespace }}/view/{{ job.name }}/">Build History</a></li>
 
-  {{#job.phantomas}}<li {{#metricsMode}}class="active"{{/metricsMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/metrics">Metrics</a></li>{{/job.phantomas}}
-  {{#job.phantomas}}<li {{#assertMode}}class="active"{{/assertMode}}><a href="/{{ job.namespace }}/view/{{ job.name }}/asserts">Asserts</a></li>{{/job.phantomas}}
-
   <li class="active">
     <a href="/{{ job.namespace }}/edit/{{ job.name }}">Edit</a>
   </li>
@@ -105,16 +102,17 @@
 
   Try Ctrl-R to run the feature.
 
-  You can also write new steps. A good way to get started is
-  simply to write a new step below, run the feature, and then
-  click on the pending test.
-
   Scenario: Browsing http://phantomjs.org/
     Given I browse URL "http://phantomjs.org/"
 
+  Scenario: Browsing travel
 
-  Scenario: Browsing example.com/n
-    Given I browse URL "https://github.com/cucumber/cucumber/wiki/Gherkin"</textarea>
+  	Given I browse URL "http://travel.kelkoo.co.uk"
+    Then I fill "PAR" in "from"
+    And I fill "LYS" in "to"
+    Then I click on ".tl-flight-form-label-counter-plus"
+    Then I submit the form "[name=flights_search]"
+    Then I wait for ".tl-results-offer" to be visible
               </div>
 
               <div class="col-sm-6">

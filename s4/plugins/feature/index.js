@@ -40,10 +40,37 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/tmp', express.static(tmpdir));
 app.use('/tmp', directory(tmpdir));
 
-app.get('/edit/:name', routes.edit);
-app.get('/view/:name', routes.view);
+app.get('/:name', routes.view);
 app.get('/view/:name/:number', routes.buildView);
 app.get('/edit/:name/steps.js', routes.serveStepfile);
+
+app.get('/edit/:name', function() {
+  var job = new app.parent.Job({
+    name: req.params.name
+  });
+
+  job.fetch().on('error', next);
+  job.once('sync', function() {
+    res.render('form', {
+      job: job.toJSON(),
+      tabs: { edit: true },
+      title: job.name,
+      edit: true
+    });
+  });
+});
+
+app.get('/:name/builds', function(req, res, next) {
+  var name = req.params.name;
+
+  var page = new app.parent.BuildsPage({
+    name: name
+  });
+
+  page.on('error', next);
+  page.on('end', res.render.bind(res, 'builds'));
+});
+
 app.get('/create/steps.js', function(req, res, next) {
   fs.createReadStream(path.join(__dirname, './mocha-webdriver-stepfile.js')).pipe(res);
 });
