@@ -91,6 +91,7 @@ MetricPage.prototype.buildMetrics = function buildMetrics(done) {
 
   request(fileurl, function(err, response, body) {
     if (err) return done(err);
+    if (response.statusCode !== 200) return done(new Error('Cannot find file ' + fileurl));
     console.log('body', body, typeof body);
     var data = JSON.parse(body);
     console.log('data', data);
