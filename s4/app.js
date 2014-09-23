@@ -8,8 +8,6 @@ var debug      = require('debug')('gs');
 var hbs        = require('./lib/express/hbs');
 var config     = require('./package').config;
 
-var StatsD = require('statsd-fs');
-
 var app = express();
 var server = module.exports = require('http').Server(app);
 
@@ -21,9 +19,6 @@ app.config = config;
 
 // Attach ref to hbs for subapps to register their own partials / blocks
 app.hbs = hbs;
-
-// And StatsD
-app.StatsD = StatsD;
 
 // Models
 app.Job   = require('./lib/models/job');
@@ -58,10 +53,6 @@ app.use(logger('dev'));
 
 // GS routes
 app.use('/', require('./routes'));
-
-app.use('/statsd', StatsD.app.middleware({
-  base: './tmp/metrics'
-}));
 
 // Subapps
 fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
@@ -113,19 +104,3 @@ app.use(function(err, req, res, next) {
     error: dev ? err : {}
   });
 });
-
-// External forked process
-
-// StatsD
-var statsd = new StatsD({
-  path: require.resolve('statsd/stats'),
-  config: path.join(__dirname, 'statsd-config.js')
-});
-
-statsd.on('exit', debug.bind('StatsD exit'));
-statsd.on('error', debug.bind('StatsD error'));
-statsd.on('close', debug.bind('StatsD close'));
-
-statsd.run();
-
-debug('StatsD listening. Args: ', statsd.args);
