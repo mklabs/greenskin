@@ -7,10 +7,6 @@ var request = require('request');
 
 var directory = require('serve-index');
 
-// Untill routes for phantomas jobs are ported over here, and better
-// isolated from the rest of the app
-var routes = require('./routes/common');
-
 // Express subapp
 var app = module.exports = express();
 
