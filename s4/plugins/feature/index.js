@@ -45,7 +45,32 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/tmp', express.static(tmpdir));
 app.use('/tmp', directory(tmpdir));
 
-app.get('/edit/:name/steps.js', routes.serveStepfile);
+app.get('/edit/:name/steps.js', function(req, res, next) {
+  var name = req.params.name;
+
+  var job = new app.parent.Job({
+    name: req.params.name
+  });
+
+  job.fetch().on('error', next);
+  job.once('sync', function() {
+    var jobdata = job.toJSON();
+    console.log('serve step file end', jobdata.json);
+    var json = jobdata.json;
+    var data = {};
+    try {
+      data = JSON.parse(json);
+    } catch(e) {
+      return next(e);
+    }
+
+    var js = data.steps.map(function(step) {
+      return step.body;
+    }).join('\n\n');
+
+    res.send(js);
+  });
+});
 
 app.get('/:name/edit', function(req, res, next) {
   var job = new app.parent.Job({
