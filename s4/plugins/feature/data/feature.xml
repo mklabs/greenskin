@@ -77,6 +77,11 @@ sleep 1
     </hudson.tasks.Shell>
   </builders>
   <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.10">
+      <recipients>mickael.daniel@kelkoo.fr daniel.mickael@gmail.com</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
     <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.25">
       <configs>
         <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
