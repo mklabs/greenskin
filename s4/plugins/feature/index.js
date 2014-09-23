@@ -78,6 +78,7 @@ app.post('/:name/edit', function(req, res, next) {
 
   job.fetch().on('error', next);
   job.once('sync', function() {
+
     job.setCron(params.cron);
     job.jsonConfig(params.json_config);
 
