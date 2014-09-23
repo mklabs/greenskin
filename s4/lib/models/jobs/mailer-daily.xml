@@ -47,7 +47,7 @@ Here 86400000 means 24h: 1000 * 60 * 60 * 24</description>
         <hudson.model.StringParameterDefinition>
           <name>MAIL_SUBJECT</name>
           <description></description>
-          <defaultValue>Daily report</defaultValue>
+          <defaultValue>Greenskin daily report</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>TEMPLATE_URL</name>
