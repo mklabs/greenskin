@@ -245,8 +245,8 @@ app.get('/:name/:number', function(req, res, next) {
     var fileurl = data.job.url + 'ws/files.txt';
 
     request(fileurl, function(err, response, body) {
-      if (err) return done(err);
-      if (response.statusCode !== 200) return done(new Error('Cannot find files.txt in workspace'));
+      if (err) return next(err);
+      if (response.statusCode !== 200) return next(new Error('Cannot find files.txt in workspace'));
 
       var screenshots = body.split(/\r?\n/).filter(function(file) {
         return path.extname(file) === '.png';
