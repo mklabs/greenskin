@@ -22,15 +22,6 @@ function MetricPage(config, data) {
   // Some validation
   if (!(config.jenkinsUI)) throw new Error('Missing Jenkins UI config');
   if (!(data.job && data.job.name)) throw new Error('Data not proper structure, job not defined');
-
-  // Handle from parameter, restricting metrics returned based on
-  // timestamps
-  this.from = this.data.from || '7d';
-  this.prefix = data.job.name.replace(/\./g, '/');
-  this._query = '**';
-  this.sets = new app.gs.StatsD.Sets(path.join(this.dirname, 'sets', this.prefix), {
-    from: this.from
-  });
 }
 
 util.inherits(MetricPage, events.EventEmitter);
@@ -87,18 +78,11 @@ MetricPage.prototype.buildMetrics = function buildMetrics(done) {
   var fileurl = this.data.job.url + 'ws/metrics.json';
   // http://192.168.33.12:8080/jenkins/job/kelkoo.fr/ws/metrics.json
 
-  console.log('Load file', fileurl);
-
   request(fileurl, function(err, response, body) {
     if (err) return done(err);
     if (response.statusCode !== 200) return done(new Error('Cannot find file ' + fileurl));
-    console.log('body', body, typeof body);
     var data = JSON.parse(body);
-    console.log('data', data);
-
     var series = me.series(data);
-    console.log(series);
-
     return done(null, series);
   });
 
