@@ -9,6 +9,8 @@ var Build = require('./build');
 var Base = require('./jobs/base');
 var StatsD = require('./jobs/statsd');
 var Mailer = require('./jobs/mailer');
+var MailerDaily = require('./jobs/mailer-daily');
+var MailerWeekly = require('./jobs/mailer-weekly');
 var Webdriver = require('./jobs/webdriver');
 
 module.exports = Job;
@@ -26,6 +28,8 @@ function Job() {
   this.downstreams = [];
   this.downstreams.push(new StatsD());
   this.downstreams.push(new Mailer());
+  this.downstreams.push(new MailerDaily());
+  this.downstreams.push(new MailerWeekly());
   this.downstreams.push(new Webdriver());
 }
 
@@ -324,4 +328,3 @@ Job.prototype.replaceXML = function replaceXML(xml, value, search, replace, repl
   // Join back
   return lines.join('\n');
 };
-
