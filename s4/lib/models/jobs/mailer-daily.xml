@@ -123,6 +123,12 @@ var files = fs.readdirSync(process.env.WORKSPACE).filter(function(file) {
 files = files.filter(function(data) {
   data.data = data.data.filter(function(data) { return data; });
 
+  if (!data.data || !data.data[0]) {
+    console.log(&apos;File&apos;, data.file, &apos;has no data. Removing&apos;);
+    fs.unlinkSync(data.file);
+    return false;
+  }
+
   var timestamp = data.data[0].timestamp;
   var delta = now - timestamp;
   var timestampDelta = parseInt(process.env.TIMESTAMP_DELTA, 10);
