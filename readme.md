@@ -101,13 +101,6 @@ A simple list of the last builds for a particular job.
 
 ![](docs/imgs/build-history.png)
 
-**Custom jenkins theme**
-
-Jenkins is usually available at `/jenkins`. Assuming the Simple Theme Plugin is installed, you can use `/jenkins-theme/main.css` and `/jenkins-theme/main.js` to get a slightly different UI.
-
-(based on [Doony Theme](https://github.com/kevinburke/doony))
-
-![](docs/imgs/custom-jenkins-theme.png)
 
 ## Components
 
@@ -128,39 +121,105 @@ Frontend
 
 ## Docs
 
-And global thoughts:
+### Jenkins
 
-- The webapp & subapps / package works together to provide the UI,
-  scripts and libraries to perform a performance / functional test (ex:
-  phantomas, browsertime)
+The application needs a Jenkins instance to work with. You can use an
+existing Jenkins instance or use a dedicated one.
 
-- The runner is a CI server, default being Jenkins. Travis integration
-  is possible (is it ? can't setup cron, only on post push on a github
-  repo) and / or a minimal job runner based on kue.
+To quicly provision a new Jenkins, you can use the
+`vms/jenkins-master/install.sh` file, or use vagrant at the root of the
+repo and run `vagrant up gs-master`.
 
-- Slaves / Test agent: Handled by Jenkins Master / Slave configuration,
-  are the VMs provided where the tests are executed. They include xvfb
-  and Firefox by default (TODO: check on non-centos system for Chrome &
-  Chromedriver provisioning) / (TODO: Check on setting up a Selenium
-  server there to, and register to selenium grid)
+Then, check that these plugins are installed at  http://$hostname/jenkins/pluginManager/ (where $hostname is the machine FQDN)
 
-- Saucelabs: Saucelabs service is an interresting alternative with
-  broader browser support eliminating the need of any slaves / test
-  agent setup and maintenance.
+- TAP Plugin (required for test reports)
+- Parameterized Trigger Plugin (required for running downstream Jobs)
 
-> TODO: Webdriver integration / Saucelabs
+### Jenkins Slaves
 
-Most of the metrics are gathered by Phantomas, instrumented via Jenkins, from optional remote slaves.
+Though you can run Jobs on master, it is highly recommended to use a
+slave for this purpose.
 
-The webapp sits in front of Jenkins to provide a simple UI to create predefined and ready to use Jobs and configuration to gather metrics at a set interval.
+You can provision a new machine with everything needed by Greenskin
+using the `vms/jenkins-slave/install_jenkins_slave.sh` file, or use
+vagrant at the root of the and run `vagrant up gs-slave`.
 
-Monitoring can consist of simple metrics measurement, or more complex functional scenario. It usually consists in a list of URLs, analyzed at a fixed interval, with a set of measures (or asserts) on metrics that Phantomas provides.
+Then, you'll need to configure Jenkins to add and connect a new "node":
+http://$hostname/jenkins/computer/new
 
-The result is then displayed in a custom frontend dashboard on top of Jenkins, to display and manage graphs and alerting based on those metrics.
+1. Choose a name for the node, like `jenkins-slave`. If not using
+   jenkins-slave, you'll need to update every job created to use the
+   correct name.
+2. Choose "Dumb slave"
+3. Click next
+4. In "Remote working directory" put the absolute path of this working directory on the slave, like `/var/jenkins` or using Vagrant `/home/vagrant`
+5. In "Launch method", choose "Launch slave agents on Unix machines via SSH"
+6. Host: The slave hostname, using Vagrant it is `192.168.33.30`
+7. Credentials: Configure jenkins to use the correct credentials, either
+   name and password, or using a private key file.
+8. Click save
 
-Jenkins, on a failing assert, generates an email notification.
+### Node app
 
+cd into `s4/` and install dependencies.
 
-## TODOs
+    cd s4/
+    npm i
 
-- [] Everything
+    cd ../plugins/phantomas
+    npm i
+
+    cd ../../plugins/feature
+    npm i
+
+Ensure the Jenkins config in package.json is correct and match the
+correct host, here for the vagrant setup with 192.168.33.12:8080/jenkins
+
+    "config": {
+      "jenkins": "http://192.168.33.12:8080/jenkins",
+      "jenkinsUI": "http://192.168.33.12:8080/jenkins"
+    }
+
+Run the app with the following command
+
+    DEBUG=gs* node bin/www
+
+#### First job: Phantomas
+
+Click on the "Create job (simple metrics)" button and fill the form.
+Specify a name, and a list of URLs to analyse.
+
+You can verify or edit the JSON configuration passed to Phantomas, and
+check the run script as well.
+
+Click save, it should create a new Job in Jenkins that you can run.
+
+Once a build has completed, you should be able to see the list of
+Metrics and Asserts by clicking on the corresponding tab. Specify
+asserts by clicking on the "Edit" button for each graphs.
+
+#### First job: Feature
+
+Click on the "Create job (functional)" button and fill the form.
+Specify a name, a cron timer and a list of feature file to run.
+
+To add a new feature file, click on the "Create" button. When the focus
+is on the feature textarea, you can hit Ctrl-Space to autocomplete based
+on the registered steps and hit Ctrl-R to run the current feature. You
+should see the test output on the right black box.
+
+### Jobs
+
+When creating a Job, the following set of downstream Jobs are created:
+
+* mailer - Downstream of any Phantomas Job. Will send emails whenever an
+  assert fail.
+* mailer-daily - Downstream of any Phantomas Job. Will copy over
+  `build.json` file and periodically send an email that sums up the
+  state of Phantomas Jobs, with the number of metrics, the number of
+  failed metrics and availability (ratio between number of metrics and
+  failed ones.
+* mailer-weekly - Same as mailer-daily, but the time is set to send
+  emails every week.
+* webdriver-kill - Downstream of any feature Job. Takes care of killing
+  PhantomJS webdriver process.
