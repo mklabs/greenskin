@@ -78,6 +78,22 @@ Run the app with the following command
 
     DEBUG=gs* node bin/www
 
-#### First job
+#### First job: Phantomas
 
 Click on the "Create job (simple metrics)" button and fill the form.
+Specify a name, and a list of URLs to analyse.
+
+You can verify or edit the JSON configuration passed to Phantomas, and
+check the run script as well.
+
+Click save, it should create a new Job in Jenkins.
+
+#### First job: Feature
+
+Click on the "Create job (functional)" button and fill the form.
+Specify a name, a cron timer and a list of feature file to run.
+
+To add a new feature file, click on the "Create" button. When the focus
+is on the feature textarea, you can hit Ctrl-Space to autocomplete based
+on the registered steps and hit Ctrl-R to run the current feature. You
+should see the test output on the right black box.
