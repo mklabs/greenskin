@@ -26,7 +26,7 @@
           <name>TIMESTAMP_DELTA</name>
           <description>The number of milliseconds for which files are processed. Any build data with a timestamp older than delta are removed from workspace.
 
-Here 604800000 means 7d: 1000 * 60 * 60 * 24 * 7</description>
+Here 604800000 means 24h: 1000 * 60 * 60 * 24 * 7</description>
           <defaultValue>604800000</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
@@ -99,6 +99,7 @@ if (process.env.UPSTREAM_DATA) {
   data = data.filter(function(build) {
     if (!build) return false;
     build.jobName = process.env.UPSTREAM_JOB_NAME;
+    build.timestamp = Date.now();
     return true;
   });
 
@@ -121,6 +122,7 @@ var files = fs.readdirSync(process.env.WORKSPACE).filter(function(file) {
 
 // Cleanup files older than TIMESTAMP_DELTA
 files = files.filter(function(data) {
+  console.log(&apos;Checking timestamp for&apos;, data.file);
   data.data = data.data.filter(function(data) { return data; });
 
   if (!data.data || !data.data[0]) {
@@ -130,6 +132,12 @@ files = files.filter(function(data) {
   }
 
   var timestamp = data.data[0].timestamp;
+
+  if (!timestamp) {
+    console.log(&apos;File&apos;, data.file, &apos;has no timestamp. Removing&apos;);
+    fs.unlinkSync(data.file);
+    return false;
+  }
   var delta = now - timestamp;
   var timestampDelta = parseInt(process.env.TIMESTAMP_DELTA, 10);
 
@@ -273,7 +281,7 @@ if (env.JOB_MAILS) var mails = env.JOB_MAILS.split(&apos; &apos;);
   console.log(&apos;context&apos;, data);
 
   mailer.data({
-    title: &apos;Greenskin Daily report&apos;,
+    title: program.subject || &apos;Greenskin weekly report&apos;,
     asserts: data
   });
 
