@@ -287,7 +287,7 @@ UPSTREAM_DATA=$WORKSPACE/build.json
 UPSTREAM_WORKSPACE=$WORKSPACE</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>statsd_send,mailer,mailer-daily,mailer-weekly</projects>
+          <projects>mailer,mailer-daily,mailer-weekly</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
         </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
