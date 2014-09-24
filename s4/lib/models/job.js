@@ -7,7 +7,6 @@ var request = require('request');
 
 var Build = require('./build');
 var Base = require('./jobs/base');
-var StatsD = require('./jobs/statsd');
 var Mailer = require('./jobs/mailer');
 var MailerDaily = require('./jobs/mailer-daily');
 var MailerWeekly = require('./jobs/mailer-weekly');
@@ -26,7 +25,6 @@ function Job() {
   // Every job created gets two downstreams project to handle statsd
   // sending & asserts handling / alerting
   this.downstreams = [];
-  this.downstreams.push(new StatsD());
   this.downstreams.push(new Mailer());
   this.downstreams.push(new MailerDaily());
   this.downstreams.push(new MailerWeekly());
