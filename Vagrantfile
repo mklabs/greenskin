@@ -44,6 +44,33 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     gs.vm.provision "shell", path: "vms/jenkins-slave/install_jenkins_slave.sh"
   end
 
+  config.vm.define "gs-slave-ansible" do |gs|
+    gs.vm.box = "chef/centos-6.5"
+    gs.vm.hostname = "gsslave.dev"
+    gs.vm.network :private_network, ip: "192.168.33.15"
+
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-slave/site.yml"
+    end
+  end
+
+  config.vm.define "gs-master-ansible" do |gs|
+    gs.vm.box = "chef/centos-6.5"
+    gs.vm.hostname = "gsmaster.dev"
+    gs.vm.network :private_network, ip: "192.168.33.14"
+
+    # config.vm.provision "ansible" do |ansible|
+    #   ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-master/site.yml"
+    # end
+
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-jenkins-configure/site.yml"
+    end
+  end
+
+
+
+
   # Legacy stuff!
   #
   # Graphite: VM spawning graphite / statsd (not used)
