@@ -1,0 +1,42 @@
+- name: Download jenkins repo
+  get_url: url=http://pkg.jenkins-ci.org/redhat/jenkins.repo dest=/etc/yum.repos.d/jenkins.repo
+  sudo: yes
+
+- name: RPM Import key
+  command: rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+  sudo: yes
+
+- name: Install package java
+  yum: name=java-1.7.0-openjdk state=latest
+  sudo: yes
+
+- name: Install package jenkins
+  yum: name=jenkins state=latest
+  sudo: yes
+
+- name: Start Jenkins
+  service: name=jenkins state=started
+  sudo: yes
+
+- name: chkconfig on jenkins
+  command: chkconfig jenkins on
+  sudo: yes
+
+# - name: Sleep, waiting for Jenkins to be ready to work
+#   command: sleep 30
+#
+# - name: Install Jenkins plugin
+#   get_url: url=http://localhost:8080/jnlpJars/jenkins-cli.jar dest=/tmp/jenkins-cli.jar
+#
+# - name: Install Jenkins plugin
+#   command: java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin tap parameterized-trigger -restart chdir=/tmp
+#
+# - name: Connect node, copy template XML
+#   template: src=slave.xml.j2 dest=/tmp/slave.xml
+#
+# - name: Connect node, copy template script
+#   template: src=create-node.sh.j2 dest=/tmp/create-node.sh
+#
+# - name: Connect node, run template script
+#   command: sh /tmp/create-node.sh
+

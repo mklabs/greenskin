@@ -1,0 +1,40 @@
+- name: Git clone Perfite
+  git: repo=http://gitlab.corp.kelkoo.net/mickael.daniel/perfite.git
+       dest=/opt/kookel/greenskin
+  sudo: yes
+
+- name: Install imagemagics
+  yum: name=ImageMagick state=latest
+  sudo: yes
+
+- name: Install graphicsmagick
+  yum: name=GraphicsMagick state=latest
+  sudo: yes
+
+- name: Install libselinux-python
+  yum: name=libselinux-python state=latest
+  sudo: yes
+
+- name: Copy over greenskin init.d
+  template: src=node-inid.d.j2 dest=/etc/init.d/greenskin mode=0755
+  sudo: yes
+
+- name: npm install greenskin
+  command: npm install chdir=/opt/kookel/greenskin/s4
+  sudo: yes
+
+- name: npm install greenskin/plugins/phantomas
+  command: npm install chdir=/opt/kookel/greenskin/s4/plugins/phantomas
+  sudo: yes
+
+- name: npm install greenskin/plugins/feature
+  command: npm install chdir=/opt/kookel/greenskin/s4/plugins/feature
+  sudo: yes
+
+- name: Ensure application config
+  template: src=package.json.j2 dest=/opt/kookel/greenskin/s4/package.json
+  sudo: yes
+
+- name: Start Greenskin
+  service: name=greenskin pattern="/usr/bin/node /opt/kookel/greenskin/s4/bin/www" state=started enabled=yes
+  sudo: yes

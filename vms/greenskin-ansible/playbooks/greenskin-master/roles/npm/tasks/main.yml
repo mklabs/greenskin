@@ -1,0 +1,16 @@
+- name: Download EPEL rpm
+  get_url: url=http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm dest=/tmp/epel-release-6-8.noarch.rpm
+  sudo: yes
+
+- name: Install EPEL rpm
+  command: rpm -Uvh /tmp/epel-release-6-8.noarch.rpm
+  sudo: yes
+  ignore_errors: yes
+
+- name: Install nodejs
+  yum: name=nodejs state=latest
+  sudo: yes
+
+- name: Install package npm
+  yum: name=npm state=latest
+  sudo: yes

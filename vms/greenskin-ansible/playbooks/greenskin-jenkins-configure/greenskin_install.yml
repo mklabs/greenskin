@@ -1,0 +1,8 @@
+- hosts: all
+
+  vars:
+    slave_hostname: dc1-se-prod-kkspeed-02.prod.dc1.kelkoo.net
+    # slave_hostname: 192.168.33.15
+
+  roles:
+    - jenkins

@@ -1,0 +1,20 @@
+# Git install
+- name: Download EPEL rpm
+  get_url: url=http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm dest=/tmp/epel-release-6-8.noarch.rpm
+  sudo: yes
+
+- name: Install EPEL rpm
+  command: rpm -Uvh /tmp/epel-release-6-8.noarch.rpm
+  sudo: yes
+  ignore_errors: yes
+
+- name: Install yum packages
+  yum: name={{ item }} state=installed
+  with_flattened:
+     - java-1.7.0-openjdk
+     - vim-enhanced
+     - git
+     - nodejs
+     - npm
+     - nc
+  sudo: yes

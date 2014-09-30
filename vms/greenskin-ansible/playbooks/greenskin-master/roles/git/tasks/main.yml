@@ -1,0 +1,4 @@
+# Git install
+- name: Install package git 
+  yum: name=git state=latest
+  sudo: yes
