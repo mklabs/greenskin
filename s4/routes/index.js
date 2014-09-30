@@ -11,12 +11,15 @@ var BuildPage = require('../lib/pages/build');
 var BuildsPage = require('../lib/pages/builds');
 var LastBuildPage = require('../lib/pages/last-build');
 
+
 router.get('/', function(req, res, next) {
   var jobs = new Jobs();
 
   jobs.fetch()
     .on('error', next)
-    .on('render', res.render.bind(res, 'index'));
+    .on('render', function(data) {
+      res.render('index', data);
+    });
 });
 
 router.get('/delete/:name', function(req, res, next) {

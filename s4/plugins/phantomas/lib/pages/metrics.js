@@ -116,7 +116,6 @@ MetricPage.prototype.series = function _series(data) {
       serie.data = serie.data.filter(function(data, i) {
         var xaxis = metric.xaxis[i];
         var m = moment(xaxis);
-        console.log('compare to', serie.name, m.format('MMMM Do YYYY, h:mm:ss a'), xaxis, now, now - xaxis, this.from, (now - xaxis) < this.from);
         return (now - xaxis) < this.from;
       }, this);
 
@@ -130,14 +129,11 @@ MetricPage.prototype.series = function _series(data) {
     return metric;
   }, this);
 
-  console.log(results[0]);
-  console.log(results[0].series);
-
   // Translate timestamp into human readable dates
   results = results.map(function(metric) {
     metric.xaxis = metric.xaxis.map(function(xaxis) {
       var m = moment(xaxis);
-      return m.format('MMMM Do YYYY, h:mm:ss a');
+      return m.format('MMMM Do YYYY, h:mm a');
     });
 
     return metric;
