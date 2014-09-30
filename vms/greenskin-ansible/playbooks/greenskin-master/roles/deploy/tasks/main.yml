@@ -31,6 +31,10 @@
   command: npm install chdir=/opt/kookel/greenskin/s4/plugins/feature
   sudo: yes
 
+- name: npm install greenskin/plugins/webpagetest
+  command: npm install chdir=/opt/kookel/greenskin/s4/plugins/webpagetest
+  sudo: yes
+
 - name: Ensure application config
   template: src=package.json.j2 dest=/opt/kookel/greenskin/s4/package.json
   sudo: yes
