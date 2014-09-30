@@ -25,6 +25,7 @@ function MetricPage(config, data) {
 
   // default from last 24h
   this.from = 86400000;
+  this.target = '';
 }
 
 util.inherits(MetricPage, events.EventEmitter);
@@ -38,11 +39,23 @@ MetricPage.prototype.query = function query(value) {
 // Page helper for har view
 MetricPage.prototype.build = function build(done) {
   var data = this.data;
+  var target = this.target;
   this.buildMetrics(function(err, metrics) {
     if (err) return done(err);
 
     if (metrics) {
-      data.metrics = metrics.map(function(metric, i, arr) {
+      data._metrics = metrics;
+      data.metrics = metrics;
+
+      // Filters out results based on target
+      if (target) data.metrics = data.metrics.filter(function(result) {
+        return result.target === target;
+      }).map(function(result) {
+        if (result.target === target) result.selected = true;
+        return result;
+      });
+
+      data.metrics = data.metrics.map(function(metric, i, arr) {
         metric.json = JSON.stringify({
           xaxis: metric.xaxis,
           series: metric.series
@@ -57,7 +70,6 @@ MetricPage.prototype.build = function build(done) {
 
         return metric;
       });
-
     }
 
     done(null, data);

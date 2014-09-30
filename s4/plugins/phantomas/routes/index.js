@@ -120,6 +120,30 @@ router.get('/:name/metrics', function(req, res, next) {
   });
 });
 
+router.get('/:name/metrics/:target', function(req, res, next) {
+  var name = req.params.name;
+  var from = req.query.from;
+  var target = req.params.target;
+
+  var page = new app.gs.BuildsPage({
+    name: name
+  });
+
+  page.on('error', next);
+  page.on('end', function(data) {
+    var metricPage = new MetricPage(app.gs.config, data);
+
+    if (req.query.from) metricPage.from = req.query.from;
+    if (target) metricPage.target = target;
+
+    metricPage.build(function(err, page) {
+      if (err) return next(err);
+      res.render('metric', page);
+    });
+  });
+});
+
+
 router.get('/:name/asserts', function(req, res, next) {
   var name = req.params.name;
   var from = req.query.from;
@@ -145,28 +169,6 @@ router.get('/:name/asserts', function(req, res, next) {
       });
 
       res.render('asserts', page);
-    });
-  });
-});
-
-router.get('/:name/metrics/:target', function(req, res, next) {
-  var name = req.params.name;
-  var query = req.params.target || '**';
-  var from = req.query.from;
-
-  var page = new app.gs.BuildsPage({
-    name: name
-  });
-
-  page.on('error', next);
-  page.on('end', function(data) {
-    data.from = from;
-    var metricPage = new MetricPage(app.gs.config, data);
-    metricPage.query(query);
-    metricPage.build(function(err, page) {
-      if (err) return next(err);
-      page.query = query;
-      res.render('metric', page);
     });
   });
 });

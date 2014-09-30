@@ -3,6 +3,10 @@
 <link rel="stylesheet" href="/stylesheets/blocks/graph.css">
 {{/extend}}
 
+{{#extend "scripts"}}
+<script src="/js/pages/metric-toolbar.js"></script>
+{{/extend}}
+
 {{> job_summary }}
 
 {{#tabs tabs job}}
@@ -15,31 +19,31 @@
   </li>
 {{/tabs}}
 
-<div class="metrics-toolbar">
- <div class="btn-toolbar metrics-toolbar-item" role="toolbar">
-    <div class="btn-group">
-      {{#job.urls}}
-      <a href="/{{ ../job.namespace }}/{{ ../job.name }}/metrics?query={{cleanUrl .}}.*"
-        class="btn btn-default">
-        {{ . }}
-      </a>
-      {{/job.urls}}
-    </div>
-    <div class="btn-group">/</div>
-    <div class="btn-group right">
-      <a href="?from=604800000" class="btn btn-default">
-        last 7d
-      </a>
-      <a href="?from=86400000" class="btn btn-default">
-        last 24h
-      </a>
-      <a href="?from=43200000" class="btn btn-default">
-        last 12h
-      </a>
-      <a href="?from=21600000" class="btn btn-default">
-        last 6h
-      </a>
-    </div>
+<div class="metrics-toolbar js-toolbar">
+  <div class="btn-toolbar metrics-toolbar-item" role="toolbar">
+  <div class="btn-group">
+    <span>Metric:</span>
+    <select class="js-target">
+      <option value="">All</option>
+      {{#_metrics}}
+      <option value="{{ target }}" {{#selected}}selected="selected"{{/selected}}>{{ target }}</option>
+      {{/_metrics}}
+    </select>
+  </div>
+
+  <div class="btn-group right">
+    <a href="?from=604800000" class="btn btn-default">
+      last 7d
+    </a>
+    <a href="?from=86400000" class="btn btn-default">
+      last 24h
+    </a>
+    <a href="?from=43200000" class="btn btn-default">
+      last 12h
+    </a>
+    <a href="?from=21600000" class="btn btn-default">
+      last 6h
+    </a>
   </div>
 
 </div>
