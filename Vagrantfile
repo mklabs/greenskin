@@ -83,6 +83,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  config.vm.define "graphite" do |gs|
+    gs.vm.box = "chef/centos-6.5"
+    gs.vm.hostname = "graphite.dev"
+    gs.vm.network :private_network, ip: "192.168.33.34"
+
+    config.vm.network "forwarded_port", guest: 80, host: 8087
+    config.vm.network "forwarded_port", guest: 2003, host: 2003
+    config.vm.network "forwarded_port", guest: 8125, host: 8125, protocol: 'udp'
+
+    config.vm.provision "ansible" do |ansible|
+      ansible.inventory_path = "vms/graphite/ansible-graphite/hosts"
+      ansible.limit = "all"
+      ansible.playbook = "vms/graphite/ansible-graphite/playbook.yml"
+      ansible.verbose = "vv"
+    end
+  end
+
 
 
 end
