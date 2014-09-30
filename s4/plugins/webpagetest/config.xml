@@ -314,7 +314,7 @@ UPSTREAM_WORKSPACE=$WORKSPACE
 MAIL_SUBJECT=Greenskin - Asserts failed for $JOB_NAME - $BUILD_URL</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>mailer, </projects>
+          <projects>mailer, mailer-daily, mailer-weekly</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
         </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>

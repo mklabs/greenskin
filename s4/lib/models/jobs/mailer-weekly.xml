@@ -179,7 +179,7 @@ files.forEach(function(data) {
     jobName = data.jobName;
 
     // perf avg
-    perfAvg = perfAvg + data.metrics.domComplete;
+    perfAvg = perfAvg + (data.metrics.domComplete || data.metrics.loadTime);
     console.log(&apos;per data perf&apos;, perfAvg);
   });
 
