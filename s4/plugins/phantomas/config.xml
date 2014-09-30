@@ -284,7 +284,8 @@ UPSTREAM_BUILD_NUMBER=$BUILD_NUMBER
 UPSTREAM_BUILD_URL=$BUILD_URL
 UPSTREAM_JOB_NAME=$JOB_NAME
 UPSTREAM_DATA=$WORKSPACE/build.json
-UPSTREAM_WORKSPACE=$WORKSPACE</properties>
+UPSTREAM_WORKSPACE=$WORKSPACE
+MAIL_SUBJECT=Greenskin - Asserts failed for $JOB_NAME - $BUILD_URL</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
           <projects>mailer,mailer-daily,mailer-weekly</projects>
