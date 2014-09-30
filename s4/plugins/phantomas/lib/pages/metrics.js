@@ -22,6 +22,9 @@ function MetricPage(config, data) {
   // Some validation
   if (!(config.jenkinsUI)) throw new Error('Missing Jenkins UI config');
   if (!(data.job && data.job.name)) throw new Error('Data not proper structure, job not defined');
+
+  // default from last 24h
+  this.from = 86400000;
 }
 
 util.inherits(MetricPage, events.EventEmitter);
@@ -88,23 +91,6 @@ MetricPage.prototype.buildMetrics = function buildMetrics(done) {
 
 };
 
-MetricPage.prototype.group = function group(results) {
-  var data = {};
-
-  results.forEach(function(result) {
-    var target = result.target;
-    var parts = target.split(/\./);
-    var url = parts[0];
-    var metric = parts[1];
-
-    var entry = data[metric] || {};
-    // entry[url] = (entry[url] || []).concat(result.data);
-    entry[url] = result;
-    data[metric] = entry;
-  });
-
-  return data;
-};
 
 // Returns an array of array of Series object from grouped data
 MetricPage.prototype.series = function _series(data) {
@@ -112,17 +98,6 @@ MetricPage.prototype.series = function _series(data) {
   var asserts = this.getAsserts() || {};
   results = Object.keys(data).map(function(metric) {
     var metricSeries = data[metric];
-    // var series = Object.keys(metricSeries).map(function(url) {
-    //   var result = metricSeries[url];
-    //   var data = result.data;
-    //
-    //   console.log('result', result);
-    //   return {
-    //     name: url,
-    //     xaxis: result.categories,
-    //     data: data
-    //   };
-    // });
 
     return {
       target: metric,
@@ -130,6 +105,42 @@ MetricPage.prototype.series = function _series(data) {
       xaxis: metricSeries.xaxis,
       series: metricSeries.series
     };
+  });
+
+  // Filters out results based on timestamp and from param
+  var now = Date.now();
+  results = results.map(function(metric) {
+
+    metric.series = metric.series.map(function(serie) {
+
+      serie.data = serie.data.filter(function(data, i) {
+        var xaxis = metric.xaxis[i];
+        var m = moment(xaxis);
+        console.log('compare to', serie.name, m.format('MMMM Do YYYY, h:mm:ss a'), xaxis, now, now - xaxis, this.from, (now - xaxis) < this.from);
+        return (now - xaxis) < this.from;
+      }, this);
+
+      return serie;
+    }, this);
+
+    metric.xaxis = metric.xaxis.filter(function(xaxis, i) {
+      return (now - xaxis) < this.from;
+    }, this);
+
+    return metric;
+  }, this);
+
+  console.log(results[0]);
+  console.log(results[0].series);
+
+  // Translate timestamp into human readable dates
+  results = results.map(function(metric) {
+    metric.xaxis = metric.xaxis.map(function(xaxis) {
+      var m = moment(xaxis);
+      return m.format('MMMM Do YYYY, h:mm:ss a');
+    });
+
+    return metric;
   });
 
   return results;

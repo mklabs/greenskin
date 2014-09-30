@@ -110,6 +110,8 @@ router.get('/:name/metrics', function(req, res, next) {
     var query = req.query.query ? req.query.query : '**';
     metricPage.query(query);
 
+    if (req.query.from) metricPage.from = req.query.from;
+
     metricPage.build(function(err, page) {
       if (err) return next(err);
       page.query = query;

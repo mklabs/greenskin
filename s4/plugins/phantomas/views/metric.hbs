@@ -25,19 +25,23 @@
       </a>
       {{/job.urls}}
     </div>
-    <div class="btn-group">...</div>
-    <div class="btn-group">...</div>
+    <div class="btn-group">/</div>
+    <div class="btn-group right">
+      <a href="?from=604800000" class="btn btn-default">
+        last 7d
+      </a>
+      <a href="?from=86400000" class="btn btn-default">
+        last 24h
+      </a>
+      <a href="?from=43200000" class="btn btn-default">
+        last 12h
+      </a>
+      <a href="?from=21600000" class="btn btn-default">
+        last 6h
+      </a>
+    </div>
   </div>
 
-  <form class="form metrics-form metrics-toolbar-item"
-    action="/{{job.namespace}}/{{job.name}}/metrics" style="min-width: 250px">
-    <input
-      name="query"
-      value="{{ query }}"
-      placeholder="Metric key (Ex. **, *.*, url.*, *.key, url.key)"
-      class="form-control"
-    />
-  </form>
 </div>
 
 <div class="phantomas-metrics row">
