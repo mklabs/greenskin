@@ -57,7 +57,8 @@ router.get('/:name', function(req, res, next) {
   page.on('error', next);
   page.on('next', next);
   page.on('end', function(data) {
-    res.redirect('/webpagetest/' + data.job.name + '/' + data.job.lastBuild.number);
+    var number = data.job.lastBuild && data.job.lastBuild.number;
+    res.redirect('/webpagetest/' + data.job.name + '/' + (number || 1));
   });
 });
 
