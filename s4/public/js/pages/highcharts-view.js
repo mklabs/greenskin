@@ -146,7 +146,10 @@
         text: this.options.name || ''
       },
       xAxis: {
-        categories: this.options.xaxis
+        categories: this.options.xaxis,
+        labels: {
+          enabled: false
+        }
       },
       series: this.options.series
     });
