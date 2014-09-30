@@ -1,0 +1,33 @@
+
+{{#summary}}
+  {{> job_summary }}
+{{/summary}}
+
+<!-- Nav tabs -->
+{{#tabs tab job}}
+  <li>
+    <a href="/{{ job.namespace }}/{{ job.name }}/metrics">Metrics</a>
+  </li>
+  <li>
+    <a href="/{{ job.namespace }}/{{ job.name }}/asserts">Asserts</a>
+  </li>
+  {{#number}}
+  <li class="active">
+    <a href="#">Build {{ . }}</a>
+  </li>
+  {{/number}}
+{{/tabs}}
+
+
+<div class="js-build" data-animated="{{ animated }}" data-number="{{ job.lastBuild.number }}" data-last="{{ last }}" data-pending="{{ pending }}">
+
+  {{#job._urls}}
+    {{> webpagetest_job_urls }}
+  {{/job._urls}}
+
+
+</div>
+
+{{#extend "scripts"}}
+<script src="/js/pages/wpt-build.js"></script>
+{{/extend}}

@@ -1,0 +1,99 @@
+{{#extend 'stylesheets'}}
+<link rel="stylesheet" href="/phantomas/stylesheets/metrics.css">
+<link rel="stylesheet" href="/stylesheets/blocks/graph.css">
+{{/extend}}
+
+{{> job_summary }}
+
+{{#tabs tabs job}}
+  <li class="active">
+    <a href="/{{ job.namespace }}/{{ job.name }}/metrics">Metrics</a>
+  </li>
+
+  <li class="">
+    <a href="/{{ job.namespace }}/{{ job.name }}/asserts">Asserts</a>
+  </li>
+{{/tabs}}
+
+<div class="metrics-toolbar">
+ <div class="btn-toolbar metrics-toolbar-item" role="toolbar">
+    <div class="btn-group">
+      {{#job.urls}}
+      <a href="/{{ ../job.namespace }}/{{ ../job.name }}/metrics?query={{cleanUrl .}}.*"
+        class="btn btn-default">
+        {{ . }}
+      </a>
+      {{/job.urls}}
+    </div>
+    <div class="btn-group">/</div>
+    <div class="btn-group right">
+      <a href="?from=604800000" class="btn btn-default">
+        last 7d
+      </a>
+      <a href="?from=86400000" class="btn btn-default">
+        last 24h
+      </a>
+      <a href="?from=43200000" class="btn btn-default">
+        last 12h
+      </a>
+      <a href="?from=21600000" class="btn btn-default">
+        last 6h
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<div class="phantomas-metrics row">
+  {{#metrics}}
+  <div class="col-md-{{ colsize }}">
+    <div class="panel panel-default graph js-graph">
+      <div class="panel-body">
+        <h4 class="js-target">
+          {{ target }}
+        </h4>
+
+        <div class="btn-group graph-btn-group is-hidden js-buttons right">
+          <a href="#" class="js-edit btn btn-default">
+            <span class="glyphicon glyphicon-edit"></span>
+          </a>
+        </div>
+
+        {{#highcharts .}}
+        {{ json }}
+        {{/highcharts}}
+      </div>
+    </div>
+  </div>
+  {{/metrics}}
+</div>
+
+{{^metrics}}
+
+  {{#markdown '{ "inlineCSS": true }'}}
+    The {{ job.name }} job has no metrics associated just yet.
+
+    Try running the build once.
+
+    ```js
+    var yep = 'true';
+
+    ```
+  {{/markdown}}
+
+{{/metrics}}
+
+
+{{#modal}}
+  <div class="modal-body">
+    <div class="js-body"></div>
+
+    {{#markdown}}
+    Use the form above to set or edit the asset value.
+    {{/markdown}}
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary js-save">Save changes</button>
+  </div>
+{{/modal}}
