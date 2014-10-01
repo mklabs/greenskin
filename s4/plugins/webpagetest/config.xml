@@ -1,4 +1,3 @@
-
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
@@ -20,7 +19,7 @@
         <hudson.model.StringParameterDefinition>
           <name>WPT_SERVER</name>
           <description>Remote webpagetest server (ex: http://webpagetest.org or http://wpt.foo-corp.net)</description>
-          <defaultValue>http://dc1-se-prod-kkspeed-02.prod.dc1.kelkoo.net:8080/</defaultValue>
+          <defaultValue>{{ wptServer }}</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>

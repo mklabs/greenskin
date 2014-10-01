@@ -9,9 +9,12 @@ var request = require('request');
 var HarPage = require('../lib/harview');
 var MetricPage = require('../lib/pages/metrics');
 
-var xml = fs.readFileSync(path.join(__dirname, '../config.xml'), 'utf8');
-
 var app = require('..');
+
+var xml = fs.readFileSync(path.join(__dirname, '../config.xml'), 'utf8');
+var config = require('../../../package.json').config;
+
+xml = xml.replace('{{ wptServer }}', config.wptServer);
 
 router.post('/:name/metrics', function(req, res, next) {
   var assert = req.body.assert;
@@ -232,6 +235,7 @@ router.post('/:name/edit', function(req, res, next) {
   var params = req.body;
   var name = params.name;
   var xml = params.xml;
+
   if (!name) return next(new Error('Missing name'));
   if (!xml) return next(new Error('Missing xml'));
 

@@ -179,7 +179,7 @@ You can provision the Jenkins slave by using the
 playbook. It'll install Jenkins plugins like tap and
 parameterized-trigger, and configure a new slave named "jenkins-slave".
 You'll then only need to configure Credentials accordinly and launch the
-slave.
+slave (for Vagrant - 	Remote root directory: /home/vagrant, user: vagrant, password: vagrant)
 
 ### Node app
 
