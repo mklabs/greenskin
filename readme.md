@@ -6,7 +6,7 @@ simple and fun way to monitor Frontend Performance and do functional testing.
 The project is based on the following systems:
 
 - Expressjs - To support the frontend webapp
-- CI Server - Jenkins, Travis or built-in (based on kue)
+- CI Server - Jenkins
 - PhantomJS / Webdriver - For browser automation and collectng metrics
 - Phantomas - Monitoring and assertion tools.
 - Webpagetest - And a local Chrome agent, driven by Xvfb
