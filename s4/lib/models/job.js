@@ -11,6 +11,7 @@ var Mailer = require('./jobs/mailer');
 var MailerDaily = require('./jobs/mailer-daily');
 var MailerWeekly = require('./jobs/mailer-weekly');
 var Webdriver = require('./jobs/webdriver');
+var CleanupWorkspace = require('./jobs/cleanup-workspace');
 
 module.exports = Job;
 
@@ -29,6 +30,7 @@ function Job() {
   this.downstreams.push(new MailerDaily());
   this.downstreams.push(new MailerWeekly());
   this.downstreams.push(new Webdriver());
+  this.downstreams.push(new CleanupWorkspace());
 }
 
 util.inherits(Job, Base);
