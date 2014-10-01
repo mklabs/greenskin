@@ -50,6 +50,9 @@
   "config": {
     "jenkins": "http://192.168.33.12:8080",
     "jenkinsUI": "http://192.168.33.12:8080",
-    "wptServer": "http://192.168.33.13:8080"
+    "wptServer": "http://192.168.33.13:8080",
+    "mails": "daniel.mickael@gmail.com",
+    "mailUser": "root@dc1-se-prod-perf-01.prod.dc1.kelkoo.net",
+    "mailHost": "smtp.dc1.kelkoo.net"
   }
 }

@@ -7,6 +7,9 @@ var request = require('request');
 
 var directory = require('serve-index');
 
+// Config
+var config = require('../../package.json').config;
+
 // Express subapp
 var app = module.exports = express();
 
@@ -51,7 +54,6 @@ app.get('/edit/:name/steps.js', function(req, res, next) {
   job.fetch().on('error', next);
   job.once('sync', function() {
     var jobdata = job.toJSON();
-    console.log('serve step file end', jobdata.json);
     var json = jobdata.json;
     var data = {};
     try {
@@ -89,7 +91,6 @@ app.get('/:name/edit', function(req, res, next) {
 app.post('/:name/edit', function(req, res, next) {
   var params = req.body;
   var name = params.name;
-  var xml = params.xml;
 
   if (!name) return next(new Error('Missing name'));
 
@@ -147,7 +148,6 @@ mochaSteps[0].body = fs.readFileSync(path.join(__dirname, 'mocha-webdriver-stepf
 app.post('/create', function(req, res, next) {
   var params = req.body;
   var name = params.name;
-  var xml = params.xml;
   params.json = params.json_config || params.jsonconfig || params.config || '{}';
 
   var json;
@@ -163,6 +163,9 @@ app.post('/create', function(req, res, next) {
   // Get back XML file from job template param
   fs.readFile(path.join(__dirname, './data', params.template + '.xml'), 'utf8', function(err, xml) {
     if (err) return next(err);
+
+    // replace mails variable in XML
+    xml = xml.replace('{{ mails }}', config.mails);
 
     var job = new app.parent.Job({
       name: name,

@@ -78,7 +78,7 @@ sleep 1
   </builders>
   <publishers>
     <hudson.tasks.Mailer plugin="mailer@1.10">
-      <recipients>mickael.daniel@kelkoo.fr daniel.mickael@gmail.com</recipients>
+      <recipients>{{ mails }}</recipients>
       <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>false</sendToIndividuals>
     </hudson.tasks.Mailer>
