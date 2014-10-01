@@ -7,13 +7,29 @@ The project is based on the following systems:
 
 - Expressjs - To support the frontend webapp
 - CI Server - Jenkins, Travis or built-in (based on kue)
-- Statsd - with support for backend such as Graphite, Cube or raw git.
 - PhantomJS / Webdriver - For browser automation and collectng metrics
-- Phantomas / Browsertime - Monitoring and assertion tools.
-- VM / Slaves / Saucelabs - Provisioning cookbook and tight integraiton
-  to Saucelabs for browser instrumentation
+- Phantomas - Monitoring and assertion tools.
+- Webpagetest - And a local Chrome agent, driven by Xvfb
 
 The webapp is only one part of the system, we provide ansible playbooks & basic install script for provisioning the main server (required), and (optional) remote slaves.
+
+## Components
+
+Frontend
+
+- bootstrap v3
+- CodeMirror
+- socket.io
+- momentjs
+- highcharts
+- screenfull.js
+- jquery-cron
+- jsonlint
+- select2
+- har-viewer
+- ansiparse (with a bit of CSS from travis.org)
+- cucumber/gherkin
+
 
 ![](docs/imgs/intro.png)
 
@@ -31,18 +47,6 @@ In [docs/](docs/) directory
   generated workspace, and shared files accross builds.
 - [Subapps](docs/plugins.md) - Extension points and plugin / subapps system.
 
-## Relates projects
-
-Projects / packages created for Greenskin
-
-- https://github.com/mklabs/propo
-- https://github.com/mklabs/jobb
-- https://github.com/mklabs/gistmailer
-- https://github.com/mklabs/statsd-fs
-- https://github.com/mklabs/wd-gherkin
-- https://github.com/mklabs/saucelabs-browsertime
-
-All in alpha state, though some have comprehensive test suites.
 
 ## How it looks
 
@@ -102,24 +106,21 @@ A simple list of the last builds for a particular job.
 ![](docs/imgs/build-history.png)
 
 
-## Components
-
-Frontend
-
-- bootstrap v3
-- CodeMirror
-- socket.io
-- momentjs
-- highcharts
-- screenfull.js
-- jquery-cron
-- jsonlint
-- select2
-- har-viewer
-- ansiparse (with a bit of CSS from travis.org)
-- cucumber/gherkin
-
 ## Docs
+
+### Get started
+
+The quickest way to get started is to use Vagrant and Ansible to
+provision a new VM (or use ansible playbooks without Vagrant).
+
+    # Boot vagrant
+    $ vagrant up
+
+This command should start off two VMS, a master and a slave.
+
+- master: Holds Jenkins and the node.js application
+- slave: Jenkins slave and WebPagetest server and agent
+
 
 ### Jenkins
 
@@ -127,10 +128,10 @@ The application needs a Jenkins instance to work with. You can use an
 existing Jenkins instance or use a dedicated one.
 
 To quicly provision a new Jenkins, you can use the
-`vms/jenkins-master/install.sh` file, or use vagrant at the root of the
+`vms/greenskin-ansible/playbooks/greenskin-master/site.yml` playbook, or use vagrant at the root of the
 repo and run `vagrant up gs-master`.
 
-Then, check that these plugins are installed at  http://$hostname/jenkins/pluginManager/ (where $hostname is the machine FQDN)
+Then, check that these plugins are installed at  http://$hostname/pluginManager/ (where $hostname is the machine FQDN)
 
 - TAP Plugin (required for test reports)
 - Parameterized Trigger Plugin (required for running downstream Jobs)
@@ -141,10 +142,12 @@ Though you can run Jobs on master, it is highly recommended to use a
 slave for this purpose.
 
 You can provision a new machine with everything needed by Greenskin
-using the `vms/jenkins-slave/install_jenkins_slave.sh` file, or use
-vagrant at the root of the and run `vagrant up gs-slave`.
+using the
+`vms/greenskin-ansible/playbooks/greenskin-slave/site.yml` playbook, or use
+vagrant at the root of the repo and run `vagrant up gs-slave`.
 
-Then, you'll need to configure Jenkins to add and connect a new "node":
+Then, you'll need to configure Jenkins to add and connect a new "node"
+and configure a new slave:
 http://$hostname/jenkins/computer/new
 
 1. Choose a name for the node, like `jenkins-slave`. If not using
@@ -159,6 +162,13 @@ http://$hostname/jenkins/computer/new
    name and password, or using a private key file.
 8. Click save
 
+You can provision the Jenkins slave by using the
+`vms/greenskin-ansible/playbooks/greenskin-jenkins-configure/site.yml`
+playbook. It'll install Jenkins plugins like tap and
+parameterized-trigger, and configure a new slave named "jenkins-slave".
+You'll then only need to configure Credentials accordinly and launch the
+slave.
+
 ### Node app
 
 cd into `s4/` and install dependencies.
@@ -170,6 +180,9 @@ cd into `s4/` and install dependencies.
     npm i
 
     cd ../../plugins/feature
+    npm i
+
+    cd ../../plugins/webpagetest
     npm i
 
 Ensure the Jenkins config in package.json is correct and match the
@@ -198,6 +211,20 @@ Once a build has completed, you should be able to see the list of
 Metrics and Asserts by clicking on the corresponding tab. Specify
 asserts by clicking on the "Edit" button for each graphs.
 
+#### First job: Webpagetest
+
+Click on the "Create WebPagetest Job (chrome)" button and fill the form.
+Specify a name, and a list of URLs to analyse.
+
+You can verify or edit the JSON configuration passed to [webpagetest-api](https://github.com/marcelduran/webpagetest-api), a spec file as documented in the [dedicated page](https://github.com/marcelduran/webpagetest-api/wiki/Test-Specs).
+
+Click save, it should create a new Job in Jenkins that you can run.
+
+Once a build has completed, you should be able to see the list of
+Metrics and Asserts by clicking on the corresponding tab. Specify
+asserts by clicking on the "Edit" button for each graphs, it'll update
+the JSON configuration.
+
 #### First job: Feature
 
 Click on the "Create job (functional)" button and fill the form.
@@ -223,3 +250,6 @@ When creating a Job, the following set of downstream Jobs are created:
   emails every week.
 * webdriver-kill - Downstream of any feature Job. Takes care of killing
   PhantomJS webdriver process.
+* cleanup-workspace - Maintenance Job to run once in a while with
+  JOB_NAME parameter set to one of the Job to cleanup. It'll removes
+  any build dir and metrics older than the parameter NUMBER_OF_BUILDS
