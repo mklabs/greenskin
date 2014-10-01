@@ -100,7 +100,7 @@ router.get('/:name/:number', function(req, res, next) {
           json = JSON.parse(body);
         } catch(e) {}
 
-        if (!json.response) return done(new Error('Failed to load data for build #' + data.number));
+        if (!(json.response && json.response.data && json.response.data.run)) return done(new Error('Failed to load data for build #' + data.number));
 
         url.summary = json.response.data.summary;
         url.testid = json.response.data.testId;

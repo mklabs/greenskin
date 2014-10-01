@@ -83,7 +83,7 @@ Base.prototype.fetch = function fetch(done) {
     job: this.client.get.bind(this.client, name),
     xml: this.client.config.bind(this.client, name)
   }, function(err, results) {
-    if (err) return me.error(err, results);
+    if (err) return me.error(err);
     me.set(results.job);
     me.set('xml', results.xml);
 
@@ -128,7 +128,7 @@ Base.prototype.fetchBuilds = function fetchBuilds(done) {
 
     build.fetch();
   }, function(err) {
-    if (err) return me.error(err, results);
+    if (err) return me.error(err);
     me.emit('sync');
     done();
   });
