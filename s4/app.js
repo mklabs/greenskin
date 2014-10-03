@@ -53,6 +53,7 @@ app.use(logger('dev'));
 
 // GS routes
 app.use('/', require('./routes'));
+app.use('/dashboard', require('./routes/dashboard'));
 
 // Subapps
 fs.readdirSync(path.join(__dirname, 'plugins')).forEach(function(dir) {
