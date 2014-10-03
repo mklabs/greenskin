@@ -96,13 +96,17 @@ function buildDashboardData(data, next) {
       });
 
       // number of metrics
-      job.data.numberOfMetrics = job.data.data.map(function(item) {
+      job.data.numberOfMetrics = job.data.data.filter(function(item) {
+        return item.metrics;
+      }).map(function(item) {
         return Object.keys(item.metrics).length;
       }).reduce(function(a, b) {
         return a + b;
       }, 0);
 
-      job.data.numberOfFailedAsserts = job.data.data.map(function(item) {
+      job.data.numberOfFailedAsserts = job.data.data.filter(function(item) {
+        return item._asserts;
+      }).map(function(item) {
         return item._asserts.failedCount;
       }).reduce(function(a, b) {
         return a + b;
