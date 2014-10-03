@@ -133,6 +133,19 @@ This command should start off two VMS, a master and a slave.
 - master: Holds Jenkins and the node.js application
 - slave: Jenkins slave and WebPagetest server and agent
 
+### Config
+
+Application config is stored in the `package.json` file, with the
+following values:
+
+- jenkins: Jenkins URL (ex: http://192.168.33.12:8080)
+- jenkinsUI: Jenkins URL used in the Web UI (ex: http://192.168.33.12:8080)
+- wptServer: WebPagetest server URL (ex: http://192.168.33.13:8080)
+- mails: List of email address to notify when asserts fail, or for the
+  daily / weekly report. Whitespace separated.
+- mailUser: Mail user to use when sending email
+- mailHost: SMTP Mail host to use when sending email
+
 
 ### Jenkins
 
