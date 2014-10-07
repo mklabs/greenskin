@@ -23,8 +23,8 @@
       <th>Type</th>
       <th>Last Success</th>
       <th>Last Failure</th>
-      <th>Last Duration</th>
-      <th>Number of Metrics</th>
+      <th>Perf avg</th>
+      <th>Number of failed builds</th>
       <th>Number of failed asserts</th>
       <th>Availability</th>
       <th></th>
@@ -58,18 +58,24 @@
         </a>
       </td>
       <td>
-        <a href="/{{ namespace }}/{{ name }}/{{ lastBuild.number }}">
-        {{ lastBuild.duration }}
-        </a>
+        <span class="label label-{{ data.loadTimeColor }}">
+          {{ data.perfAvg }}ms
+        </span>
+
+        <span class="glyphicon glyphicon-arrow-{{ data.loadTimeArrow }}"></span> (Assert: {{data.assertLoadTime}})
       </td>
       <td>
-        {{ data.numberOfMetrics }}
+        {{ data.numberOfFailedBuilds }}
       </td>
       <td>
         {{ data.numberOfFailedAsserts }}
       </td>
       <td>
-        {{ data.availability }}%
+        <span class="label label-{{ data.availabilityColor }}">
+          {{ data.availability }}%
+        </span>
+
+        <span class="glyphicon glyphicon-arrow-{{ data.availabilityArrow }}"></span> (Avg: {{data.availabilityAvg}})
       </td>
       <td>
         <input class="js-target" type="checkbox" name="{{ name }}" {{#data.selected}}checked="checked"{{/data.selected}}>

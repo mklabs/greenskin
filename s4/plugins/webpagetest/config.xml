@@ -262,6 +262,59 @@ console.log(buildData);
 
 fs.writeFileSync(&apos;./build.json&apos;, JSON.stringify(buildData));</command>
     </hudson.tasks.Shell>
+
+    <hudson.tasks.Shell>
+      <command>#!/usr/bin/env node
+
+// Script to generate metrics.json file for highcharts views
+
+var fs    = require(&apos;fs&apos;);
+var path  = require(&apos;path&apos;);
+
+var read = fs.readFileSync;
+var exists = fs.existsSync;
+
+if (!exists(&apos;./build.json&apos;)) throw new Error(&apos;Missing build.json file. Please, run phantomas-format before&apos;);
+
+var builds = require(path.resolve(&apos;./build.json&apos;)).filter(function(metrics) {
+  // Filters out null data
+  return metrics;
+});
+
+var availabilities = builds.map(function(build) {
+  var nbOfMetrics = Object.keys(build.metrics).length;
+  var nbOfFailedAsserts = build._asserts.failedCount;
+  var availability = 100 - ((nbOfFailedAsserts * 100) / nbOfMetrics);
+  return availability;
+});
+
+console.log(&apos;availabilities&apos;, availabilities);
+
+var availabilityAvg = availabilities.reduce(function(a, b) {
+  return a + b;
+}, 0);
+
+availabilityAvg = availabilityAvg / availabilities.length;
+
+console.log(&apos;availabilityAvg&apos;, availabilityAvg);
+
+var availabilityFile = exists(&apos;./availabilities.json&apos;) ? require(path.resolve(&apos;./availabilities.json&apos;)) : [];
+
+availabilityFile = availabilityFile.filter(function(availability, i) {
+  return i + 20 &gt;= availabilityFile.length;
+});
+
+availabilityFile.push(availabilityAvg);
+
+fs.writeFileSync(&apos;availabilities.json&apos;, JSON.stringify(availabilityFile));
+
+
+function requireWS(file) {
+  return require(process.env.WORKSPACE ? path.join(process.env.WORKSPACE, &apos;node_modules&apos;, file) : file);
+}</command>
+    </hudson.tasks.Shell>
+
+
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
