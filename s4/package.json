@@ -48,10 +48,10 @@
     "mocha": "^1.18.2"
   },
   "config": {
-    "jenkins": "http://192.168.33.12:8080",
-    "jenkinsUI": "http://192.168.33.12:8080",
-    "wptServer": "http://192.168.33.13:8080",
-    "mails": "daniel.mickael@gmail.com",
+    "jenkins": "http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/",
+    "jenkinsUI": "http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/",
+    "wptServer": "http://dc1-se-prod-kkspeed-02.prod.dc1.kelkoo.net:8080/",
+    "mails": "mickael.daniel@kelkoo.fr",
     "mailUser": "root@dc1-se-prod-perf-01.prod.dc1.kelkoo.net",
     "mailHost": "smtp.dc1.kelkoo.net"
   }

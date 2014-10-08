@@ -1,0 +1,23 @@
+
+- name: download phantomjs
+  get_url: url=https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
+           dest=/tmp/phantomjs.tar.bz2
+
+- name: untar phantomjs
+  shell: chdir=/tmp tar xjf phantomjs.tar.bz2 creates=/tmp/phantomjs
+
+- name: copy phantomjs
+  shell: chdir=/tmp cp -r /tmp/phantomjs /var/lib/phantomjs creates=/var/lib/phantomjs
+
+- name: symlink the phantomjs executable
+  file: dest=/usr/bin/phantomjs src=/var/lib/phantomjs/bin/phantomjs state=link
+  sudo: yes
+
+- name: Ensure phantomjs init.d script
+  template: src=phantomjs-init.d.j2 dest=/etc/init.d/phantomjs mode=0755
+  sudo: yes
+
+- name: Start Phantomjs
+  service: name=phantomjs pattern="phantomjs --webdriver=9134" state=started enabled=yes
+  sudo: yes
+
