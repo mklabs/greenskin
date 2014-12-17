@@ -53,6 +53,7 @@
     "wptServer": "http://dc1-se-prod-kkspeed-02.prod.dc1.kelkoo.net:8080/",
     "mails": "mickael.daniel@kelkoo.fr",
     "mailUser": "root@dc1-se-prod-perf-01.prod.dc1.kelkoo.net",
-    "mailHost": "smtp.dc1.kelkoo.net"
+    "mailHost": "smtp.dc1.kelkoo.net",
+    "ignoredJobs": ["cleanup-workspace", "mailer", "mailer-daily", "mailer-weekly", "statsd_send", "webdriver_kill"]
   }
 }

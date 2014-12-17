@@ -39,10 +39,13 @@ Model.prototype.setup = function setup(config) {
   this.client = this.createClient(this.backend);
 };
 
+// client singleton
+
+var client = new Jenkins({ host: config.jenkins });
+
 Model.prototype.createClient = function createClient(type) {
-  // debug('Create client for backend', type);
-  if (type === 'jenkins') this.client = new Jenkins({ host: config.jenkins });
-  if (!this.client) throw new Error('Backend ' + type + 'not implemented');
+  // if (type === 'jenkins') this.client = new Jenkins({ host: config.jenkins });
+  if (!this.client) this.client = client;
   return this.client;
 };
 

@@ -48,6 +48,30 @@ router.get('/view/:name/run', function(req, res, next) {
   });
 });
 
+// Namespace redirections route. Ask jenkins for full XML, parse
+// it to determine the type, then redirect to proper namespace.
+router.get('/ns/:name', function(req, res, next) {
+  var job = new Job({
+    name: req.params.name
+  });
+
+  job.on('error', next)
+  job.fetch().on('sync', function() {
+    res.redirect('/' + job.type + '/' + job.name);
+  });
+});
+
+router.get('/ns/:name/:number', function(req, res, next) {
+  var job = new Job({
+    name: req.params.name
+  });
+
+  job.on('error', next)
+  job.fetch().on('sync', function() {
+    res.redirect('/' + job.type + '/' + job.name + '/' + req.params.number);
+  });
+});
+
 router.get('/view/:name', function(req, res, next) {
   var page = new LastBuildPage(req.params);
 

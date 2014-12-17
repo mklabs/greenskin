@@ -78,12 +78,16 @@ Base.prototype.fetch = function fetch(done) {
   var me = this;
   done = done || function() {};
 
+  debug('Begin base fetch');
+
   var name = this.get('name');
   async.parallel({
     job: this.client.get.bind(this.client, name),
     xml: this.client.config.bind(this.client, name)
   }, function(err, results) {
     if (err) return me.error(err);
+
+    debug('Done base fetch');
     me.set(results.job);
     me.set('xml', results.xml);
 
@@ -93,7 +97,9 @@ Base.prototype.fetch = function fetch(done) {
     if (me.script) me.script();
     if (me.jsonConfig) me.jsonConfig();
 
-    me.fetchBuilds(done);
+    // me.fetchBuilds(done);
+    done();
+    me.emit('sync');
   });
 
   return this;
