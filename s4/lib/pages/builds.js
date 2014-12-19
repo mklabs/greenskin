@@ -6,6 +6,9 @@ var async = require('async');
 var Job = require('../models/job');
 var Build = require('../models/build');
 
+var debug   = require('debug')('gs:pages:builds');
+
+
 // Kind of model, wraps model for action
 module.exports = BuildsPage;
 
@@ -25,12 +28,14 @@ function BuildsPage(options) {
 util.inherits(BuildsPage, EventEmitter);
 
 BuildsPage.prototype.fetch = function fetch() {
+  debug('Build page fetch');
   this.job.fetch()
     .on('error', this.error.bind(this))
     .on('sync', this.synced.bind(this));
 };
 
 BuildsPage.prototype.synced = function synced(err) {
+  debug('Build page synced');
   var self = this;
   var job = this.job;
   async.map(this.job.get('builds'), function(data, done) {

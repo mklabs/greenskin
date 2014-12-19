@@ -24,7 +24,7 @@ function MetricPage(config, data) {
   if (!(data.job && data.job.name)) throw new Error('Data not proper structure, job not defined');
 
   // default from last 24h
-  this.from = 86400000;
+  this.from = '';
   this.target = '';
 }
 
@@ -34,13 +34,73 @@ MetricPage.prototype.query = function query(value) {
   if (!value) return this._query;
   this._query = value;
   return this;
-}
+};
+
+MetricPage.prototype.buildGraphite = function buildGraphite(done) {
+  // http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/job/R8_FR/3849/api/json?pretty=true
+  var buildurl = this.data.job.lastBuild.url + 'api/json';
+  var config = this.config;
+  var data = this.data;
+  var target = this.target;
+  var from = this.from;
+
+  var asserts = this.getAsserts() || {};
+
+  request(buildurl, function(err, response, body) {
+    if (err) return done(err);
+    if (response.statusCode !== 200) return done(new Error('Cannot GET ' + buildurl));
+    var json = JSON.parse(body);
+    var builtOn = json.builtOn;
+
+    var graphiteUrl = config.graphite + '/metrics/find?query=greenskin.' + builtOn + '.' + data.job.name + '.*.*'
+
+    request(graphiteUrl, function(err, response, body) {
+      if (err) return done(err);
+      if (response.statusCode !== 200) return done(new Error('Cannot GET ' + buildurl));
+      var metrics = JSON.parse(body);
+
+      metrics = metrics.map(function(metric, i, arr) {
+        var assert = asserts[metric.text];
+
+        return {
+          target: metric.text,
+          id: metric.id,
+          assert: assert,
+          colsize: arr.length <= 3 ? 12 : 4,
+          expand: arr.length <= 3,
+          url: config.graphite + '/render?target=' + metric.id + '&lineMode=connected' +
+            (assert ? '&target=constantLine(' + assert + ')' : '' ) +
+            '&height=600&width=800&fgcolor=black&bgcolor=white&fontSize=14' +
+            (from ? '&from=' + from : '')
+        }
+      });
+
+      data._metrics = metrics;
+
+      // Filters out results based on target
+      if (target) metrics = metrics.filter(function(result) {
+        return result.target === target;
+      }).map(function(result) {
+        if (result.target === target) result.selected = true;
+        return result;
+      });
+
+
+      data.metrics = metrics;
+      return done(null, data);
+    });
+
+  });
+};
 
 // Page helper for har view
 MetricPage.prototype.build = function build(done) {
   var data = this.data;
   var target = this.target;
+
+  debug('MetricPage#build');
   this.buildMetrics(function(err, metrics) {
+    debug('MetricPage#build end');
     if (err) return done(err);
 
     if (metrics) {
@@ -73,6 +133,7 @@ MetricPage.prototype.build = function build(done) {
 
     }
 
+    debug('MetricPage#build done');
     done(null, data);
   });
 };
@@ -85,10 +146,6 @@ MetricPage.prototype.getAsserts = function getAsserts() {
 
 // Returns an array of metrics object, like so
 MetricPage.prototype.buildMetrics = function buildMetrics(done) {
-  var query = {};
-  query.from = this.from;
-  query.key = this.query();
-
   var me = this;
 
   var fileurl = this.data.job.url + 'ws/metrics.json';

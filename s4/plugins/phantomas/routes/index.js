@@ -22,15 +22,19 @@ router.post('/:name/metrics', function(req, res, next) {
   job.on('error', next);
 
   job.on('saved', function() {
-    res.redirect('/' + job.type + '/' + job.name + '/metrics/*.' + target);
+    res.redirect('/' + job.type + '/' + job.name + '/metrics');
   });
 
   job.on('sync', function(data) {
     var json = job.get('json');
     var conf = job.get('jsonConfig');
-    console.log(conf, conf[target]);
     conf.asserts = conf.asserts || {};
-    conf.asserts[target] = parseFloat(assert);
+
+    if (assert === '') {
+      delete conf.asserts[target];
+    } else {
+      conf.asserts[target] = parseFloat(assert);
+    }
 
     job.jsonConfig(JSON.stringify(conf));
     job.save();
@@ -94,30 +98,43 @@ router.get('/:name/:number', function(req, res, next) {
 });
 
 router.get('/:name/metrics', function(req, res, next) {
+  debug('Start metrics');
+
   var name = req.params.name;
   var from = req.query.from;
 
-  var page = new app.gs.BuildsPage({
+  var job = new app.gs.Job({
     name: name
   });
 
-  page.on('error', next);
-  page.on('end', function(data) {
-    data.from = req.query.from;
-    // console.log('data job', data, 'data job');
-    var metricPage = new MetricPage(app.gs.config, data);
+  debug('Created job');
 
-    var query = req.query.query ? req.query.query : '**';
-    metricPage.query(query);
+  job.fetch()
+    .on('error', function(err) {
+      err = err || new Error('Job model raised an error');
+      next(err);
+    })
+    .on('sync', function() {
+      debug('End');
 
-    if (req.query.from) metricPage.from = req.query.from;
+      var metricPage = new MetricPage(app.gs.config, {
+        from: req.query.from,
+        job: job.toJSON()
+      });
 
-    metricPage.build(function(err, page) {
-      if (err) return next(err);
-      page.query = query;
-      res.render('metric', page);
+      var query = req.query.query ? req.query.query : '**';
+      metricPage.query(query);
+
+      if (req.query.from) metricPage.from = req.query.from;
+
+      debug('metric page build');
+      metricPage.buildGraphite(function(err, page) {
+        debug('metric page build end');
+        if (err) return next(err);
+        page.query = query;
+        res.render('metric', page);
+      });
     });
-  });
 });
 
 router.get('/:name/metrics/:target', function(req, res, next) {
@@ -125,22 +142,34 @@ router.get('/:name/metrics/:target', function(req, res, next) {
   var from = req.query.from;
   var target = req.params.target;
 
-  var page = new app.gs.BuildsPage({
+  var job = new app.gs.Job({
     name: name
   });
 
-  page.on('error', next);
-  page.on('end', function(data) {
-    var metricPage = new MetricPage(app.gs.config, data);
+  job.fetch()
+    .on('error', function(err) {
+      err = err || new Error('Job model raised an error');
+      next(err);
+    })
+    .on('sync', function() {
+      var metricPage = new MetricPage(app.gs.config, {
+        from: req.query.from,
+        job: job.toJSON()
+      });
 
-    if (req.query.from) metricPage.from = req.query.from;
-    if (target) metricPage.target = target;
+      var query = req.query.query ? req.query.query : '**';
+      metricPage.query(query);
 
-    metricPage.build(function(err, page) {
-      if (err) return next(err);
-      res.render('metric', page);
+      if (req.query.from) metricPage.from = req.query.from;
+      if (target) metricPage.target = target;
+
+      metricPage.buildGraphite(function(err, page) {
+        debug('metric page build end');
+        if (err) return next(err);
+        page.query = query;
+        res.render('metric', page);
+      });
     });
-  });
 });
 
 

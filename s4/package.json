@@ -50,6 +50,7 @@
   "config": {
     "jenkins": "http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/",
     "jenkinsUI": "http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/",
+    "graphite": "http://dc1-se-prod-admin-02.prod.dc1.kelkoo.net",
     "wptServer": "http://dc1-se-prod-kkspeed-02.prod.dc1.kelkoo.net:8080/",
     "mails": "mickael.daniel@kelkoo.fr",
     "mailUser": "root@dc1-se-prod-perf-01.prod.dc1.kelkoo.net",
