@@ -68,6 +68,7 @@ MetricPage.prototype.buildGraphite = function buildGraphite(done) {
           assert: assert,
           colsize: arr.length <= 3 ? 12 : 4,
           expand: arr.length <= 3,
+          action: '/' + data.job.type + '/' + data.job.name + '/metrics',
           url: config.graphite + '/render?target=' + metric.id + '&lineMode=connected' +
             (assert ? '&target=constantLine(' + assert + ')' : '' ) +
             '&height=600&width=800&fgcolor=black&bgcolor=white&fontSize=14' +

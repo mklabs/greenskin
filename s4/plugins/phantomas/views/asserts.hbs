@@ -1,7 +1,20 @@
 {{#extend 'stylesheets'}}
 <link rel="stylesheet" href="/phantomas/stylesheets/metrics.css">
 <link rel="stylesheet" href="/stylesheets/blocks/graph.css">
+<style>
+.graph .graph-graphite-img { max-width: 100%; }
+.graph .graph-graphite-img:hover {
+  -webkit-box-shadow: 0px 0px 8px 0px #ccc;
+          box-shadow: 0px 0px 8px 0px #ccc;
+          cursor: pointer;
+}
+</style>
 {{/extend}}
+
+{{#extend "scripts"}}
+<script src="/js/pages/graphite-panel.js"></script>
+{{/extend}}
+
 
 {{> job_summary }}
 
@@ -18,7 +31,7 @@
 <div class="phantomas-metrics row">
   {{#metrics}}
   <div class="col-md-{{ colsize }}">
-    <div class="panel panel-default graph js-graph">
+    <div class="panel panel-default graph js-graph" data-name="{{ target }}" data-assert="{{ assert }}" data-action="{{ action }}">
       <div class="panel-body">
         <h4 class="js-target">
           {{ target }}
@@ -30,9 +43,7 @@
           </a>
         </div>
 
-        {{#highcharts .}}
-        {{ json }}
-        {{/highcharts}}
+        <img class="graph-graphite-img js-img" src="{{ url }}" />
       </div>
     </div>
   </div>

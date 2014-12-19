@@ -35,10 +35,7 @@
 
 
     this.$el.on('click', '.js-edit', function(e) {
-      var dialog = new Dialog($('.js-modal'), {
-        assert: data.assert,
-        name: data.name
-      });
+      var dialog = new Dialog($('.js-modal'), data);
 
       dialog.dialog();
 

@@ -177,29 +177,42 @@ router.get('/:name/asserts', function(req, res, next) {
   var name = req.params.name;
   var from = req.query.from;
 
-  var page = new app.gs.BuildsPage({
+  var job = new app.gs.Job({
     name: name
   });
 
-  page.on('error', next);
-  page.on('end', function(data) {
-    data.from = req.query.from;
-    var metricPage = new MetricPage(app.gs.config, data);
+  job.fetch()
+    .on('error', function(err) {
+      err = err || new Error('Job model raised an error');
+      next(err);
+    })
+    .on('sync', function() {
+      debug('End');
 
-    var query = req.query.query ? req.query.query : '**';
-    metricPage.query(query);
-
-    metricPage.build(function(err, page) {
-      if (err) return next(err);
-      page.query = query;
-
-      page.metrics = page.metrics.filter(function(metric) {
-        return metric.assert;
+      var metricPage = new MetricPage(app.gs.config, {
+        from: req.query.from,
+        job: job.toJSON()
       });
 
-      res.render('asserts', page);
+      var query = req.query.query ? req.query.query : '**';
+      metricPage.query(query);
+
+      if (req.query.from) metricPage.from = req.query.from;
+
+      debug('metric page build');
+      metricPage.buildGraphite(function(err, page) {
+        debug('metric page build end');
+        if (err) return next(err);
+        page.query = query;
+
+        page.metrics = page.metrics.filter(function(metric) {
+          return metric.assert;
+        });
+
+        res.render('asserts', page);
+      });
     });
-  });
+
 });
 
 router.get('/:name/builds', function(req, res, next) {
