@@ -21,6 +21,11 @@
           <description>Phantomas JSON config.</description>
           <defaultValue><![CDATA[{"no-externals":false,"allow-domain":".kk-data.com","asserts":{"requests":55}}]]></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>GRAPHITE_HOST</name>
+          <description></description>
+          <defaultValue>dc1-se-prod-admin-02.prod.dc1.kelkoo.net</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -175,94 +180,11 @@ function requireWS(file) {
   return require(env.WORKSPACE ? path.join(env.WORKSPACE, 'node_modules', file) : file);
 }</command>
     </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#!/usr/bin/env node
-
-// Script to generate metrics.json file for highcharts views
-
-var fs    = require('fs');
-var path  = require('path');
-var glob  = requireWS('glob');
-var path  = require('path');
-var hogan = requireWS('hogan.js');
-
-var read = fs.readFileSync;
-var exists = fs.existsSync;
-
-var args = process.argv.slice(2);
-var metricFile = args[0] || 'metrics.json';
-
-if (!exists('./build.json')) throw new Error('Missing build.json file. Please, run phantomas-format before');
-
-var buildMetrics = require(path.resolve('./build.json')).filter(function(metrics) {
-  // Filters out null data
-  return metrics;
-});
-
-var metrics = exists(metricFile) ? require(path.resolve(metricFile)) : {};
-
-var results = {};
-
-// Build xaxis &amp; series for each metrics in buildMetrics
-var keys = Object.keys(buildMetrics[0].metrics);
-
-keys.forEach(function(key) {
-  console.log('Build %s metric data', key);
-  var data = metrics[key] || {};
-  console.log('Existing data', data);
-
-  var xaxis = data.xaxis || [];
-  var series = data.series || [];
-
-  // Adds a new xaxis with timestamp
-  xaxis.push(Date.now());
-
-  // And metrics for each URL
-  buildMetrics.forEach(function(buildMetric) {
-    var url = buildMetric.url;
-
-    var serie = series.filter(function(serie) {
-      return serie.name === url;
-    })[0];
-
-    if (!serie) {
-      serie = {};
-      series.push(serie);
-    }
-
-    var serieData = serie.data || [];
-    var value = buildMetric.metrics[key];
-
-    if (typeof value === 'undefined') return;
-
-    // Push the new metric
-    serieData.push(value);
-    console.log('Pushing value %s for key %s in %s', value, key, serieData);
-
-    serie.data = serieData;
-    serie.name = url;
-    console.log(serie);
-  });
-
-
-  data.xaxis = xaxis;
-  data.series = series;
-  results[key] = data;
-});
-
-// Writes metric down to ./metrics.json
-console.log('Writing results to %s with', metricFile, results);
-fs.writeFileSync(metricFile, JSON.stringify(results));
-
-function requireWS(file) {
-  return require(process.env.WORKSPACE ? path.join(process.env.WORKSPACE, 'node_modules', file) : file);
-}</command>
-    </hudson.tasks.Shell>
 
     <hudson.tasks.Shell>
       <command>#!/usr/bin/env node
 
-// Script to generate metrics.json file for highcharts views
+// Script to generate availabilities.json file for highcharts views
 
 var fs    = require(&apos;fs&apos;);
 var path  = require(&apos;path&apos;);
@@ -308,6 +230,39 @@ fs.writeFileSync(&apos;availabilities.json&apos;, JSON.stringify(availabilityFil
 function requireWS(file) {
   return require(process.env.WORKSPACE ? path.join(process.env.WORKSPACE, &apos;node_modules&apos;, file) : file);
 }</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/usr/bin/env node
+
+// Script to generate metrics file to send to graphite
+
+var fs    = require(&apos;fs&apos;);
+var path  = require(&apos;path&apos;);
+
+var read = fs.readFileSync;
+var exists = fs.existsSync;
+
+if (!exists(&apos;./build.json&apos;)) throw new Error(&apos;Missing build.json file.&apos;);
+
+var builds = require(path.resolve(&apos;./build.json&apos;)).filter(function(metrics) {
+  // Filters out null data
+  return metrics;
+});
+
+var metrics = builds.map(function(build) {
+  var prefix = &apos;greenskin.&apos; + process.env.NODE_NAME + &apos;.&apos; + process.env.JOB_NAME + &apos;.&apos; + build.prefix;
+
+  return Object.keys(build.metrics).map(function(metric) {
+     return prefix + &apos;.&apos; + metric + &apos; &apos; + build.metrics[metric] + &apos; &apos; + Math.floor(Date.now() / 1000);
+  }).join(&apos;\n&apos;);
+
+}).join(&apos;\n&apos;);
+
+fs.writeFile(&apos;graphite-metrics.txt&apos;, metrics);</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+cat graphite-metrics.txt | nc $GRAPHITE_HOST 2003</command>
     </hudson.tasks.Shell>
 
   </builders>
