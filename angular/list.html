@@ -1,18 +1,22 @@
 
-<md-content>
-  <md-list>
-    <md-item ng-repeat="job in jobs">
-      <md-item-content>
-        <div class="md-tile-left">
-          <img ng-src="http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/static/5e9680b3/images/32x32/{{ job.color }}.{{ job.color.indexOf('anime') !== -1 ? 'gif' : 'png' }}" alt="{{job.name}}">
-        </div>
-        <div class="md-tile-content">
-          <h3><a href="/#/job/{{ job.name }}">{{job.name}}</a></h3>
-          <h4><a href="{{job.url}}">{{ job.url }}</a></h4>
-        </div>
-      </md-item-content>
-    </md-item>
-  </md-list>
-</md-content>
-
-
+<table class="table js-home">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Name</th>
+      <th>Jenkins Job URL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="job in jobs">
+      <td>
+        <img ng-src="http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/static/5e9680b3/images/32x32/{{ job.color }}.{{ job.color.indexOf('anime') !== -1 ? 'gif' : 'png' }}" alt="{{job.name}}">
+      </td>
+      <td>
+        <a href="/#/job/{{ job.name }}">{{job.name}}</a>
+      </td>
+      <td>
+        <a href="{{job.url}}">{{ job.url }}</a>
+      </td>
+  </tbody>
+</table>

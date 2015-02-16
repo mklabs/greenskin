@@ -1,6 +1,6 @@
 (function(exports) {
 
-  function JobController($scope, $routeParams, $location, $mdDialog, jenkins, graphite, graphiteUrl) {
+  function JobController($scope, $routeParams, $location, jenkins, graphite, graphiteUrl) {
 
     this.scope = $scope;
     this.params = $routeParams;
@@ -8,7 +8,6 @@
     this.jenkins = jenkins;
     this.graphite = graphite;
     this.graphiteUrl = graphiteUrl;
-    this.mdDialog = $mdDialog;
 
     $scope.from = $routeParams.from ? $routeParams.from : '-7d';
 

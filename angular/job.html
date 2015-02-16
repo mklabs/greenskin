@@ -1,23 +1,24 @@
 
-<md-content>
+<div>
 
-  <md-input-container>
-    <label>From</label>
-    <input ng-model="from">
-  </md-input-container>
+  <form>
+    <div class="form-group">
+      <label for="input-from">From</label>
+      <input ng-model="from" class="form-control" id="input-from">
+    </div>
+  </form>
 
-  <section layout="row" layout-sm="column" layout-align="end center">
-    <md-button class="md-raised md-primary" ng-click="toogleAsserts($event)">Edit config</md-button>
-  </section>
+  <button class="btn btn-default" ng-click="toogleAsserts($event)">Edit config</button>
 
-  <div ng-show="showAsserts" style="padding: 1em;">
-    <h3>Asserts</h3>
+  <div ng-show="showAsserts" style="padding-top: 1em;">
+    <label>JSON Config</label>
+    <p class="text-muted">You can configure asserts by editing the asserts property below.</p>
     <textarea rows="10" style="width: 100%; margin-bottom: 0.5em;" ng-model="asserts"></textarea>
-    <md-button class="md-raised" ng-click="saveConfig($event)">Save</md-button>
+    <button class="btn btn-default" ng-click="saveConfig($event)">Save</button>
   </div>
 
-  <div layout="row" layout-wrap style="padding: 1em;">
-    <div flex="50" ng-repeat="metric in metrics">
+  <div class="row">
+    <div class="col-md-6" ng-repeat="metric in metrics">
       <h3>{{metric.target}}</h3>
       <h4>{{metric.id}} {{ metric.assert ? ' / assert - ' + metric.assert : '' }}</h4>
 
@@ -31,4 +32,4 @@
 
 
 
-</md-content>
+</div>

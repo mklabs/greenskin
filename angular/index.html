@@ -8,19 +8,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>gs</title>
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="./bower_components/angular-material/angular-material.css">
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.css">
   </head>
   <body ng-app="gs">
-    <md-toolbar md-scroll-shrink>
-      <div class="md-toolbar-tools md-warn">
-        <h3>
-          <a href="/#/">Greenskin</a>
-        </h3>
+    <nav class="navbar navbar-default navbar-static-top app-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header navbar-brand">
+          <a href="/#/" class="navbar-link">
+            <span class="glyphicon glyphicon-home"></span>
+            Greenskin
+          </a>
+        </div>
       </div>
-    </md-toolbar>
+    </nav>
 
 
-    <div ng-view></div>
+    <div class="container-fluid" ng-view></div>
 
 
     <script src="./bower_components/jquery/dist/jquery.js"></script>
@@ -36,7 +39,7 @@
     <script src="job-controller.js"></script>
     <script>
 
-      angular.module('gs', [ 'ngMaterial', 'ngRoute', 'angular-flot' ] )
+      angular.module('gs', [ 'ngRoute', 'angular-flot' ] )
 
         // Config
         .constant('jenkinsUrl', 'http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/')
