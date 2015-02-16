@@ -25,15 +25,11 @@
 
     <div class="container-fluid" ng-view></div>
 
-
     <script src="./bower_components/jquery/dist/jquery.js"></script>
     <script src="./bower_components/flot/jquery.flot.js"></script>
     <script src="./bower_components/flot/jquery.flot.time.js"></script>
     <script src="./bower_components/angular/angular.js"></script>
     <script src="./bower_components/angular-route/angular-route.js"></script>
-    <script src="./bower_components/angular-aria/angular-aria.js"></script>
-    <script src="./bower_components/angular-animate/angular-animate.js"></script>
-    <script src="./bower_components/angular-material/angular-material.js"></script>
     <script src="./bower_components/angular-flot/angular-flot.js"></script>
 
     <script src="job-controller.js"></script>
@@ -46,6 +42,7 @@
         .constant('graphiteUrl', 'http://dc1-se-prod-admin-02.prod.dc1.kelkoo.net/')
         .constant('ignoredJobs', ['mailer', 'witbe', 'cleanup', 'Travel', 'statsd', 'webdriver_kill', 'webpagetest'])
 
+        // Routes
         .config(['$routeProvider', function($routeProvider) {
           $routeProvider
             .when('/', {
@@ -126,7 +123,9 @@
         })
 
         // Controllers
-        .controller('ListController', function($scope, $http, jenkins, ignoredJobs) {
+        .controller('ListController', function($scope, $http, jenkins, ignoredJobs, jenkinsUrl) {
+
+          $scope.jenkinsUrl = jenkinsUrl;
 
           jenkins.list().success(function(data) {
             $scope.jobs = data.jobs.filter(function(job) {

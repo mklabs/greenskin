@@ -16,41 +16,9 @@
 
     this.interval = setInterval(this.loop.bind(this), 1000 * 30);
 
-    var scope = this.scope;
     this.scope.showAsserts = false;
-    this.scope.toogleAsserts = function(ev) {
-      scope.showAsserts = !scope.showAsserts;
-    };
-
-    this.scope.saveConfig = function(ev) {
-      var asserts = this.scope.asserts;
-      if (!this.configDocument) return;
-      var doc = this.configDocument;
-
-      var data;
-
-      try {
-        data = JSON.parse(asserts);
-      } catch(e) {
-        alert('Error: Invalid JSON format');
-        return;
-      }
-
-      $(doc).find('name:contains(JSON_CONFIG)').next().next()
-        .text(JSON.stringify(data));
-
-      var xml = (new XMLSerializer()).serializeToString(doc);
-
-      this.jenkins.postConfig(this.params.name, xml).success(function() {
-        alert('Saved.');
-        scope.showAsserts = false;
-        this.fetch();
-
-      }.bind(this)).error(function() {
-        alert('Error trying to save config.');
-      });
-
-    }.bind(this);
+    this.scope.toogleAsserts = this.toogleAsserts.bind(this);
+    this.scope.saveConfig = this.saveConfig.bind(this);
 
     this.fetch();
   };
@@ -61,6 +29,39 @@
 
   JobController.prototype.loop = function loop() {
     this.fetch(true);
+  };
+
+  JobController.prototype.saveConfig = function saveConfig() {
+    var asserts = this.scope.asserts;
+    if (!this.configDocument) return;
+    var doc = this.configDocument;
+
+    var data;
+
+    try {
+      data = JSON.parse(asserts);
+    } catch(e) {
+      alert('Error: Invalid JSON format');
+      return;
+    }
+
+    $(doc).find('name:contains(JSON_CONFIG)').next().next()
+      .text(JSON.stringify(data));
+
+    var xml = (new XMLSerializer()).serializeToString(doc);
+
+    this.jenkins.postConfig(this.params.name, xml).success(function() {
+      alert('Saved.');
+      this.scope.showAsserts = false;
+      this.fetch();
+
+    }.bind(this)).error(function() {
+      alert('Error trying to save config.');
+    });
+  };
+
+  JobController.prototype.toogleAsserts = function toogleAsserts() {
+    this.scope.showAsserts = !this.scope.showAsserts;
   };
 
   JobController.prototype.fetch = function fetch(loop) {
