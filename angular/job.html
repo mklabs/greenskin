@@ -1,0 +1,34 @@
+
+<md-content>
+
+  <md-input-container>
+    <label>From</label>
+    <input ng-model="from">
+  </md-input-container>
+
+  <section layout="row" layout-sm="column" layout-align="end center">
+    <md-button class="md-raised md-primary" ng-click="toogleAsserts($event)">Edit config</md-button>
+  </section>
+
+  <div ng-show="showAsserts" style="padding: 1em;">
+    <h3>Asserts</h3>
+    <textarea rows="10" style="width: 100%; margin-bottom: 0.5em;" ng-model="asserts"></textarea>
+    <md-button class="md-raised" ng-click="saveConfig($event)">Save</md-button>
+  </div>
+
+  <div layout="row" layout-wrap style="padding: 1em;">
+    <div flex="50" ng-repeat="metric in metrics">
+      <h3>{{metric.target}}</h3>
+      <h4>{{metric.id}} {{ metric.assert ? ' / assert - ' + metric.assert : '' }}</h4>
+
+      <!-- <img ng&#45;src="{{ metric.url }}" /> -->
+
+      <div style="width:100%; height:300px;">
+        <flot dataset="metric.data" options="metric.chartOptions"></flot>
+      </div>
+    </div>
+  </div>
+
+
+
+</md-content>
