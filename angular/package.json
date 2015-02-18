@@ -14,7 +14,7 @@
     "jquery": "./bower_components/jquery/dist/jquery.js",
     "jquery.flot": "./bower_components/flot/jquery.flot.js",
     "jquery.flot.time": "./bower_components/flot/jquery.flot.time.js",
-    "jquery.cron": "./bower_components/jquery-cron/cron/jquery-cron.js"
+    "jquery.cron": "./js/vendor/jquery-cron.js"
   },
   "scripts": {
     "browserify": "browserify -e js/main.js -o dist/main.js -d",

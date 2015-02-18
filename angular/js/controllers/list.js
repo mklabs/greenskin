@@ -3,8 +3,18 @@ module.exports = function listController($scope, $http, $location, jenkins, igno
   $scope.jenkinsUrl = jenkinsUrl;
 
   $scope.createJob = function createJob() {
-    console.log('job', arguments);
     $location.path('/new');
+  };
+
+  $scope.deleteJob = function deleteJob(name) {
+    jenkins.deleteJob(name).success(function() {
+      $scope.jobs = $scope.jobs.filter(function(job) {
+        return job.name !== name;
+      });
+    }).error(function(msg) {
+      alert(msg);
+    });
+
   };
 
   jenkins.list().success(function(data) {
@@ -12,6 +22,9 @@ module.exports = function listController($scope, $http, $location, jenkins, igno
       return ignoredJobs.filter(function(ignored) {
         return job.name.indexOf(ignored) !== -1;
       }).length === 0;
+    }).map(function(job) {
+      if (job.color === 'notbuilt') job.color = 'nobuilt';
+      return job;
     });
   });
 };

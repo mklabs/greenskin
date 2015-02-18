@@ -7,6 +7,7 @@
       <th></th>
       <th>Name</th>
       <th>Jenkins Job URL</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -19,6 +20,9 @@
       </td>
       <td>
         <a href="{{job.url}}">{{ job.url }}</a>
+      </td>
+      <td>
+        <a class="btn btn-danger" role="button" ng-click="deleteJob(job.name)">Delete</a>
       </td>
   </tbody>
 </table>

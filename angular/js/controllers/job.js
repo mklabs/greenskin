@@ -16,8 +16,16 @@ function JobController($scope, $routeParams, $location, jenkins, graphite, graph
   this.interval = setInterval(this.loop.bind(this), 1000 * 30);
 
   this.scope.showAsserts = false;
+  this.scope.showUrls = false;
+  this.scope.showFrequency = false;
+
   this.scope.toogleAsserts = this.toogleAsserts.bind(this);
+  this.scope.toogleUrls = this.toogleUrls.bind(this);
+  this.scope.toogleFrequency = this.toogleFrequency.bind(this);
+
   this.scope.saveConfig = this.saveConfig.bind(this);
+  this.scope.saveUrls = this.saveUrls.bind(this);
+  this.scope.saveFrequency = this.saveFrequency.bind(this);
 
   this.fetch();
 };
@@ -61,8 +69,48 @@ JobController.prototype.saveConfig = function saveConfig() {
   });
 };
 
+JobController.prototype.saveUrls = function saveUrls() {
+  if (!this.configDocument) return;
+  var doc = this.configDocument;
+
+  $(doc).find('name:contains(PERF_URLS)').next().next().text(this.scope.urls);
+
+  var xml = (new XMLSerializer()).serializeToString(doc);
+
+  this.jenkins.postConfig(this.params.name, xml).success(function() {
+    alert('Saved.');
+    this.scope.showUrls = false;
+  }.bind(this)).error(function() {
+    alert('Error trying to save config.');
+  });
+};
+
+JobController.prototype.saveFrequency = function saveFrequency() {
+  if (!this.configDocument) return;
+  var doc = this.configDocument;
+
+  $(doc).find('triggers spec').text(this.scope.cron);
+
+  var xml = (new XMLSerializer()).serializeToString(doc);
+
+  this.jenkins.postConfig(this.params.name, xml).success(function() {
+    alert('Saved.');
+    this.scope.showFrequency = false;
+  }.bind(this)).error(function() {
+    alert('Error trying to save config.');
+  });
+};
+
 JobController.prototype.toogleAsserts = function toogleAsserts() {
   this.scope.showAsserts = !this.scope.showAsserts;
+};
+
+JobController.prototype.toogleUrls = function toogleUrls() {
+  this.scope.showUrls = !this.scope.showUrls;
+};
+
+JobController.prototype.toogleFrequency = function toogleFrequency() {
+  this.scope.showFrequency = !this.scope.showFrequency;
 };
 
 JobController.prototype.fetch = function fetch(loop) {
@@ -75,6 +123,27 @@ JobController.prototype.fetch = function fetch(loop) {
 
     var asserts = JSON.parse($(doc).find('name:contains(JSON_CONFIG)').next().next().text());
     this.scope.asserts = JSON.stringify(asserts, null, 2);
+
+    this.scope.urls = $(doc).find('name:contains(PERF_URLS)').next().next().text();
+
+    // bind cron widget (TODO: directive)
+    this.scope.cron = $(doc).find('triggers spec').text();
+
+    var values = {};
+    ['5', '10', '15', '20', '30', '45'].forEach(function(value) {
+      values[value + ' Minutes'] = '*/' + value + ' * * * *';
+    });
+
+    var $scope = this.scope;
+    angular.element('.js-cron').cron({
+      initial: this.scope.cron,
+      customValues: values,
+      onChange: function onChange() {
+        var val = angular.element(this).cron('value');
+        $scope.cron = val;
+        $scope.$apply();
+      }
+    });
   }.bind(this));
 };
 
@@ -117,11 +186,17 @@ JobController.prototype.buildSuccess = function buildSuccess(asserts, data) {
       var from = '-7d';
 
       var options = !assert ? {
+        legend: {
+          position: 'nw'
+        },
         xaxis: {
           mode: 'time',
           timezone: 'browser'
         }
       } : {
+        legend: {
+          position: 'nw'
+        },
         grid: {
           markings: [
             { color: 'red', lineWidth: 2, yaxis: { from: assert, to: assert } },
@@ -169,34 +244,44 @@ JobController.prototype.buildFlotData = function buildFlotData(asserts) {
         var datapoints = targets[0].datapoints;
         var xzero = datapoints[0][1];
 
-        var data = $.map(targets[0].datapoints, function(value) {
-          if (value[0] === null) return null;
-          // hack of $.map will flat array object
-          return [[ value[1] * 1000, value[0] ]];
+        var datas = targets.map(function(target, index) {
+          var data = $.map(target.datapoints, function(value) {
+            if (value[0] === null) return null;
+            // hack of $.map will flat array object
+            return [[ value[1] * 1000, value[0] ]];
+          });
+
+          // replace null value with previous item value
+          for (var i = 0; i < data.length; i++) {
+            if (i > 0 && data[i] === null) data[i] = data[-i];
+          }
+
+          if (!data.length) return;
+
+          var last = data[data.length-1][1];
+
+          // calculate color to render
+          var color = null;
+          if (assert) {
+            if (last != null) {
+              if (last >= assert) {
+                color = 'rgba(' + (255 - (index * 10)) + ', ' + (0 + (index * 80)) + ', 0, 1)';
+              } else {
+                color = 'rgba(186, ' + (218 - (index * 50)) + ', 85, 1)';
+              }
+            }
+          }
+
+          return {
+            color: color,
+            data: data,
+            label: target.target
+          };
+        }).filter(function(data) {
+          return data;
         });
 
-        if (!data.length) return;
-
-        // replace null value with previous item value
-        for (var i = 0; i < data.length; i++) {
-          if (i > 0 && data[i] === null) data[i] = data[-i];
-        }
-
-        var last = data[data.length-1][1];
-
-        // calculate color to render
-        var color = "green";
-        if (last != null) {
-          if (last >= assert) {
-            color = "red";
-          } else {
-            color = "#bada55";
-          }
-        }
-
-        metric.data = [data];
-        if (assert) metric.chartOptions.colors = [color];
-        if (color === 'red') metric.chartOptions.grid.backgroundColor = 'rgba(255, 0, 0, 0.10)';
+        metric.data = datas;
       });
 
   }, this);

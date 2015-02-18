@@ -9,7 +9,6 @@ module.exports = function _jenkins($http, jenkinsUrl) {
     });
   };
 
-
   jenkins.job = function job(name) {
     return $http({
       method: 'JSONP',
@@ -35,6 +34,30 @@ module.exports = function _jenkins($http, jenkinsUrl) {
       method: 'POST',
       url: jenkinsUrl + 'job/' + name + '/config.xml',
       data: xml
+    });
+  };
+
+  jenkins.phantomasConfig = function phantomasConfig() {
+    return $http({
+      url: './xml/phantomas.xml'
+    });
+  };
+
+  jenkins.createItem = function createItem(name, xml) {
+    return $http({
+      method: 'POST',
+      url: jenkinsUrl + 'createItem?name=' + name,
+      data: xml,
+      headers: {
+        'Content-Type': 'application/xml'
+      }
+    });
+  };
+
+  jenkins.deleteJob = function deleteJob(name) {
+    return $http({
+      method: 'POST',
+      url: jenkinsUrl + 'job/' + name + '/doDelete'
     });
   };
 
