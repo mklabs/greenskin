@@ -13,7 +13,7 @@ angular.module('gs', [ 'ngRoute', 'angular-flot' ] )
 
   // Config
   .constant('jenkinsUrl', 'http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/')
-  .constant('graphiteUrl', 'http://dc1-se-prod-admin-02.prod.dc1.kelkoo.net/')
+  .constant('graphiteUrl', 'http://dc1-se-prod-perf-01.prod.dc1.kelkoo.net:8000/')
   .constant('ignoredJobs', ['mailer', 'witbe', 'cleanup', 'Travel', 'statsd', 'webdriver_kill', 'webpagetest'])
 
   // Routes
