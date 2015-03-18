@@ -1,5 +1,0 @@
-- name: be sure php-fpm is running and enabled
-  service: >
-    name=php-fpm
-    state=restarted
-    enabled=yes
