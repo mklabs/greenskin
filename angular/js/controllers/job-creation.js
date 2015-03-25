@@ -1,5 +1,5 @@
 
-module.exports = function JobCreationController($scope, $location, jenkins) {
+module.exports = function JobCreationController($scope, $location, jenkins, graphiteUrl) {
 
   $scope.name = '';
   $scope.type = 'phantomas';
@@ -74,12 +74,16 @@ module.exports = function JobCreationController($scope, $location, jenkins) {
     // set json config
     xml.find('name:contains(JSON_CONFIG)').next().next().text(JSON.stringify(data));
 
+    // set graphite host
+    xml.find('name:contains(GRAPHITE_HOST)').next().next().text(graphiteUrl);
+
     // set frequency
     xml.find('triggers spec').text($scope.cron);
 
     var xmlString = (new XMLSerializer()).serializeToString(xml[0]);
 
-    jenkins.createItem($scope.name, xmlString).success(function() {
+    jenkins.createItem($scope.name, xmlString).then(function() {
+      console.log('saved!', arguments);
       alert('Saved.');
       $location.path('/');
     }).error(function() {

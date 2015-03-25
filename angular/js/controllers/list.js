@@ -7,6 +7,8 @@ module.exports = function listController($scope, $http, $location, jenkins, igno
   };
 
   $scope.deleteJob = function deleteJob(name) {
+    if (!confirm('Are you sure ?')) return;
+
     jenkins.deleteJob(name).success(function() {
       $scope.jobs = $scope.jobs.filter(function(job) {
         return job.name !== name;

@@ -14,17 +14,17 @@
         <hudson.model.StringParameterDefinition>
           <name>PERF_URLS</name>
           <description>List of monitoring URLs. Whitespace separated.</description>
-          <defaultValue>http://www.kelkoo.fr http://www.kelkoo.it</defaultValue>
+          <defaultValue>http://www.example.com</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JSON_CONFIG</name>
           <description>Phantomas JSON config.</description>
-          <defaultValue>{"no-externals":false,"allow-domain":".kk-data.com","asserts":{"timeToFirstByte":4500}}</defaultValue>
+          <defaultValue>{"no-externals":false,"asserts":{"timeToFirstByte":4500}}</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>GRAPHITE_HOST</name>
           <description></description>
-          <defaultValue>dc1-se-prod-admin-02.prod.dc1.kelkoo.net</defaultValue>
+          <defaultValue>localhost</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -44,7 +44,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>echo "{}" &gt; package.json
-[ -e node_modules ] || npm install phantomas glob hogan.js</command>
+[ -e node_modules ] || npm install phantomas</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
@@ -60,6 +60,7 @@ URLs: $URLS
 
 """
 
+# to workaround a bug in Jenkins where it puts extra "" to the JSON string
 node -e "var s = '$JSON_CONFIG'; if (s[0] === '\"' &amp;&amp; s[s.length - 1] === '\"') { s = s.slice(1, -1); } require('fs').writeFileSync('./config.json', s);"
 
 cat config.json
@@ -184,7 +185,7 @@ function requireWS(file) {
     <hudson.tasks.Shell>
       <command>#!/usr/bin/env node
 
-// Script to generate availabilities.json file for highcharts views
+// Script to generate availabilities.json file for mailers
 
 var fs    = require(&apos;fs&apos;);
 var path  = require(&apos;path&apos;);
@@ -295,7 +296,7 @@ UPSTREAM_WORKSPACE=$WORKSPACE
 MAIL_SUBJECT=Greenskin - Asserts failed for $JOB_NAME - $BUILD_URL</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
-          <projects>mailer,mailer-daily,mailer-weekly</projects>
+          <projects>mailer,mailer-daily,mailer-weekly,cleanup-workspace</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
         </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
