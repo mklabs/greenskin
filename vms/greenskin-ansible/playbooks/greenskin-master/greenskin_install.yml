@@ -1,13 +1,7 @@
 - hosts: all
 
-  vars:
-    jenkins_url: http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080
-    # jenkins_url: http://192.168.33.12:8080
-    wptServer: http://dc1-se-prod-kkspeed-02.prod.dc1.kelkoo.net:8080
-    # wptServer: http://192.168.33.13:8080
-
   roles:
     - git
+    - deploy
     - jenkins
     - npm
-    - deploy

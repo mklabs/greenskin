@@ -17,4 +17,5 @@
      - nodejs
      - npm
      - nc
+     - libselinux-python
   sudo: yes

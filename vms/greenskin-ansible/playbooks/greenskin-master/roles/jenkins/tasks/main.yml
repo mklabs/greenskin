@@ -14,6 +14,14 @@
   yum: name=jenkins state=latest
   sudo: yes
 
+- name: Setup Jenkins prefix to /jenkins
+  lineinfile: dest=/etc/sysconfig/jenkins regexp=^JENKINS_ARGS= line=JENKINS_ARGS="--prefix=/jenkins"
+  sudo: yes
+
+- name: Setup HTTP reverse proxy
+  action: template src=apache.conf dest=/etc/httpd/conf.d/jenkins.conf
+  sudo: yes
+
 - name: Start Jenkins
   service: name=jenkins state=started
   sudo: yes
@@ -22,21 +30,5 @@
   command: chkconfig jenkins on
   sudo: yes
 
-# - name: Sleep, waiting for Jenkins to be ready to work
-#   command: sleep 30
-#
-# - name: Install Jenkins plugin
-#   get_url: url=http://localhost:8080/jnlpJars/jenkins-cli.jar dest=/tmp/jenkins-cli.jar
-#
-# - name: Install Jenkins plugin
-#   command: java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin tap parameterized-trigger -restart chdir=/tmp
-#
-# - name: Connect node, copy template XML
-#   template: src=slave.xml.j2 dest=/tmp/slave.xml
-#
-# - name: Connect node, copy template script
-#   template: src=create-node.sh.j2 dest=/tmp/create-node.sh
-#
-# - name: Connect node, run template script
-#   command: sh /tmp/create-node.sh
-
+- name: Sleep, waiting for Jenkins to be ready to work
+  command: sleep 30

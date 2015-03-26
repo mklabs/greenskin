@@ -32,12 +32,12 @@ Here 86400000 means 24h: 1000 * 60 * 60 * 24</description>
         <hudson.model.StringParameterDefinition>
           <name>JOB_MAILS</name>
           <description>List of destination emails for the report, space separated.</description>
-          <defaultValue>benjamin.falque@kelkoo.com</defaultValue>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>MAIL_USER</name>
           <description></description>
-          <defaultValue>root@dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net</defaultValue>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>MAIL_PASSWORD</name>
@@ -50,6 +50,11 @@ Here 86400000 means 24h: 1000 * 60 * 60 * 24</description>
           <defaultValue>Daily report</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>MAIL_FROM</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>TEMPLATE_URL</name>
           <description>Full Git clone URL for the template, or a gist id.</description>
           <defaultValue>e6f74077532009041bfc</defaultValue>
@@ -57,7 +62,7 @@ Here 86400000 means 24h: 1000 * 60 * 60 * 24</description>
         <hudson.model.StringParameterDefinition>
           <name>MAIL_HOST</name>
           <description></description>
-          <defaultValue>smtp.dc1.kelkoo.net</defaultValue>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>DEBUG</name>

@@ -1,4 +1,7 @@
 # Git install
-- name: Install package git 
-  yum: name=git state=latest
+- name: Install package git
+  yum: name={{ item }} state=latest
+  with_items:
+    - git
+    - libselinux-python
   sudo: yes

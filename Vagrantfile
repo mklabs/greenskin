@@ -14,34 +14,43 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    # vb.customize ["modifyvm", :id, "--cpus", 1]
   end
 
-  config.vm.define "gs-slave" do |gs|
+  config.vm.define "slave" do |gs|
     gs.vm.box = "chef/centos-6.5"
-    gs.vm.hostname = "gsslave.dev"
+    gs.vm.hostname = "greenskin-slave.dev"
     gs.vm.network :private_network, ip: "192.168.33.13"
 
-    config.vm.provision "ansible" do |ansible|
+    gs.vm.provision "ansible" do |ansible|
       ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-slave/site.yml"
-    end
-
-    config.vm.provision "ansible" do |ansible|
-      ansible.inventory_path = "vms/webpagetest/hosts"
-      ansible.limit = "all"
-      ansible.playbook = "vms/webpagetest/webpagetest-private.yml"
-      ansible.verbose = "vv"
     end
   end
 
-  config.vm.define "gs-master" do |gs|
+  config.vm.define "master" do |gs|
     gs.vm.box = "chef/centos-6.5"
-    gs.vm.hostname = "gsmaster.dev"
+    gs.vm.hostname = "greenskin-master.dev"
     gs.vm.network :private_network, ip: "192.168.33.12"
 
-    config.vm.provision "ansible" do |ansible|
+    gs.vm.synced_folder "./app", "/var/www/html", type: "nfs"
+
+    gs.vm.provision "ansible" do |ansible|
       ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-master/site.yml"
     end
 
-    config.vm.provision "ansible" do |ansible|
+    gs.vm.provision "ansible" do |ansible|
       ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-jenkins-configure/site.yml"
+    end
+  end
+
+  config.vm.define "graphite" do |gs|
+    gs.vm.box = "chef/centos-6.5"
+    gs.vm.hostname = "greenskin-graphite.dev"
+    gs.vm.network :private_network, ip: "192.168.33.11"
+
+    gs.vm.provision "ansible" do |ansible|
+      ansible.limit = 'all' #https://github.com/mitchellh/vagrant/issues/3096
+      ansible.playbook = "vms/ansible-graphite/playbook.yml"
+      ansible.host_key_checking = false
+      ansible.inventory_path = "vms/ansible-graphite/hosts"
+      ansible.extra_vars = { ssh_user: 'vagrant' }
     end
   end
 

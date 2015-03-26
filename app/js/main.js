@@ -12,9 +12,28 @@ require('angular-flot');
 angular.module('gs', [ 'ngRoute', 'angular-flot' ] )
 
   // Config
-  .constant('jenkinsUrl', 'http://dc1-se-prod-kkspeed-01.prod.dc1.kelkoo.net:8080/')
-  .constant('graphiteUrl', 'http://dc1-se-prod-perf-01.prod.dc1.kelkoo.net:8000/')
+  .constant('jenkinsUrl', 'http://192.168.33.12/jenkins/')
+
+  .constant('graphiteUrl', 'http://192.168.33.11/')
+  .constant('graphiteHost', '192.168.33.11')
+
   .constant('ignoredJobs', ['mailer', 'witbe', 'cleanup', 'Travel', 'statsd', 'webdriver_kill', 'webpagetest'])
+
+  // Use this to configure mailing jobs to send emails to the following
+  // email address
+  .constant('mails', ['example@example.com'])
+
+  // Mail SMTP user authentification
+  .constant('mailUser', 'example@example.com')
+
+  // Mail SMTP password for the user
+  .constant('mailPassword', '')
+
+  // Mail SMTP hostname
+  .constant('mailHost', 'smtp.example.com')
+
+  // Mail from options when sending emails
+  .constant('mailFrom', 'example@example.com')
 
   // Routes
   .config(['$routeProvider', require('./routes')])

@@ -1,8 +1,12 @@
-- name: Install Jenkins plugin
-  get_url: url=http://localhost:8080/jnlpJars/jenkins-cli.jar dest=/tmp/jenkins-cli.jar
+- name: Install libselinux-python so that ansible templates work
+  yum: name=libselinux-python state=latest
+  sudo: yes
 
 - name: Install Jenkins plugin
-  command: java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin tap parameterized-trigger -restart chdir=/tmp
+  get_url: url=http://localhost:8080/jenkins/jnlpJars/jenkins-cli.jar dest=/tmp/jenkins-cli.jar
+
+- name: Install Jenkins plugin
+  command: java -jar jenkins-cli.jar -s http://localhost:8080/jenkins/ install-plugin tap parameterized-trigger nodelabelparameter -restart chdir=/tmp
 
 - name: Connect node, copy template XML
   template: src=slave.xml.j2 dest=/tmp/slave.xml
@@ -12,4 +16,4 @@
 
 - name: Connect node, run template script
   command: sh /tmp/create-node.sh
-
+  ignore_errors: yes

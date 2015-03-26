@@ -15,7 +15,7 @@
         <hudson.model.StringParameterDefinition>
           <name>JOB_MAILS</name>
           <description>List of destination emails for any failed asserts, space separated.</description>
-          <defaultValue>example@example.com</defaultValue>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>MAIL_SERVICE</name>
@@ -71,11 +71,11 @@
           <name>JENKINS_SLAVE</name>
           <description></description>
           <allowedSlaves>
-            <string>slave</string>
-            <string>slave-2</string>
+            <string>jenkins-slave</string>
+            <string>jenkins-slave-2</string>
           </allowedSlaves>
           <defaultSlaves>
-            <string>slave</string>
+            <string>jenkins-slave</string>
           </defaultSlaves>
           <triggerIfResult>multiSelectionDisallowed</triggerIfResult>
           <allowMultiNodeSelection>false</allowMultiNodeSelection>
