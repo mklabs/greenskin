@@ -1,11 +1,11 @@
 {
   "name": "angular",
   "version": "0.0.0",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "browserify": "~8.1.3",
-    "watchify": "~2.3.0"
+    "watchify": "~2.3.0",
+    "bower": "~1.3.12"
   },
   "browser": {
     "angular": "./bower_components/angular/angular.js",
@@ -18,6 +18,8 @@
   },
   "scripts": {
     "browserify": "browserify -e js/main.js -o dist/main.js -d",
-    "watch": "watchify -e js/main.js -o dist/main.js -v -d"
+    "watch": "watchify -e js/main.js -o dist/main.js -v -d",
+    "prebrowserify": "bower install",
+    "prewatch": "bower install"
   }
 }
