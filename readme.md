@@ -6,7 +6,7 @@ simple way to monitor Frontend Performance.
 The project is based on the following systems:
 
 - CI Server - Jenkins
-- PhantomJS - For browser automation and collectng metrics
+- PhantomJS - For browser automation and collecting metrics
 - Phantomas - Monitoring and assertion tools.
 - Graphite - For storing metrics.
 
