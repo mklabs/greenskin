@@ -1,6 +1,6 @@
 # Greenskin
 
-A set of monitoring tools, with a focus on frontend metrics, aiming to provide a
+A little monitoring tool, with a focus on frontend metrics, aiming to provide a
 simple way to monitor Frontend Performance.
 
 The project is based on the following systems:
@@ -9,6 +9,13 @@ The project is based on the following systems:
 - PhantomJS - For browser automation and collectng metrics
 - Phantomas - Monitoring and assertion tools.
 - Graphite - For storing metrics.
+
+This is essentially a little angular application on top of Jenkins and
+Graphite, with a set of preconfigured jobs (XML templates in
+`app/xml/*.xml)`
+
+Greenskin was developped internally at Kelkoo, and they kindly allowed
+me to open-source the project.
 
 ## How it looks
 
@@ -21,8 +28,8 @@ A simple list of all monitoring job on Jenkins, with links to build view and Jen
 **Job view**
 
 A simple job view to display related graphs from graphite. You can edit
-a few job configuration here like URLs, frequency and most importantly
-the phantomas asserts.
+a few job configuration here like URLs, the frequency and most
+importantly the phantomas asserts.
 
 ![](docs/imgs/graphs.png)
 

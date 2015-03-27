@@ -11,12 +11,14 @@ require('angular-flot');
 
 angular.module('gs', [ 'ngRoute', 'angular-flot' ] )
 
+  .constant('baseUrl', '/greenskin')
+
   // Config
   .constant('jenkinsUrl', 'http://192.168.33.12/jenkins/')
-
   .constant('graphiteUrl', 'http://192.168.33.11/')
   .constant('graphiteHost', '192.168.33.11')
 
+  // Use this to filter out jobs from jenkins you don't want to display in Jenkins
   .constant('ignoredJobs', ['mailer', 'witbe', 'cleanup', 'Travel', 'statsd', 'webdriver_kill', 'webpagetest'])
 
   // Use this to configure mailing jobs to send emails to the following
@@ -45,4 +47,8 @@ angular.module('gs', [ 'ngRoute', 'angular-flot' ] )
   // Controllers
   .controller('ListController', require('./controllers/list'))
   .controller('JobController', require('./controllers/job'))
-  .controller('JobCreationController', require('./controllers/job-creation'));
+  .controller('JobCreationController', require('./controllers/job-creation'))
+
+  .run(function($rootScope, baseUrl) {
+    $rootScope.baseUrl = baseUrl;
+  });

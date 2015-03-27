@@ -82,7 +82,10 @@ module.exports = function JobCreationController($scope, $location, jenkins, grap
 
     var xmlString = (new XMLSerializer()).serializeToString(xml[0]);
 
-    jenkins.createItem($scope.name, xmlString).then(function() {
+
+    var name = $scope.name.replace(/\s+/, '_');
+
+    jenkins.createItem(name, xmlString).then(function() {
       alert('Saved.');
       $location.path('/');
     }, function() {

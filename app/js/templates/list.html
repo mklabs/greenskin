@@ -20,7 +20,7 @@
         <img ng-src="{{ jenkinsUrl }}/static/5e9680b3/images/32x32/{{ job.color }}.{{ job.color.indexOf('anime') !== -1 ? 'gif' : 'png' }}" alt="{{job.name}}">
       </td>
       <td>
-        <a href="/#/job/{{ job.name }}">{{job.name}}</a>
+        <a href="{{ baseUrl }}/#/job/{{ job.name }}">{{job.name}}</a>
       </td>
       <td>
         <a href="{{job.url}}">{{ job.url }}</a>

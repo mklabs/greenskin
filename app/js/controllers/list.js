@@ -1,6 +1,8 @@
 
-module.exports = function listController($scope, $http, $location, jenkins, ignoredJobs, jenkinsUrl) {
+module.exports = function listController($scope, $http, $location, jenkins, ignoredJobs, jenkinsUrl, baseUrl) {
   $scope.jenkinsUrl = jenkinsUrl;
+
+  $scope.baseUrl = baseUrl;
 
   $scope.createJob = function createJob() {
     $location.path('/new');
@@ -25,7 +27,7 @@ module.exports = function listController($scope, $http, $location, jenkins, igno
         return job.name.indexOf(ignored) !== -1;
       }).length === 0;
     }).map(function(job) {
-      if (job.color === 'notbuilt') job.color = 'nobuilt';
+      if (/notbuilt/.test(job.color)) job.color = job.color.replace(/notbuilt/g, 'nobuilt');
       return job;
     });
   });

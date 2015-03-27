@@ -73,6 +73,8 @@ for url in $URLS; do
 
   echo """
 
+  Executing phantomas test for
+
   URL - $url
   Key - $URL_KEY
   Dir - $URL_DIR
@@ -263,6 +265,9 @@ fs.writeFile(&apos;graphite-metrics.txt&apos;, metrics);</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
+
+echo "Sending metrics to Graphite at $GRAPHITE_HOST"
+
 cat graphite-metrics.txt | nc $GRAPHITE_HOST 2003</command>
     </hudson.tasks.Shell>
 
