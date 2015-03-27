@@ -20,9 +20,17 @@ A simple list of all monitoring job on Jenkins, with links to build view and Jen
 
 **Job view**
 
-A simple job view to display related graphs from graphite.
+A simple job view to display related graphs from graphite. You can edit
+a few job configuration here like URLs, frequency and most importantly
+the phantomas asserts.
 
 ![](docs/imgs/graphs.png)
+
+**Job creation view**
+
+A simple form to create new Job on Jenkins, using the following XML template (`./xml`).
+
+![](docs/imgs/new.png)
 
 ## Docs
 
@@ -74,11 +82,13 @@ Similarly, you'll need to update the `<assignedNode>jenkins-slave</assignedNode>
 Application config is stored in the `js/main.js` file, with the
 following values:
 
-- jenkinsUrl: Jenkins URL (ex: http://192.168.33.12:8080)
-- graphiteUrl: Graphite URL (ex: http://192.168.33.13:8080)
+- jenkinsUrl: Jenkins URL (ex: http://192.168.33.12/jenkins/)
+- graphiteUrl: Graphite URL (ex: http://192.168.33.11/)
+- baseUrl: Base path of the webapp (ex: /greenskin). If served directly
+  from the root of your HTTP server, this would need to be `/`.
 - ignoredJobs: List of pattern to ignore when listing jobs from Jenkins.
 - mails: List of email address to notify when asserts fail, or for the
-  daily / weekly report. Whitespace separated.
+  daily / weekly report.
 - mailUser: Mail user to use when sending email (see
   https://github.com/andris9/nodemailer-smtp-transport#usage auth user)
 - mailHost: SMTP Mail host to use when sending email (see
@@ -102,6 +112,9 @@ Then, check that these plugins are installed:
 - [Node label parameter](https://wiki.jenkins-ci.org/display/JENKINS/NodeLabel+Parameter+Plugin) (required for the mailer jobs to use the correct
   slave when several slaves are used)
 
+If you're using Vagrant, the playbooks should have installed them for
+you.
+
 ### Jenkins Slaves
 
 Though you can run Jobs on master, it is highly recommended to use a
@@ -117,7 +130,7 @@ When creating a Job, the following set of downstream Jobs are created:
   `build.json` file and periodically send an email that sums up the
   state of Phantomas Jobs, with the number of metrics, the number of
   failed metrics and availability (ratio between number of metrics and
-  failed ones.
+  failed ones).
 * mailer-weekly - Same as mailer-daily, but the time is set to send
   emails every week.
 * cleanup-workspace - Maintenance Job to run once in a while with
