@@ -14,6 +14,12 @@ Listen {{ graphite_apache_port }}
         DocumentRoot "/opt/graphite/webapp"
         ErrorLog /opt/graphite/storage/log/webapp/error.log
         CustomLog /opt/graphite/storage/log/webapp/access.log common
+
+        # Enable CORS
+        Header set Access-Control-Allow-Origin "*"
+        Header set Access-Control-Allow-Methods "OPTIONS, GET,PUT,POST,DELETE"
+        Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, PRIVATE-TOKEN"
+
         # I've found that an equal number of processes & threads tends
         # to show the best performance for Graphite (ymmv).
         WSGIDaemonProcess graphite processes=5 threads=5 display-name='%{GROUP}' inactivity-timeout=120

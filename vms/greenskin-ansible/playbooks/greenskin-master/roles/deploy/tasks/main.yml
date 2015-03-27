@@ -13,6 +13,10 @@
      - httpd
   sudo: yes
 
+- name: Setup vhost
+  action: template src=greenskin.conf dest=/etc/httpd/conf.d/greenskin.conf
+  sudo: yes
+
 - name: Start Services
   service: name=httpd state=started
   sudo: yes

@@ -29,7 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     gs.vm.hostname = "greenskin-master.dev"
     gs.vm.network :private_network, ip: "192.168.33.12"
 
-    gs.vm.synced_folder "./app", "/var/www/html", type: "nfs"
+    gs.vm.synced_folder "./app", "/opt/greenskin", type: "nfs"
 
     gs.vm.provision "ansible" do |ansible|
       ansible.playbook = "vms/greenskin-ansible/playbooks/greenskin-master/site.yml"

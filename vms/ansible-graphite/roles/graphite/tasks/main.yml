@@ -16,7 +16,7 @@
   when: ansible_os_family == 'Debian'
 
 
-- name: Create PIP requirements file 
+- name: Create PIP requirements file
   copy: src=opt/graphite/requirements.txt dest=/tmp/requirements.txt
 
 
@@ -68,7 +68,7 @@
 
 
 - name: Setup sqlitedb
-  command: /usr/bin/python manage.py syncdb --noinput chdir=/opt/graphite/webapp/graphite 
+  command: /usr/bin/python manage.py syncdb --noinput chdir=/opt/graphite/webapp/graphite
    creates=/opt/graphite/storage/graphite.db
   sudo_user: "{{ apache_user }}"
   register: sqlite_setup
@@ -81,3 +81,6 @@
 
 - name: Start apache httpd
   service: "name={{ apache_service }} state=running enabled=yes"
+
+- name: Reload apache httpd
+  service: "name={{ apache_service }} state=reloaded enabled=yes"
