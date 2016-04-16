@@ -6,7 +6,7 @@ module.exports = (agendash) => {
   var app = express();
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
-  app.use('/', express.static(path.join(__dirname, 'template')));
+  app.use('/', express.static(path.join(__dirname, 'public/dashboard')));
 
   app.get('/api', function (req, res, next) {
     agendash.api(req.query.job, req.query.state, function (err, apiResponse) {

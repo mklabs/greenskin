@@ -4,9 +4,16 @@ var path       = require('path');
 var debug      = require('debug')('greenskin');
 var express    = require('express');
 var Agenda     = require('agenda');
-var middleware = require('./agendash');
 var agendash   = require('agendash/lib/agendash');
+var exphbs     = require('express-handlebars');
 var opts       = require('minimist')(process.argv.slice(2));
+var bodyparser = require('body-parser');
+var morgan     = require('morgan')
+
+var middleware = require('./agendash');
+var api = require('./api');
+
+var db = 'mongodb://localhost/greenskin';
 
 var greenskin = module.exports;
 
@@ -38,9 +45,41 @@ agenda.on('ready', function() {
 
 var app = greenskin.app = express();
 
-app.use('/', express.static(path.join(__dirname, 'template')))
+app.engine('.hbs', exphbs({
+  extname: '.hbs',
+  defaultLayout: 'main'
+}));
 
+app.set('view engine', '.hbs');
+
+// Middlewares
+
+app.use(morgan('combined'))
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded());
+
+app.use('/', express.static(path.join(__dirname, 'public')))
 app.use('/dashboard', middleware(agendash(agenda)));
+
+// Routes
+
+app.get('/', (req, res, next) => {
+  res.render('index');
+});
+
+app.get('/create', (req, res, next) => {
+  res.render('create');
+});
+
+app.post('/create', (req, res, next) => {
+  var params = req.params;
+  console.log(params);
+  res.render('create');
+});
+
+app.get('/list', (req, res, next) => {
+  res.render('list');
+});
 
 app.listen(opts.port, err => {
   if (err) throw err;

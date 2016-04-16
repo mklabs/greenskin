@@ -1,0 +1,39 @@
+<div id="app" class="index">
+  <div class="content-top clearfix">
+    <ul class="breadcrumb al-breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li>Jobs</li>
+    </ul>
+  </div>
+
+  <div id="main-pane" class="panel panel-blur">
+
+    <div class=panel-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Name</th>
+            <th>Last run started</th>
+            <th>Next run starts</th>
+            <th>Last finished</th>
+            <th>Locked</th>
+          </tr>
+        </thead>
+        <tbody>
+        {{#each jobs}}
+          <tr>
+            <td>{{ this.status }}</td>
+            <td>{{ this.name }}</td>
+            <td>{{ this.lastrun }}</td>
+            <td>{{ this.nextrun }}</td>
+            <td>{{ this.lastfinished }}</td>
+            <td>{{ this.locked }}</td>
+          </tr>
+        {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

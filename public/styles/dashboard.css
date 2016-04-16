@@ -188,3 +188,7 @@ main #main-pane .panel {
 main #main-pane {
   flex-direction: column;
 }
+
+main .index #main-pane {
+  padding: 2em;
+}
