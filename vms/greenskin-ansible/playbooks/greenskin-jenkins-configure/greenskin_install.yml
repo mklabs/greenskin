@@ -1,7 +1,0 @@
-- hosts: all
-
-  vars:
-    slave_hostname: 192.168.33.13
-
-  roles:
-    - jenkins

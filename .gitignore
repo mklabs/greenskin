@@ -1,6 +1,1 @@
-.vagrant
-test/
-server/node_modules/
-s4/tmp/metrics/
 node_modules/
-bower_components/

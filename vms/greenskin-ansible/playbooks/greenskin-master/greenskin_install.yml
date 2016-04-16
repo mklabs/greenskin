@@ -1,7 +1,0 @@
-- hosts: all
-
-  roles:
-    - git
-    - deploy
-    - jenkins
-    - npm
