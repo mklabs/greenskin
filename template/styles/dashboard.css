@@ -1,0 +1,190 @@
+/* Page layout */
+
+#app {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#sidebar {
+  padding-top: 20px;
+  flex: 0 0 250px;
+  order: 1;
+  box-shadow: 4px 0px 3px -2px #eee;
+  overflow: scroll;
+}
+
+#main-pane {
+  padding: 0;
+  order: 2;
+  flex: 1 1;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+#list-pane {
+  flex: 0 1 750px;
+  order: 1;
+  padding: 10px;
+  overflow: scroll;
+}
+
+#details-pane {
+  padding: 10px;
+  flex: 1 0 370px;
+  order: 2;
+  box-shadow: 0px -2px 3px 0px #eee;
+  margin-top: 10px;
+  overflow: scroll;
+}
+
+#create-job-pane {
+  padding: 10px;
+  flex: 1 0 370px;
+  order: 2;
+  box-shadow: 0px -2px 3px 0px #eee;
+  margin-top: 10px;
+  overflow: scroll;
+}
+
+
+@media (min-width: 1200px) {
+  #main-pane {
+    flex-direction: column;
+  }
+  #details-pane {
+    margin-top: 0;
+    box-shadow: -2px 0px 3px 0px #eee;
+  }
+  #create-job-pane {
+    margin-top: 0;
+    box-shadow: -2px 0px 3px 0px #eee;
+  }
+}
+
+/* Details, styling */
+
+.page-title {
+  margin: 0 auto 10px; /* override h1 defaults */
+}
+.nav-sidebar {
+  margin-bottom: 10px;
+}
+.progress {
+  display: flex;
+  height: 5px;
+  margin-top: 5px;
+  margin-bottom: 0;
+}
+.sidebar-header {
+  padding: 0 10px 20px;
+}
+
+#job-list tr {
+  cursor: pointer;
+}
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+main .al-sidebar-sublist .text-info {
+  width: 100%;
+}
+
+main .al-sidebar-list .label {
+  margin-top: 1em;
+}
+
+main .nav li > a {
+  padding-left: 30px;
+}
+
+main .al-sidebar-list-link i {
+  padding-left: 15px;
+}
+main .al-sidebar-list-link i {
+  margin-right: 5px;
+}
+
+main .nav li>a:hover {
+  background-color: transparent;
+}
+
+main a.table-hover>tbody>tr.active>td {
+  background-color: transparent;
+}
+
+main .panel-heading,
+main .sub-header {
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+main #details-pane {
+  margin-right: 5px;
+}
+
+main #details-pane p {
+  color: #fefefe;
+  margin: 1em 0;
+}
+
+main #details-pane h3 {
+  margin: 15px 0;
+}
+
+main #details-pane .label {
+  float: right;
+}
+
+main #details-pane .close {
+  text-shadow: none;
+  color: inherit;
+}
+
+main #details-pane button {
+  margin-right: 10px;
+}
+
+main pre {
+  padding: 2em;
+  margin: 2em;
+  background-color: transparent;
+  border: none;
+}
+
+main #details-pane .close:hover {
+  color: #17857a;
+}
+
+main .table>tbody>tr.active>td {
+  background-color: transparent;
+  color: #209e91;
+}
+
+main #details-pane .panel-footer {
+  background-color: transparent;
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding: 10px 0;
+}
+
+main #main-pane.selected {
+  flex-direction: row;
+}
+
+main #main-pane .panel {
+  box-shadow: none;
+  border: none;
+  overflow: auto;
+  padding-left: 0;
+  margin-right: 10px;
+}
+
+main #main-pane {
+  flex-direction: column;
+}
