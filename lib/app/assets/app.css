@@ -4,6 +4,11 @@
 @import './css/menu.css';
 
 main.main {
+
+  #sidebar {
+    box-shadow: none;
+  }
+
   .breadcrumb {
     background-color: transparent;
   }
@@ -23,5 +28,9 @@ main.main {
 
   .form-control {
     border: none;
+  }
+
+  .bg-warning {
+    background-color:
   }
 }

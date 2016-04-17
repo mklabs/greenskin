@@ -2,51 +2,23 @@
 <div class="content-top clearfix">
   <ul class="breadcrumb al-breadcrumb">
     <li><a href="/">Home</a></li>
-    <li>Create Job</li>
   </ul>
 </div>
 
 <div class="panel panel-blur">
   <form class="form js-job-form panel panel-blur" method="post">
     <div class="panel-heading clearfix">
-      <h3 class="panel-title">Create a new Job</h3>
+      <h3 class="panel-title">Welcome</h3>
     </div>
 
     <div class="panel-body">
       <p class="description">
-        Fill in the form below to create a new Job, with a {{type}} script.
+        Go to <a href="/create">to the job creation page</a> to do so.
       </p>
 
-
-      <div class="form-group">
-        <label for="ipt_name" class="control-label">Job name</label>
-        <input required id="ipt_name" type="text" class="form-control" placeholder="">
-      </div>
-
-      <div class="form-group">
-        <label for="ipt_frequency" class="control-label">Frequency</label>
-        <input required id="ipt_name" type="text" class="form-control" value="5 minutes">
-      </div>
-
-      <div class="js-urls form-group">
-        <label class="control-label">URLs (space separated)</label>
-        <input required id="ipt_name" type="text" class="form-control" value="http://example.com http://example.com/page2">
-      </div>
-
-      </fieldset>
-
-      <div class="form-group">
-        <label>JSON Config</label>
-        <p class="text-muted pull-right">You can configure asserts by editing the asserts property below.</p>
-        <textarea rows="10" class="form-control" style="width: 100%; margin-bottom: 0.5em; height: auto;">{
-  "asserts": {
-    "loadTime": 2000
-  }
-}</textarea>
-      </div>
-
-      <button type="submit" class="btn btn-primary pull-right">Save</button>
-
+      {{#if jobs.length}}
+        {{> list }}
+      {{/if}}
     </div>
   </form>
 </div>

@@ -1,0 +1,32 @@
+<table class="table">
+  <thead>
+    <tr>
+      <!-- <th>Status</th> -->
+      <!-- <th>Name</th> -->
+      <!-- <th>Last run started</th> -->
+      <!-- <th>Next run starts</th> -->
+      <!-- <th>Last finished</th> -->
+      <!-- <th>Locked</th> -->
+
+      <th>Name</th>
+      <th>URLs</th>
+      <th>frequency</th>
+      <th>Config</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each jobs}}
+    <tr>
+      <!-- <td>{{ this.status }}</td> -->
+      <!-- <td>{{ this.lastrun }}</td> -->
+      <!-- <td>{{ this.nextrun }}</td> -->
+      <!-- <td>{{ this.lastfinished }}</td> -->
+      <!-- <td>{{ this.locked }}</td> -->
+      <td>{{ this.name }}</td>
+      <td>{{{ this.urls }}}</td>
+      <td>{{ this.frequency }}</td>
+      <td>{{ this.config }}</td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
