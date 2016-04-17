@@ -12,10 +12,12 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicon-96x96.png">
 
+  <!-- <link rel="stylesheet" href="/styles/dashboard.css"> -->
+  <!-- <link rel="stylesheet" href="/styles/vendor&#45;21c0992fa2.css"> -->
+  <!-- <link rel="stylesheet" href="/styles/app&#45;92c59648fe.css"> -->
+  <!-- <link rel="stylesheet" href="/styles/menu.css"> -->
+
   <link rel="stylesheet" href="/styles/dashboard.css">
-  <link rel="stylesheet" href="/styles/vendor-21c0992fa2.css">
-  <link rel="stylesheet" href="/styles/app-92c59648fe.css">
-  <link rel="stylesheet" href="/styles/menu.css">
 
 </head>
 <body ng-class="{'mobile' : $isMobile}">
@@ -27,8 +29,10 @@
     </div>
 
     <div class="page-top clearfix ng-isolate-scope" scroll-position="scrolled" max-height="50" ng-class="{'scrolled': scrolled}">
-      <a href="#/dashboard" class="al-logo clearfix">
-        <span>Greenskin</span> Agenda Jobs
+      <a href="/" class="al-logo clearfix">
+        <span>Greenskin</span>
+        <i class="ion-paper-airplane"></i>
+        Agenda Jobs
       </a>
     </div>
 
@@ -137,12 +141,12 @@
           </a>
         </li>
         <ul class="nav nav-sidebar al-sidebar-sublist expanded">
-          <li data-state="scheduled"><a class="text-info" href="#">Scheduled<span class="label label-info pull-right"><%- scheduled %></span></a></li>
-          <li data-state="queued"><a class="text-primary" href="#">Queued<span class="label label-primary pull-right"><%- queued %></span></a></li>
-          <li data-state="running"><a class="text-warning" href="#">Running<span class="label label-warning pull-right"><%- running %></span></a></li>
-          <li data-state="completed"><a class="text-success" href="#">Completed<span class="label label-success pull-right"><%- completed %></span></a></li>
-          <li data-state="failed"><a class="text-danger" href="#">Failed<span class="label label-danger pull-right"><%- failed %></span></a></li>
-          <li data-state="repeating"><a class="text-info" href="#">Repeating<span class="label label-info pull-right"><%- repeating %></span></a></li>
+          <li data-state="scheduled"><a class="text-info" href="#"><i class="ion-forward"></i><span>Scheduled</a></span></li>
+          <li data-state="queued"><a class="text-primary" href="#"><i class="ion-clock"></i><span>Queued</span></a></li>
+          <li data-state="running"><a class="text-warning" href="#"><i class="ion-ios-bolt"></i><span>Running</span></a></li>
+          <li data-state="completed"><a class="text-success" href="#"><i class="ion-checkmark-round"></i><span>Completed</span></a></li>
+          <li data-state="failed"><a class="text-danger" href="#"><i class="ion-alert"></i> <span>Failed</span></a></li>
+          <li data-state="repeating"><a class="text-info" href="#"><i class="ion-loop"></i> <span>Repeating</span></a></li>
         </ul>
       </ul>
     </script>
