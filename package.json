@@ -17,6 +17,12 @@
     "minimist": "^1.2.0",
     "mongodb": "^2.1.16",
     "morgan": "^1.7.0",
+    "npmlog": "^2.0.3",
     "phantomas": "^1.15.1"
+  },
+  "devDependencies": {
+    "postcss": "^5.0.19",
+    "postcss-cli": "^2.5.1",
+    "postcss-cssnext": "^2.5.2"
   }
 }

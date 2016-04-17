@@ -15,11 +15,12 @@
   <link rel="stylesheet" href="/styles/dashboard.css">
   <link rel="stylesheet" href="/styles/vendor-21c0992fa2.css">
   <link rel="stylesheet" href="/styles/app-92c59648fe.css">
+  <link rel="stylesheet" href="/styles/menu.css">
 
 </head>
 <body ng-class="{'mobile' : $isMobile}">
 <div class="body-bg"></div>
-  <main>
+  <main class="main">
 
     <div id="sidebar" class="al-sidebar">
       <div id="job-overview-list"></div>
@@ -98,7 +99,7 @@
                 </div>
                 <div class="form-group">
                   <label>Repeat every</label>
-                  <input type="text" class="job-repeat-every form-control">
+                  <input type="text" class="job-loop-every form-control">
                 </div>
                 <div class="form-group">
                   <label>Job data (json)</label>
@@ -148,7 +149,7 @@
 
     <script type="text/template" id="job-item-template">
       <td>
-        <% if (repeating) { %><span class="label label-info"><i class="glyphicon glyphicon-repeat"></i> <%- job.repeatInterval %></span><% } %>
+        <% if (repeating) { %><span class="label label-info"><i class="ion-loop"></i> <%- job.repeatInterval %></span><% } %>
         <% if (scheduled) { %><span class="label label-info">Scheduled</span><% } %>
         <% if (queued) { %><span class="label label-primary">Queued</span><% } %>
         <% if (running) { %><span class="label label-warning">Running</span><% } %>
@@ -172,7 +173,7 @@
           </button>
 
           <h3><%- job.name %></h3>
-          <% if (repeating) { %><span class="label label-info"><i class="glyphicon glyphicon-repeat"></i> <%- job.repeatInterval %></span><% } %>
+          <% if (repeating) { %><span class="label label-info"><i class="ion-loop"></i> <%- job.repeatInterval %></span><% } %>
           <% if (scheduled) { %><span class="label label-info">Scheduled</span><% } %>
           <% if (queued) { %><span class="label label-primary">Queued</span><% } %>
           <% if (running) { %><span class="label label-warning">Running</span><% } %>
@@ -201,12 +202,7 @@
     </script>
   </main>
 
-  <div id="preloader" ng-show="!$pageFinishedLoading">
-    <div></div>
-  </div>
-
-  <script src="/scripts/vendor-640a7fa3e0.js"></script>
-  <script src="/scripts/app-ae3ddd6243.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
   <script src="/scripts/lodash.min.js"></script>
   <script src="/scripts/backbone-min.js"></script>
   <script src="/scripts/moment.min.js"></script>

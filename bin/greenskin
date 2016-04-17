@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+process.env.DEBUG = process.env.DEBUG || 'greenskin*';
+
+var opts  = require('minimist')(process.argv.slice(2));
+var debug = require('debug')('greenskin');
+
+
+var greenskin = require('..');
+
+// Config
+
+opts.port = opts.port || 3000;
+opts.db = 'mongodb://localhost/greenskin';
+
+greenskin.listen(opts.port)
+  .catch((err) => {
+    throw err;
+  })
+  .then(() => {
+    debug('Started server on http://localhost:%d', opts.port);
+  });
