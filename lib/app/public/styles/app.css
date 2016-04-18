@@ -12919,3 +12919,24 @@ main.main .al-sidebar-sublist li i {
 
 main.main .form-control {
   border: none; }
+
+main.main .bg-warning {
+  background-color: }
+
+main.main .pie-charts .chart-icon {
+  font-size: 65px;
+  top: -3px;
+  right: 5px; }
+
+main.main .pie-charts .description {
+  padding-top: 10px;
+  padding-right: 75px; }
+
+main.main .pie-charts .description-stats {
+  font-size: 14px; }
+
+main.main .bootstrap-panel .panel-heading {
+  color: #7b7b7b;
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ddd; }

@@ -1,31 +1,29 @@
-<table class="table">
+<table class="table table-hover table-stripped">
   <thead>
-    <tr>
-      <!-- <th>Status</th> -->
-      <!-- <th>Name</th> -->
-      <!-- <th>Last run started</th> -->
-      <!-- <th>Next run starts</th> -->
-      <!-- <th>Last finished</th> -->
-      <!-- <th>Locked</th> -->
-
-      <th>Name</th>
-      <th>URLs</th>
-      <th>frequency</th>
-      <th>Config</th>
+    <tr class="black-muted-bg">
+      <th class="align-left">Name</th>
+      <th class="align-right">URLs</th>
+      <th class="align-right">Next run</th>
+      <th class="align-right">Last run started</th>
+      <th class="align-right">Last run finished</th>
+      <th class="align-left">Last results</th>
+      <th class="align-left">Frequency</th>
     </tr>
   </thead>
   <tbody>
   {{#each jobs}}
     <tr>
-      <!-- <td>{{ this.status }}</td> -->
-      <!-- <td>{{ this.lastrun }}</td> -->
-      <!-- <td>{{ this.nextrun }}</td> -->
-      <!-- <td>{{ this.lastfinished }}</td> -->
-      <!-- <td>{{ this.locked }}</td> -->
-      <td>{{ this.name }}</td>
-      <td>{{{ this.urls }}}</td>
-      <td>{{ this.frequency }}</td>
-      <td>{{ this.config }}</td>
+      <td class="align-left">{{ this.name }}</td>
+      <td class="align-right">
+        {{#each this.data.urls}}
+          <a href="{{ . }}">{{ . }}</a> <br />
+        {{/each}}
+      </td>
+      <td class="align-right">{{fromNow this.nextRunAt }}</td>
+      <td class="align-right">{{fromNow this.lastRunAt }}</td>
+      <td class="align-right">{{fromNow this.lastFinishedAt }}</td>
+      <td class="align-left">{{{results this.lastRunResults }}}</td>
+      <td class="align-left">{{ this.data.frequency }}</td>
     </tr>
   {{/each}}
   </tbody>

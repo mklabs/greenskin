@@ -1,0 +1,28 @@
+<div class="row pie-charts">
+
+  {{#each piecharts}}
+
+    <div class="pie-chart-item-container">
+      <div>
+        <div class="panel panel-blur animated zoomIn" zoom-in="" style="background-size: 1913px 1076px; background-position: 0px -224px;">
+          <div class="panel-body">
+            <div class="pie-chart-item">
+              <div class="description">
+                <div>
+                  {{{ this.label }}}
+                </div>
+                <div class="description-stats">
+                  {{{ this.value }}}
+                </div>
+              </div>
+
+              <i class="chart-icon ion-{{ icon }}"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {{/each}}
+
+</div>
