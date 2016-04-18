@@ -18,6 +18,8 @@
     "express-handlebars": "^3.0.0",
     "express-messages": "^1.0.0",
     "express-session": "^1.13.0",
+    "lodash.kebabcase": "^4.0.1",
+    "lodash.uniq": "^4.2.1",
     "minimist": "^1.2.0",
     "moment": "^2.12.0",
     "mongodb": "^2.1.16",

@@ -12,18 +12,18 @@
   </thead>
   <tbody>
   {{#each jobs}}
-    <tr>
-      <td class="align-left">{{ this.name }}</td>
+    <tr data-event="click" data-handler="goTo" data-name="{{ name }}">
+      <td class="align-left">{{ name }}</td>
       <td class="align-right">
-        {{#each this.data.urls}}
+        {{#each data.urls}}
           <a href="{{ . }}">{{ . }}</a> <br />
         {{/each}}
       </td>
-      <td class="align-right">{{fromNow this.nextRunAt }}</td>
-      <td class="align-right">{{fromNow this.lastRunAt }}</td>
-      <td class="align-right">{{fromNow this.lastFinishedAt }}</td>
-      <td class="align-left">{{{results this.lastRunResults }}}</td>
-      <td class="align-left">{{ this.data.frequency }}</td>
+      <td class="align-right">{{fromNow nextRunAt }}</td>
+      <td class="align-right">{{fromNow lastRunAt }}</td>
+      <td class="align-right">{{fromNow lastFinishedAt }}</td>
+      <td class="align-left">{{{results lastRunResults }}}</td>
+      <td class="align-left">{{ data.frequency }}</td>
     </tr>
   {{/each}}
   </tbody>

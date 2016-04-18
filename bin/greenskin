@@ -13,7 +13,7 @@ var greenskin = require('..');
 opts.port = opts.port || 3000;
 opts.db = opts.db || 'mongodb://localhost/greenskin';
 
-greenskin.listen(opts)
+greenskin.start(opts)
   .catch((err) => {
     throw err;
   })

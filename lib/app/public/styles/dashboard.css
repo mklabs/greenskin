@@ -12940,3 +12940,66 @@ main.main .bootstrap-panel .panel-heading {
   color: #333;
   background-color: #f5f5f5;
   border-color: #ddd; }
+
+.job .page-title {
+  border-bottom: 1px solid #aaa;
+  color: #323232;
+  font-weight: bolder; }
+
+.job .job-module-title {
+  padding: 10px 0 20px 23px;
+  color: #444;
+  margin: 0; }
+
+.job .panel-heading {
+  padding: 0; }
+
+/* Metric stat */
+
+.metric-stats {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.metric-stat {
+  color: rgb(128, 128, 255);
+  border-color: rgba(0,0,0,.5);
+  background-color: rgba(0,0,0,.15) !important;
+
+  padding: 0;
+  margin-top: 15px;
+}
+
+.metric-stat .metric-stat-number {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: normal;
+  border-top: 1px solid #aaa;
+  padding: 24px; }
+
+.metric-stat .metric-stat-unit {
+  font-size: 12px; }
+
+.metric-stat .metric-stat-label {
+  font-size: 15px;
+  padding: 15px 10px; }
+
+.metric-stat .metric-stat-desc {
+  font-size: 0.5em;
+  color: #aaa; }
+
+.metric-stat .metric-stat-main {
+  position: relative;
+  background: rgba(0, 0, 0, 0.5); }
+
+.metric-stat .metric-stat-sub {
+  font-size: 12px;
+  padding: 10px 5px;
+  border-top: 1px solid #aaa;
+  color: #aaa; }
+
+.job-module-title {
+  font-size: 24px;
+  padding-bottom: 0.5em;
+  border-color: #ddd;
+}
