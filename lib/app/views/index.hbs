@@ -2,19 +2,10 @@
 <div class="mdl-grid">
 	<div class="mdl-cell mdl-cell--12-col">
 
-		<h3>Home</h3>
-		<p>
-		{{#unless jobs.length}}
-		Welcome
-		{{/unless}}
-		</p>
-
 		{{#if jobs.length}}
 			{{> list }}
 		{{else}}
-			<p class="description">
-				You don't have configured sites to monitor. Go to <a href="/create">to the job creation page</a> to do so.
-			</p>
+      {{> welcome }}
 		{{/if}}
 
 	</div>

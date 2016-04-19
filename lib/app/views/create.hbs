@@ -1,13 +1,17 @@
-<h3>Create Job</h3>
 
 <form class="form js-job-form panel panel-blur" method="post" action="/create">
-  {{{ helpers.messages }}}
-
-  <p class="description">
-    Fill in the form below to create a new Phantomas Job.
-  </p>
 
   <div class="mdl-grid">
+    <h3>Create Job</h3>
+
+    <div class="description mdl-cell mdl-cell--12-col">
+    {{{ helpers.messages }}}
+    </div>
+
+    <p class="description mdl-cell mdl-cell--12-col">
+      Fill in the form below to create a new Phantomas Job.
+    </p>
+
     <div class="mdl-textfield mdl-js-textfield mdl-cell mdl-cell--6-col mdl-textfield--floating-label">
       <input required id="ipt_name" type="text" name="name" class="mdl-textfield__input" value="{{ job.name }}">
       <label for="ipt_name" class="mdl-textfield__label">Job name</label>

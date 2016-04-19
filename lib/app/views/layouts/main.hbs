@@ -8,7 +8,6 @@
 
   <!-- Add to homescreen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="icon" sizes="192x192" href="images/android-desktop.png">
 
   <!-- Add to homescreen for Safari on iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,12 +19,9 @@
   <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
   <meta name="msapplication-TileColor" content="#3372DF">
 
-  <link rel="shortcut icon" href="images/favicon.png">
-
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.blue_grey-red.min.css" />
   <link rel="stylesheet" href="/styles/material.css">
 </head>
 <body class="greenskin">
@@ -39,8 +35,8 @@
       </div>
     </header>
     <div class="mdl-layout__drawer">
-      <span class="mdl-layout__title">
-        Greenskin
+      <span class="mdl-layout__title greenskin-title">
+        {{> title }}
       </span>
       {{> material/draw-nav }}
     </div>
@@ -51,8 +47,8 @@
     </main>
   </div>
 
-  {{> material/svg }}
-
   <script src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+  <script src="/scripts/conic-gradient.js"></script>
 </body>
 </html>

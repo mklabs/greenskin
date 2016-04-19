@@ -1,20 +1,23 @@
-
 <table class="md-wide mdl-data-table mdl-js-data-table mdl-shadow--4dp is-upgraded">
   <thead>
     <tr>
-      <th class="mdl-data-table__cell--non-numeric">Name</th>
-      <th class="mdl-data-table__cell--non-numeric">URLs</th>
-      <th class="mdl-data-table__cell--non-numeric">Next run</th>
-      <th class="mdl-data-table__cell--non-numeric">Last run started</th>
-      <th class="mdl-data-table__cell--non-numeric">Last run finished</th>
-      <th class="mdl-data-table__cell--non-numeric">Last results</th>
-      <th class="mdl-data-table__cell--non-numeric">Frequency</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Name</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">URLs</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Next run</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Last run started</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Last run finished</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Last results</th>
+      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Frequency</th>
     </tr>
   </thead>
   <tbody>
   {{#each jobs}}
-    <tr>
-      <td class="mdl-data-table__cell--non-numeric">{{ name }}</td>
+    <tr id="tooltip-{{ name }}">
+      <td class="mdl-data-table__cell--non-numeric">
+        <a href="/job/{{ name }}">
+          {{ name }}
+        </a>
+      </td>
 
       <td class="mdl-data-table__cell--non-numeric">
         {{#each data.urls}}

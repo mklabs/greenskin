@@ -439,3 +439,30 @@ _:-ms-input-placeholder, :root .greenskin-graph {
 .greenskin a {
   text-decoration: none;
 }
+
+.greenskin .mdl-list li {
+  cursor: pointer;
+}
+
+.greenskin .pull-left {
+  float: left;
+}
+
+.greenskin .pull-right {
+  float: right;
+}
+
+.greenskin .mdl-card .panel-heading,
+.greenskin .mdl-card .panel-body > div {
+  padding: 0 1em;
+}
+
+.greenskin .mdl-card button {
+  margin-right: 1em;
+  margin-left: 1em;
+}
+
+.greenskin pre,
+.greenskin .mdl-card .panel-footer {
+  padding: 1em;
+}

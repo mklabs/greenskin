@@ -1,15 +1,49 @@
-<div class="col-xs-6 col-lg-3">
-  <div class="metric-stat metric-{{ className }}" style="color: {{ color }}">
-    <div class="metric-stat-label">
+<div class="mdl-card mdl-shadow--4dp mdl-cell mdl-cell--2-col" id="value-{{ slug }}-{{ label }}">
+  <!-- <div class="metric&#45;stat metric&#45;{{ className }}" style="color: {{ color }}"> -->
+  <div class="mdl-card__title">
+    <span class="mdl-card__title-text truncate mdl-typography--title">
       {{ label }}
-    </div>
-
-    <div class="metric-stat-number">
-      {{value}}{{unit}}
-    </div>
-
-    <div class="metric-stat-sub">
-      {{ description }}
-    </div>
+    </span>
   </div>
+  <div class="mdl-card__supporting-text greenskin-stat-value mdl-card--expand">
+    {{#if piechart}}
+      <div class="chart mdl-shadow--8dp mdl-color-text--accent mdl-color--accent"
+         style="background: conic-gradient(transparent {{ value }}%, #fff 0);"
+        >
+        <div class="mdl-typography--text-right chart-value mdl-color-text--primary">
+          {{ value }}%
+        </div>
+      </div>
+    {{else}}
+    <span class="chart-value mdl-typography--display-{{ classNameLvl  }}-color-contrast truncate">
+      {{ value }}
+    </span>
+    <span class="chart-unit mdl-typography--display-1">
+      {{ unit }}
+    </span>
+    {{/if}}
+  </div>
+  <div class="mdl-card__supporting-text mdl-card--border truncate" id="description-{{ slug }}-{{ label }}">
+    <a href="https://github.com/macbre/phantomas#{{ slug }}">
+      <!-- <i class="material&#45;icons chart&#45;info mdl&#45;color&#45;text&#45;&#45;primary"> -->
+      <!--   help -->
+      <!-- </i> -->
+    </a>
+
+    <a href="https://github.com/macbre/phantomas#{{ slug }}" class="chart-description mdl-color-text--primary">
+      {{#if chartText}}
+      {{ chartText }}
+      {{else}}
+      {{ description }}
+      {{/if}}
+    </a>
+  </div>
+</div>
+
+<div class="mdl-tooltip mdl-tooltip--large" for="description-{{ slug }}-{{ label }}">
+  {{ description }}
+</div>
+
+<div class="mdl-tooltip mdl-tooltip--large" for="value-{{ slug }}-{{ label }}">
+  {{ value }}{{ unit }} - {{ description }}
 </div>
