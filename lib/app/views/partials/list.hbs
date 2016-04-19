@@ -6,7 +6,6 @@
       <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Next run</th>
       <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Last run started</th>
       <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Last run finished</th>
-      <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Last results</th>
       <th class="mdl-color-text--accent mdl-data-table__cell--non-numeric">Frequency</th>
     </tr>
   </thead>
@@ -30,8 +29,6 @@
       <td class="mdl-data-table__cell--non-numeric">{{fromNow lastRunAt }}</td>
 
       <td class="mdl-data-table__cell--non-numeric">{{fromNow lastFinishedAt }}</td>
-
-      <td class="mdl-data-table__cell--non-numeric">{{{results lastRunResults }}}</td>
 
       <td class="mdl-data-table__cell--non-numeric">{{ data.frequency }}</td>
     </tr>

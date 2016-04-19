@@ -1732,6 +1732,9 @@ _:-ms-input-placeholder, :root .greenskin-graph {
 .greenskin-title i {
   vertical-align: sub;
 }
+.mdl-button-bar .mdl-button {
+  margin-right: 1rem;
+}
 .chart {
   border-radius: 50%;
   width: 50%;
@@ -1741,7 +1744,7 @@ _:-ms-input-placeholder, :root .greenskin-graph {
   padding-right: 20px;
 }
 .chart .chart-value {
-  margin-top: -80px;
+  margin-top: -30px;
 }
 .chart-info {
   float: left;

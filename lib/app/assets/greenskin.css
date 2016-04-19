@@ -573,3 +573,7 @@ _:-ms-input-placeholder, :root .greenskin-graph {
 .greenskin-title i {
   vertical-align: sub;
 }
+
+.mdl-button-bar .mdl-button {
+  margin-right: 1rem;
+}
