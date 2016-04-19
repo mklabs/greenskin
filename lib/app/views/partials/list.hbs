@@ -1,29 +1,36 @@
-<table class="table table-hover table-stripped">
+
+<table class="md-wide mdl-data-table mdl-js-data-table mdl-shadow--4dp is-upgraded">
   <thead>
-    <tr class="black-muted-bg">
-      <th class="align-left">Name</th>
-      <th class="align-right">URLs</th>
-      <th class="align-right">Next run</th>
-      <th class="align-right">Last run started</th>
-      <th class="align-right">Last run finished</th>
-      <th class="align-left">Last results</th>
-      <th class="align-left">Frequency</th>
+    <tr>
+      <th class="mdl-data-table__cell--non-numeric">Name</th>
+      <th class="mdl-data-table__cell--non-numeric">URLs</th>
+      <th class="mdl-data-table__cell--non-numeric">Next run</th>
+      <th class="mdl-data-table__cell--non-numeric">Last run started</th>
+      <th class="mdl-data-table__cell--non-numeric">Last run finished</th>
+      <th class="mdl-data-table__cell--non-numeric">Last results</th>
+      <th class="mdl-data-table__cell--non-numeric">Frequency</th>
     </tr>
   </thead>
   <tbody>
   {{#each jobs}}
-    <tr data-event="click" data-handler="goTo" data-name="{{ name }}">
-      <td class="align-left">{{ name }}</td>
-      <td class="align-right">
+    <tr>
+      <td class="mdl-data-table__cell--non-numeric">{{ name }}</td>
+
+      <td class="mdl-data-table__cell--non-numeric">
         {{#each data.urls}}
           <a href="{{ . }}">{{ . }}</a> <br />
         {{/each}}
       </td>
-      <td class="align-right">{{fromNow nextRunAt }}</td>
-      <td class="align-right">{{fromNow lastRunAt }}</td>
-      <td class="align-right">{{fromNow lastFinishedAt }}</td>
-      <td class="align-left">{{{results lastRunResults }}}</td>
-      <td class="align-left">{{ data.frequency }}</td>
+
+      <td class="mdl-data-table__cell--non-numeric">{{fromNow nextRunAt }}</td>
+
+      <td class="mdl-data-table__cell--non-numeric">{{fromNow lastRunAt }}</td>
+
+      <td class="mdl-data-table__cell--non-numeric">{{fromNow lastFinishedAt }}</td>
+
+      <td class="mdl-data-table__cell--non-numeric">{{{results lastRunResults }}}</td>
+
+      <td class="mdl-data-table__cell--non-numeric">{{ data.frequency }}</td>
     </tr>
   {{/each}}
   </tbody>

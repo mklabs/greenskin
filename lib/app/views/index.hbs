@@ -1,31 +1,22 @@
 
-<div class="content-top clearfix">
-  <ul class="breadcrumb al-breadcrumb">
-    <li><a href="/">Home</a></li>
-  </ul>
-</div>
+<div class="mdl-grid">
+	<div class="mdl-cell mdl-cell--12-col">
 
-{{> top }}
+		<h3>Home</h3>
+		<p>
+		{{#unless jobs.length}}
+		Welcome
+		{{/unless}}
+		</p>
 
-<div class="panel panel-default bootstrap-panel">
-  <form class="form js-job-form" method="post">
-    <div class="panel-heading">
-      {{#if jobs.length}}
-      {{ jobs.length }} jobs
-      {{else}}
-      Welcome
-      {{/if}}
-    </div>
+		{{#if jobs.length}}
+			{{> list }}
+		{{else}}
+			<p class="description">
+				You don't have configured sites to monitor. Go to <a href="/create">to the job creation page</a> to do so.
+			</p>
+		{{/if}}
 
-    <div class="panel-body">
+	</div>
 
-      {{#if jobs.length}}
-        {{> list }}
-      {{else}}
-        <p class="description">
-          You don't have configured sites to monitor. Go to <a href="/create">to the job creation page</a> to do so.
-        </p>
-      {{/if}}
-    </div>
-  </form>
 </div>
