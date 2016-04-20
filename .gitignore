@@ -1,3 +1,4 @@
 node_modules/
 .tern-port
 tiny-lr.pid
+lib/app/public/jobs

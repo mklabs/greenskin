@@ -1,0 +1,15 @@
+
+<div class="greenskin-filmstrip">
+  <div class="greenskin-filmstrip-viewer" style="width: {{ filmstripWidth }}px;">
+  {{#each images}}
+    <div class="mdl-shadow--4dp greenskin-filmstrip-item" style="background: url({{ src }})">
+      <a href="{{ src }}">
+        <img src="{{ src }}" border="0" alt="{{ src }}">
+      </a>
+      <div class="mdl-card__supporting-text">
+        <span class="mdl-card--title-text">{{ title }}</span>
+      </div>
+    </div>
+  {{/each}}
+  </div>
+</div>

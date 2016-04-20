@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-process.env.DEBUG = process.env.DEBUG || 'greenskin*';
+process.env.DEBUG = process.env.DEBUG || 'phantomas:engines greenskin*';
 
 var opts  = require('minimist')(process.argv.slice(2));
 var debug = require('debug')('greenskin');

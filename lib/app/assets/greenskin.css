@@ -599,3 +599,31 @@ _:-ms-input-placeholder, :root .greenskin-graph {
 .spinner {
   animation: spinner 3s infinite linear;
 }
+
+.greenskin-filmstrip {
+  overflow-y: hidden;
+  overflow-x: scroll;
+  padding: 1em 0 0 4px;
+  margin: 0;
+
+  .greenskin-filmstrip-viewer {
+    height: 250px;
+  }
+
+  .greenskin-filmstrip-item {
+    float: left;
+    width: 400px;
+    margin-right: 12px;
+    position: relative;
+  }
+
+  .greenskin-filmstrip-item img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .greenskin-filmstrip-item .mdl-card__supporting-text {
+    position: absolute;
+    bottom: 0;
+  }
+}

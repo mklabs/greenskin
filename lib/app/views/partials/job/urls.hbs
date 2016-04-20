@@ -9,8 +9,11 @@
 
   {{#each urls}}
     <div class="mdl-tabs__panel{{#if selected }} is-active{{/if}}" id="tab-{{ @index }}">
+
+      {{> job/filmstrip }}
+
       {{#each modules }}
-      <div class="">
+      <div class="module">
         <h3 class="module-title mdl-color-text--primary">
           {{ name }}
         </h3>

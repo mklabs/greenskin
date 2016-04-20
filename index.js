@@ -68,11 +68,12 @@ greenskin.recoverJob = (job) => {
     }
 
     job.attrs.nextRunAt = new Date(now.valueOf() + humanInterval(job.attrs.repeatInterval));
+    job.attrs.lockedAt = null;
     debug('Update nextRunAt to be on', job.attrs.nextRunAt);
 
     job.save((err) => {
       if (err) return errback(err);
-      debug('Saved agenda job to db', job);
+      debug('Saved agenda job to db', job.name, job.nextRunAt, job.attrs.data);
       greenskin.createAgenda(item);
       r();
     });
