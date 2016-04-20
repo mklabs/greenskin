@@ -8,7 +8,14 @@
 }
 
 .chart .chart-value {
-  margin-top: -30px;
+  margin-top: -80px;
+  margin-left: 15px;
+}
+
+@media (max-width: 600px) {
+  .chart .chart-value {
+    margin-top: -55px;
+  }
 }
 
 .chart-info {

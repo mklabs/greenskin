@@ -1,0 +1,27 @@
+<div class="mdl-tabs mdl-js-tabs">
+  <div class="mdl-tabs__tab-bar">
+    {{#each urls}}
+    <a href="#tab-{{ @index }}" class="mdl-tabs__tab{{#if selected }} is-active{{/if}}">
+      {{ url }}
+    </a>
+    {{/each}}
+  </div>
+
+  {{#each urls}}
+    <div class="mdl-tabs__panel{{#if selected }} is-active{{/if}}" id="tab-{{ @index }}">
+      {{#each modules }}
+      <div class="">
+        <h3 class="module-title mdl-color-text--primary">
+          {{ name }}
+        </h3>
+
+        <div class="metric-stats mdl-grid">
+          {{#each metrics}}
+            {{> stat }}
+          {{/each}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  {{/each}}
+</div>

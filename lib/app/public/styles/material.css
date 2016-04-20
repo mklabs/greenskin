@@ -1735,6 +1735,24 @@ _:-ms-input-placeholder, :root .greenskin-graph {
 .mdl-button-bar .mdl-button {
   margin-right: 1rem;
 }
+[data-event="click"] {
+  cursor: pointer;
+}
+.greenskin-spinner i {
+  font-size: 112px;
+}
+@keyframes spinner {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  animation: spinner 3s infinite linear;
+}
 .chart {
   border-radius: 50%;
   width: 50%;
@@ -1744,7 +1762,13 @@ _:-ms-input-placeholder, :root .greenskin-graph {
   padding-right: 20px;
 }
 .chart .chart-value {
-  margin-top: -30px;
+  margin-top: -80px;
+  margin-left: 15px;
+}
+@media (max-width: 600px) {
+  .chart .chart-value {
+    margin-top: -55px;
+  }
 }
 .chart-info {
   float: left;

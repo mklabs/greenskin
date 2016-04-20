@@ -577,3 +577,25 @@ _:-ms-input-placeholder, :root .greenskin-graph {
 .mdl-button-bar .mdl-button {
   margin-right: 1rem;
 }
+
+[data-event="click"] {
+  cursor: pointer;
+}
+
+.greenskin-spinner i {
+  font-size: 112px;
+}
+
+@keyframes spinner {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spinner 3s infinite linear;
+}
