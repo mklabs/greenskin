@@ -52,6 +52,8 @@ greenskin.recover = (jobs) => {
 };
 
 greenskin.recoverJob = (job) => {
+  debug('Should recover job', job.attrs.name);
+
   return new Promise((r, errback) => {
     var nextRunAt = new Date(job.attrs.nextRunAt).getTime();
     var lastRun = tz();
