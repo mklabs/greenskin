@@ -13,7 +13,9 @@
     </p>
 
     <div class="mdl-textfield mdl-js-textfield mdl-cell mdl-cell--6-col mdl-textfield--floating-label">
-      <input required id="ipt_name" type="text" name="name" class="mdl-textfield__input" value="{{ job.name }}">
+      <input required id="ipt_name" type="text" name="name" class="mdl-textfield__input" value="{{ job.name }}"
+      data-auto="ready" data-action="focus" placeholder="Job name"
+        >
       <label for="ipt_name" class="mdl-textfield__label">Job name</label>
     </div>
 
