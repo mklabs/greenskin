@@ -52,17 +52,28 @@ greenskin.recover = (jobs) => {
 };
 
 greenskin.recoverJob = (job) => {
-  debug('Should recover job', job.attrs.name);
-
   return new Promise((r, errback) => {
-    var nextRunAt = new Date(job.attrs.nextRunAt).getTime();
-    var lastRun = tz();
-    if (job.attrs.repeatTimezone) lastRun = d.tz(job.attrs.repeatTimezone);
+    var now = tz();
+    var item = job.attrs;
+    if (job.attrs.repeatTimezone) now = now.tz(job.attrs.repeatTimezone);
 
-    job.attrs.nextRunAt = lastRun.valueOf() + humanInterval(job.attrs.repeatInterval);
+    var nextRunAt = tz(job.attrs.nextRunAt).valueOf();
+
+    if (item.repeatInterval) item.frequency = item.repeatInterval;
+
+    if (nextRunAt > now.valueOf()) {
+      debug('Recover job %s', item.name, item);
+      greenskin.createAgenda(item);
+      return r();
+    }
+
+    job.attrs.nextRunAt = new Date(now.valueOf() + humanInterval(job.attrs.repeatInterval));
+    debug('Update nextRunAt to be on', job.attrs.nextRunAt);
+
     job.save((err) => {
       if (err) return errback(err);
-      debug('Updated %s job. Next run: %s', job.attrs.name, moment(job.attrs.nextRunAt).format('LLLL'));
+      debug('Saved agenda job to db', job);
+      greenskin.createAgenda(item);
       r();
     });
   });
